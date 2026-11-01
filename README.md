@@ -6,14 +6,14 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 
 [![PyPI](https://img.shields.io/pypi/v/mlx-generate-ctmr)](https://pypi.org/project/mlx-generate-ctmr/)
 [![Python](https://img.shields.io/pypi/pyversions/mlx-generate-ctmr)](https://pypi.org/project/mlx-generate-ctmr/)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2.post1/LICENSE)
 [![Apple Silicon](https://img.shields.io/badge/Apple_Silicon-MLX-black?logo=apple)](https://github.com/ml-explore/mlx)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97_Hugging_Face-weights-yellow)](https://huggingface.co/MedMLX/mlx-generate-ctmr)
 [![MedMLX](https://img.shields.io/badge/MedMLX-runtime-A51C30)](https://github.com/MedMLX/medmlx)
 
 [Model weights](https://huggingface.co/MedMLX/mlx-generate-ctmr) · [MedMLX](https://github.com/MedMLX/medmlx)
 
-<img src="https://raw.githubusercontent.com/MedMLX/mlx-generate-ctmr/v0.5.2/docs/example.png" alt="mlx-generate-ctmr example output" width="360">
+<img src="https://raw.githubusercontent.com/MedMLX/mlx-generate-ctmr/v0.5.2.post1/docs/example.png" alt="mlx-generate-ctmr example output" width="360">
 
 *A synthetic T1 brain MR from the MR-Brain configuration; no patient data.*
 
@@ -25,9 +25,7 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 | **Output** | Synthetic 3D CT or MRI |
 | **Hardware** | Apple Silicon with Metal. Peak MLX memory: **27.9 GiB** for `mlx-generate-ctmr-ct` (256³, from-mask, ControlNet + four-window decode); **23.8 GiB** for `mlx-generate-ctmr-mr-brain` (256×256×128, guided batch 2). No recorded peak for `mlx-generate-ctmr-mr`. |
 
-The [v0.5.1 measurements](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2/docs/technical.md#measured-generation-2026-10-29)
-used Apple M5 Max with 128 GiB unified memory, MLX 0.32.4 and
-`MLX_ENABLE_TF32=0`: default `fast` arithmetic with FP32 accumulation and
+The v0.5.1 memory measurements used MLX 0.32.4 and `MLX_ENABLE_TF32=0`: default `fast` arithmetic with FP32 accumulation and
 split-FP16 convolution operands, production constructors with random fan-in-scaled
 weights, seed 0 and 30 steps. Peaks include VAE decoding and exclude weight
 loading. These figures cover the stated pipelines and grids; they are MLX
@@ -231,6 +229,6 @@ qualify pretrained image quality. Synthetic output is not ground truth.
 
 ## License
 
-[Apache-2.0](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2/LICENSE). See [third-party notices](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2/THIRD_PARTY_NOTICES.md). Model weights retain their publisher terms. General-MR weights have noncommercial terms; CT component terms require publisher clarification.
+[Apache-2.0](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2.post1/LICENSE). See [third-party notices](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2.post1/THIRD_PARTY_NOTICES.md). Model weights retain their publisher terms. General-MR weights have noncommercial terms; CT component terms require publisher clarification.
 
 For research and education. Outputs require human review.
