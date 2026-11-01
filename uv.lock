@@ -215,7 +215,7 @@ wheels = [
 
 [[package]]
 name = "mlx-generate-ctmr"
-version = "0.5.2.post1"
+version = "0.5.2.post2"
 source = { editable = "." }
 dependencies = [
     { name = "medmlx-core" },
