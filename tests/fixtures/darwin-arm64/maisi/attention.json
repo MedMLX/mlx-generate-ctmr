@@ -1,0 +1,212 @@
+{
+  "arrays": {
+    "weight.attn.out_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.attn.out_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32,
+        32
+      ]
+    },
+    "weight.attn.to_k.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.attn.to_k.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32,
+        32
+      ]
+    },
+    "weight.attn.to_q.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.attn.to_q.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32,
+        32
+      ]
+    },
+    "weight.attn.to_v.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.attn.to_v.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32,
+        32
+      ]
+    },
+    "weight.norm.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.norm.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "x": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1,
+        32,
+        4,
+        4,
+        4
+      ]
+    },
+    "y": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        32,
+        4,
+        4,
+        4
+      ]
+    }
+  },
+  "attention_path": "softmax(QK^T * scale) V",
+  "attention_scale": 0.1767766952966369,
+  "boundary": "attention",
+  "constructor": {
+    "attention_dtype": null,
+    "include_fc": true,
+    "norm_eps": 1e-06,
+    "norm_num_groups": 32,
+    "num_channels": 32,
+    "num_head_channels": 32,
+    "spatial_dims": 3,
+    "use_combined_linear": false,
+    "use_flash_attention": false
+  },
+  "device": "cpu",
+  "dtype_policy": "float32",
+  "layout": "maisi.layout.ncdhw",
+  "limitation": "Seeded MONAI parameters are regenerated for tests; no pretrained qualification.",
+  "module": "monai.networks.blocks.spatialattention.SpatialAttentionBlock",
+  "recorded_platform": "darwin-arm64",
+  "seed": 19,
+  "source": {
+    "monai": {
+      "distribution_version": "1.6.0",
+      "path": "third_party/monai/MONAI",
+      "revision": "eccefc57550b111ed781d82249dfe77872a0e918"
+    },
+    "nv_generate_ctmr": {
+      "path": "third_party/nv_generate_ctmr/NV-Generate-CTMR",
+      "revision": "5cb04e82fed71f2fe64a2617ab695be1f5a37fea"
+    },
+    "weights": {
+      "kind": "synthetic",
+      "loaded": false,
+      "repo": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317"
+    }
+  },
+  "torch_version": "2.13.0",
+  "use_flash_attention": false,
+  "weight_init": "normal(0, 0.02) after construct",
+  "weight_recipe": {
+    "seed": 19,
+    "shapes": [
+      [
+        "weight.attn.out_proj.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.attn.out_proj.weight",
+        [
+          32,
+          32
+        ]
+      ],
+      [
+        "weight.attn.to_k.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.attn.to_k.weight",
+        [
+          32,
+          32
+        ]
+      ],
+      [
+        "weight.attn.to_q.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.attn.to_q.weight",
+        [
+          32,
+          32
+        ]
+      ],
+      [
+        "weight.attn.to_v.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.attn.to_v.weight",
+        [
+          32,
+          32
+        ]
+      ],
+      [
+        "weight.norm.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.norm.weight",
+        [
+          32
+        ]
+      ]
+    ],
+    "skip": 0
+  },
+  "weights_kind": "synthetic"
+}

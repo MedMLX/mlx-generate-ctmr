@@ -1,0 +1,131 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mlx-generate-ctmr"
+version = "0.5.2"
+description = "Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and native MLX"
+readme = "README.md"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Operating System :: MacOS :: MacOS X",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Image Processing",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+keywords = [
+  "mlx",
+  "apple-silicon",
+  "metal",
+  "medical-imaging",
+  "nv-generate",
+  "maisi",
+  "diffusion",
+  "image-synthesis",
+  "ct",
+  "mri",
+]
+requires-python = ">=3.13,<3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+authors = [
+  { name = "Joseph Sandoval" },
+  { name = "Alfredo Sandoval Jr." },
+]
+dependencies = [
+  "medmlx-core==0.2.6",
+  # Pin the MLX release used for Apple Silicon inference and reviewer validation.
+  "mlx==0.32.4; platform_system == 'Darwin' and platform_machine == 'arm64'",
+  "nibabel>=5.3,<6",
+  "numpy>=2.0,<3",
+  "safetensors>=0.6,<1",
+  "scipy>=1.15,<2",
+]
+
+[project.entry-points."medmlx.models"]
+mlx-generate-ctmr-ct = "mlx_generate_ctmr.medmlx:CT_MODEL"
+mlx-generate-ctmr-mr = "mlx_generate_ctmr.medmlx:MR_MODEL"
+mlx-generate-ctmr-mr-brain = "mlx_generate_ctmr.medmlx:MR_BRAIN_MODEL"
+
+[project.urls]
+Homepage = "https://medmlx.org"
+Documentation = "https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2/README.md"
+Repository = "https://github.com/MedMLX/mlx-generate-ctmr"
+Issues = "https://github.com/MedMLX/mlx-generate-ctmr/issues"
+Weights = "https://huggingface.co/MedMLX/mlx-generate-ctmr"
+MedMLX = "https://github.com/MedMLX/medmlx"
+
+[dependency-groups]
+dev = [
+  "pyright==1.1.414",
+  "pytest>=8.4,<10",
+  "ruff>=0.13,<1",
+  "torch>=2.13,<2.14",
+  "einops>=0.7,<0.9",
+  "monai==1.6.1",
+  "scipy-stubs>=1.18.1.1,<1.19",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mlx_generate_ctmr"]
+
+[tool.hatch.build]
+artifacts = [
+  "src/mlx_generate_ctmr/source_fp32_tables.npz",
+  "src/mlx_generate_ctmr/source_fp32_manifest.json",
+  "src/mlx_generate_ctmr/data/*.json",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-config --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+extend-select = ["TID251", "TID252"]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/mlx_generate_ctmr/decode.py" = ["RUF046"]
+"src/mlx_generate_ctmr/vae.py" = ["RUF002"]
+
+[tool.pyright]
+include = ["scripts","src","tests","typings"]
+extraPaths = ["src", "scripts"]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+enableTypeIgnoreComments = false
+reportUnnecessaryTypeIgnoreComment = "error"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"typing.Any" = { msg = "Use an explicit type or protocol." }
+"typing_extensions.Any" = { msg = "Use an explicit type or protocol." }
+
+[tool.uv]
+environments = ["sys_platform == 'darwin' and platform_machine == 'arm64'"]
+required-environments = ["sys_platform == 'darwin' and platform_machine == 'arm64'"]
+constraint-dependencies = ["setuptools>=84.1.0", "filelock>=4.2.1", ]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+  "src/mlx_generate_ctmr",
+  "pyproject.toml",
+  "README.md",
+  "LICENSE",
+  "THIRD_PARTY_NOTICES.md",
+]

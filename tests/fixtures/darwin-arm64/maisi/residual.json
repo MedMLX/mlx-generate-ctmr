@@ -1,0 +1,227 @@
+{
+  "arrays": {
+    "emb": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1,
+        32
+      ]
+    },
+    "weight.conv1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.conv1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32,
+        32,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.conv2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.conv2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32,
+        32,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.norm1.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.norm1.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.norm2.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.norm2.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.time_emb_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32
+      ]
+    },
+    "weight.time_emb_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        32,
+        32
+      ]
+    },
+    "x": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1,
+        32,
+        4,
+        4,
+        4
+      ]
+    },
+    "y": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        32,
+        4,
+        4,
+        4
+      ]
+    }
+  },
+  "boundary": "residual",
+  "constructor": {
+    "down": false,
+    "in_channels": 32,
+    "norm_eps": 1e-06,
+    "norm_num_groups": 32,
+    "out_channels": 32,
+    "spatial_dims": 3,
+    "temb_channels": 32,
+    "up": false
+  },
+  "device": "cpu",
+  "dtype_policy": "float32",
+  "layout": "maisi.layout.ncdhw",
+  "limitation": "Seeded MONAI parameters are regenerated for tests; no pretrained qualification.",
+  "module": "monai.networks.nets.diffusion_model_unet.DiffusionUNetResnetBlock",
+  "recorded_platform": "darwin-arm64",
+  "seed": 19,
+  "source": {
+    "monai": {
+      "distribution_version": "1.6.0",
+      "path": "third_party/monai/MONAI",
+      "revision": "eccefc57550b111ed781d82249dfe77872a0e918"
+    },
+    "nv_generate_ctmr": {
+      "path": "third_party/nv_generate_ctmr/NV-Generate-CTMR",
+      "revision": "5cb04e82fed71f2fe64a2617ab695be1f5a37fea"
+    },
+    "weights": {
+      "kind": "synthetic",
+      "loaded": false,
+      "repo": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317"
+    }
+  },
+  "torch_version": "2.13.0",
+  "use_flash_attention": false,
+  "weight_init": "normal(0, 0.02) after construct",
+  "weight_recipe": {
+    "seed": 19,
+    "shapes": [
+      [
+        "weight.conv1.conv.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.conv1.conv.weight",
+        [
+          32,
+          32,
+          3,
+          3,
+          3
+        ]
+      ],
+      [
+        "weight.conv2.conv.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.conv2.conv.weight",
+        [
+          32,
+          32,
+          3,
+          3,
+          3
+        ]
+      ],
+      [
+        "weight.norm1.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.norm1.weight",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.norm2.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.norm2.weight",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.time_emb_proj.bias",
+        [
+          32
+        ]
+      ],
+      [
+        "weight.time_emb_proj.weight",
+        [
+          32,
+          32
+        ]
+      ]
+    ],
+    "skip": 0
+  },
+  "weights_kind": "synthetic"
+}

@@ -1,0 +1,7168 @@
+{
+  "destination_dtype": "float32",
+  "networks": {
+    "controlnet": {
+      "parameter_count": 72037072,
+      "tensor_count": 231,
+      "tensors": [
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "conv_in.conv.weight",
+          "torch_shape": [
+            64,
+            4,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "conv_in.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "time_embed.0.weight",
+          "torch_shape": [
+            256,
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "time_embed.0.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "time_embed.2.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "time_embed.2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.embed_w",
+          "name": "class_embedding.weight",
+          "torch_shape": [
+            128,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_cond_embedding.conv_in.conv.weight",
+          "torch_shape": [
+            8,
+            8,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_cond_embedding.conv_in.conv.bias",
+          "torch_shape": [
+            8
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_cond_embedding.blocks.0.conv.weight",
+          "torch_shape": [
+            8,
+            8,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_cond_embedding.blocks.0.conv.bias",
+          "torch_shape": [
+            8
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_cond_embedding.blocks.1.conv.weight",
+          "torch_shape": [
+            32,
+            8,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_cond_embedding.blocks.1.conv.bias",
+          "torch_shape": [
+            32
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_cond_embedding.blocks.2.conv.weight",
+          "torch_shape": [
+            32,
+            32,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_cond_embedding.blocks.2.conv.bias",
+          "torch_shape": [
+            32
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_cond_embedding.blocks.3.conv.weight",
+          "torch_shape": [
+            64,
+            32,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_cond_embedding.blocks.3.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_cond_embedding.conv_out.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_cond_embedding.conv_out.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.0.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.0.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.0.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.1.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.0.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.1.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.downsampler.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.downsampler.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.0.downsampler.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.downsampler.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.downsampler.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.0.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.1.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.0.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            128,
+            64,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.1.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.1.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.1.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.downsampler.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.downsampler.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.1.downsampler.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.downsampler.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.downsampler.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.attentions.0.norm.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.norm.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.out_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.out_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.to_q.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.to_q.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.to_k.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.to_k.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.to_v.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.to_v.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.attentions.1.norm.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.norm.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.out_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.out_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.to_q.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.to_q.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.to_k.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.to_k.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.to_v.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.to_v.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.0.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.0.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            256,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.1.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.1.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.downsampler.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.downsampler.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.downsampler.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.downsampler.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.downsampler.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.attentions.0.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.attentions.1.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.0.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.0.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            512,
+            256,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.1.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.1.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.0.weight",
+          "torch_shape": [
+            64,
+            64,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.0.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.1.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.3.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.3.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.4.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.4.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.5.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.5.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.6.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.6.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.7.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.7.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.8.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.8.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.9.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.9.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.10.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.10.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_down_blocks.11.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_down_blocks.11.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_1.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_1.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.resnet_1.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_1.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_1.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.attention.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_2.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_2.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.resnet_2.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_2.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_2.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "controlnet_mid_block.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "controlnet_mid_block.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        }
+      ]
+    },
+    "unet": {
+      "parameter_count": 180500868,
+      "tensor_count": 435,
+      "tensors": [
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "conv_in.conv.weight",
+          "torch_shape": [
+            64,
+            4,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "conv_in.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "time_embed.0.weight",
+          "torch_shape": [
+            256,
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "time_embed.0.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "time_embed.2.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "time_embed.2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.embed_w",
+          "name": "class_embedding.weight",
+          "torch_shape": [
+            128,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "spacing_layer.0.weight",
+          "torch_shape": [
+            256,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "spacing_layer.0.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "spacing_layer.2.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "spacing_layer.2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.0.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.0.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.0.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.1.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.0.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.resnets.1.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.downsampler.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.downsampler.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.0.downsampler.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.0.downsampler.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.0.downsampler.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.0.downsampler.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.0.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.1.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.0.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            128,
+            64,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.1.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.1.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.resnets.1.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.downsampler.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.downsampler.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.1.downsampler.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.1.downsampler.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.1.downsampler.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.1.downsampler.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.attentions.0.norm.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.norm.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.out_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.out_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.to_q.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.to_q.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.to_k.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.to_k.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.0.attn.to_v.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.0.attn.to_v.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.attentions.1.norm.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.norm.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.out_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.out_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.to_q.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.to_q.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.to_k.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.to_k.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.attentions.1.attn.to_v.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.attentions.1.attn.to_v.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.0.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.0.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            256,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.1.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.resnets.1.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.downsampler.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.downsampler.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.2.downsampler.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.2.downsampler.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.2.downsampler.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.2.downsampler.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.attentions.0.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.0.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.0.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.attentions.1.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.attentions.1.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.attentions.1.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.0.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.0.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            512,
+            256,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.1.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "down_blocks.3.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "down_blocks.3.resnets.1.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "down_blocks.3.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "down_blocks.3.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_1.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_1.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.resnet_1.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_1.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_1.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_1.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.attention.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.attention.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.attention.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_2.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_2.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "middle_block.resnet_2.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "middle_block.resnet_2.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "middle_block.resnet_2.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "middle_block.resnet_2.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.resnets.0.norm1.weight",
+          "torch_shape": [
+            1024
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.0.norm1.bias",
+          "torch_shape": [
+            1024
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            1024,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.resnets.0.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.0.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            512,
+            1024,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.resnets.1.norm1.weight",
+          "torch_shape": [
+            1024
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.1.norm1.bias",
+          "torch_shape": [
+            1024
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            1024,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.resnets.1.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.1.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.1.skip_connection.conv.weight",
+          "torch_shape": [
+            512,
+            1024,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.1.skip_connection.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.resnets.2.norm1.weight",
+          "torch_shape": [
+            768
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.2.norm1.bias",
+          "torch_shape": [
+            768
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.2.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            768,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.2.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.resnets.2.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.2.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.resnets.2.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.2.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.2.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.2.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.resnets.2.skip_connection.conv.weight",
+          "torch_shape": [
+            512,
+            768,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.resnets.2.skip_connection.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.attentions.0.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.0.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.0.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.0.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.0.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.0.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.0.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.0.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.0.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.0.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.attentions.1.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.1.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.1.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.1.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.1.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.1.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.1.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.1.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.1.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.1.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.attentions.2.norm.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.2.norm.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.2.attn.out_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.2.attn.out_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.2.attn.to_q.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.2.attn.to_q.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.2.attn.to_k.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.2.attn.to_k.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.attentions.2.attn.to_v.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.attentions.2.attn.to_v.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.upsampler.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.upsampler.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.upsampler.conv1.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.upsampler.conv1.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.0.upsampler.time_emb_proj.weight",
+          "torch_shape": [
+            512,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.upsampler.time_emb_proj.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.0.upsampler.norm2.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.upsampler.norm2.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.0.upsampler.conv2.conv.weight",
+          "torch_shape": [
+            512,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.0.upsampler.conv2.conv.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.resnets.0.norm1.weight",
+          "torch_shape": [
+            768
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.0.norm1.bias",
+          "torch_shape": [
+            768
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            768,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.resnets.0.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.0.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            256,
+            768,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.resnets.1.norm1.weight",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.1.norm1.bias",
+          "torch_shape": [
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            512,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.resnets.1.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.1.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.1.skip_connection.conv.weight",
+          "torch_shape": [
+            256,
+            512,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.1.skip_connection.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.resnets.2.norm1.weight",
+          "torch_shape": [
+            384
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.2.norm1.bias",
+          "torch_shape": [
+            384
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.2.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            384,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.2.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.resnets.2.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.2.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.resnets.2.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.2.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.2.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.2.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.resnets.2.skip_connection.conv.weight",
+          "torch_shape": [
+            256,
+            384,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.resnets.2.skip_connection.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.attentions.0.norm.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.0.norm.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.0.attn.out_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.0.attn.out_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.0.attn.to_q.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.0.attn.to_q.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.0.attn.to_k.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.0.attn.to_k.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.0.attn.to_v.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.0.attn.to_v.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.attentions.1.norm.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.1.norm.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.1.attn.out_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.1.attn.out_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.1.attn.to_q.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.1.attn.to_q.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.1.attn.to_k.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.1.attn.to_k.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.1.attn.to_v.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.1.attn.to_v.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.attentions.2.norm.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.2.norm.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.2.attn.out_proj.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.2.attn.out_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.2.attn.to_q.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.2.attn.to_q.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.2.attn.to_k.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.2.attn.to_k.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.attentions.2.attn.to_v.weight",
+          "torch_shape": [
+            256,
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.attentions.2.attn.to_v.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.upsampler.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.upsampler.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.upsampler.conv1.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.upsampler.conv1.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.1.upsampler.time_emb_proj.weight",
+          "torch_shape": [
+            256,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.upsampler.time_emb_proj.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.1.upsampler.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.upsampler.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.1.upsampler.conv2.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.1.upsampler.conv2.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.resnets.0.norm1.weight",
+          "torch_shape": [
+            384
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.0.norm1.bias",
+          "torch_shape": [
+            384
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            384,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.2.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.resnets.0.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.0.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            128,
+            384,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.resnets.1.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.1.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.2.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.resnets.1.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.1.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.1.skip_connection.conv.weight",
+          "torch_shape": [
+            128,
+            256,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.1.skip_connection.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.resnets.2.norm1.weight",
+          "torch_shape": [
+            192
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.2.norm1.bias",
+          "torch_shape": [
+            192
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.2.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            192,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.2.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.2.resnets.2.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.2.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.resnets.2.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.2.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.2.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.2.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.resnets.2.skip_connection.conv.weight",
+          "torch_shape": [
+            128,
+            192,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.resnets.2.skip_connection.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.upsampler.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.upsampler.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.upsampler.conv1.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.upsampler.conv1.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.2.upsampler.time_emb_proj.weight",
+          "torch_shape": [
+            128,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.upsampler.time_emb_proj.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.2.upsampler.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.upsampler.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.2.upsampler.conv2.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.2.upsampler.conv2.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.3.resnets.0.norm1.weight",
+          "torch_shape": [
+            192
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.0.norm1.bias",
+          "torch_shape": [
+            192
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.0.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            192,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.0.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.3.resnets.0.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.0.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.3.resnets.0.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.0.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.0.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.0.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.0.skip_connection.conv.weight",
+          "torch_shape": [
+            64,
+            192,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.0.skip_connection.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.3.resnets.1.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.1.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.1.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.1.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.3.resnets.1.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.1.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.3.resnets.1.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.1.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.1.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.1.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.1.skip_connection.conv.weight",
+          "torch_shape": [
+            64,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.1.skip_connection.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.3.resnets.2.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.2.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.2.conv1.conv.weight",
+          "torch_shape": [
+            64,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.2.conv1.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.linear_w",
+          "name": "up_blocks.3.resnets.2.time_emb_proj.weight",
+          "torch_shape": [
+            64,
+            512
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.2.time_emb_proj.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "up_blocks.3.resnets.2.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.2.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.2.conv2.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.2.conv2.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "up_blocks.3.resnets.2.skip_connection.conv.weight",
+          "torch_shape": [
+            64,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "up_blocks.3.resnets.2.skip_connection.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "out.0.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "out.0.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "out.2.conv.weight",
+          "torch_shape": [
+            4,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "out.2.conv.bias",
+          "torch_shape": [
+            4
+          ],
+          "used_at_from_mask_infer": true
+        }
+      ]
+    },
+    "vae": {
+      "parameter_count": 20944897,
+      "tensor_count": 130,
+      "tensors": [
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.0.conv.conv.weight",
+          "torch_shape": [
+            64,
+            1,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.0.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.1.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.1.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.1.conv1.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.1.conv1.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.1.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.1.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.1.conv2.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.1.conv2.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.2.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.2.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.2.conv1.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.2.conv1.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.2.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.2.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.2.conv2.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.2.conv2.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.3.conv.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.3.conv.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.4.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.4.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.4.conv1.conv.conv.weight",
+          "torch_shape": [
+            128,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.4.conv1.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.4.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.4.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.4.conv2.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.4.conv2.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.4.nin_shortcut.conv.conv.weight",
+          "torch_shape": [
+            128,
+            64,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.4.nin_shortcut.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.5.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.5.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.5.conv1.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.5.conv1.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.5.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.5.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.5.conv2.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.5.conv2.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.6.conv.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.6.conv.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.7.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.7.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.7.conv1.conv.conv.weight",
+          "torch_shape": [
+            256,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.7.conv1.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.7.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.7.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.7.conv2.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.7.conv2.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.7.nin_shortcut.conv.conv.weight",
+          "torch_shape": [
+            256,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.7.nin_shortcut.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.8.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.8.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.8.conv1.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.8.conv1.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.8.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.8.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.8.conv2.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.8.conv2.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "encoder.blocks.9.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.9.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "encoder.blocks.10.conv.conv.weight",
+          "torch_shape": [
+            4,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "encoder.blocks.10.conv.conv.bias",
+          "torch_shape": [
+            4
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.0.conv.conv.weight",
+          "torch_shape": [
+            256,
+            4,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.0.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.1.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.1.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.1.conv1.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.1.conv1.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.1.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.1.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.1.conv2.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.1.conv2.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.2.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.2.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.2.conv1.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.2.conv1.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.2.norm2.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.2.norm2.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.2.conv2.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.2.conv2.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.3.conv.conv.conv.weight",
+          "torch_shape": [
+            256,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.3.conv.conv.conv.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.4.norm1.weight",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.4.norm1.bias",
+          "torch_shape": [
+            256
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.4.conv1.conv.conv.weight",
+          "torch_shape": [
+            128,
+            256,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.4.conv1.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.4.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.4.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.4.conv2.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.4.conv2.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.4.nin_shortcut.conv.conv.weight",
+          "torch_shape": [
+            128,
+            256,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.4.nin_shortcut.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.5.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.5.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.5.conv1.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.5.conv1.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.5.norm2.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.5.norm2.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.5.conv2.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.5.conv2.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.6.conv.conv.conv.weight",
+          "torch_shape": [
+            128,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.6.conv.conv.conv.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.7.norm1.weight",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.7.norm1.bias",
+          "torch_shape": [
+            128
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.7.conv1.conv.conv.weight",
+          "torch_shape": [
+            64,
+            128,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.7.conv1.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.7.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.7.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.7.conv2.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.7.conv2.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.7.nin_shortcut.conv.conv.weight",
+          "torch_shape": [
+            64,
+            128,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.7.nin_shortcut.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.8.norm1.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.8.norm1.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.8.conv1.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.8.conv1.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.8.norm2.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.8.norm2.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.8.conv2.conv.conv.weight",
+          "torch_shape": [
+            64,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.8.conv2.conv.conv.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.gn_affine",
+          "name": "decoder.blocks.9.weight",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.9.bias",
+          "torch_shape": [
+            64
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "decoder.blocks.10.conv.conv.weight",
+          "torch_shape": [
+            1,
+            64,
+            3,
+            3,
+            3
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "decoder.blocks.10.conv.conv.bias",
+          "torch_shape": [
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "quant_conv_mu.conv.weight",
+          "torch_shape": [
+            4,
+            4,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "quant_conv_mu.conv.bias",
+          "torch_shape": [
+            4
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "quant_conv_log_sigma.conv.weight",
+          "torch_shape": [
+            4,
+            4,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "quant_conv_log_sigma.conv.bias",
+          "torch_shape": [
+            4
+          ],
+          "used_at_from_mask_infer": false
+        },
+        {
+          "layout": "maisi.layout.conv3d_w",
+          "name": "post_quant_conv.conv.weight",
+          "torch_shape": [
+            4,
+            4,
+            1,
+            1,
+            1
+          ],
+          "used_at_from_mask_infer": true
+        },
+        {
+          "layout": "maisi.layout.vector",
+          "name": "post_quant_conv.conv.bias",
+          "torch_shape": [
+            4
+          ],
+          "used_at_from_mask_infer": true
+        }
+      ]
+    }
+  },
+  "notes": [
+    "Constructed with use_flash_attention=false. Flash does not add or remove parameters.",
+    "VAE constructed with num_splits=1; split count is a runtime wrap, not a parameter."
+  ],
+  "object_type": "maisi_mlx_from_mask_weight_catalog",
+  "source": {
+    "monai": {
+      "distribution_version": "1.6.0",
+      "path": "third_party/monai/MONAI",
+      "revision": "eccefc57550b111ed781d82249dfe77872a0e918"
+    },
+    "nv_generate_ctmr": {
+      "path": "third_party/nv_generate_ctmr/NV-Generate-CTMR",
+      "revision": "5cb04e82fed71f2fe64a2617ab695be1f5a37fea"
+    },
+    "weights": {
+      "repo": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317"
+    }
+  }
+}

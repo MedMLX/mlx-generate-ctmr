@@ -1,0 +1,143 @@
+{
+  "checkpoints": {
+    "nvidia/NV-Generate-CT/models/autoencoder_v1.pt": {
+      "model": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317",
+      "filename": "models/autoencoder_v1.pt",
+      "url": "https://huggingface.co/nvidia/NV-Generate-CT/resolve/48a68e95c77a095870e3374f5b2cca1dd211f317/models/autoencoder_v1.pt"
+    },
+    "nvidia/NV-Generate-CT/models/controlnet_3d_rflow-ct.pt": {
+      "model": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317",
+      "filename": "models/controlnet_3d_rflow-ct.pt",
+      "url": "https://huggingface.co/nvidia/NV-Generate-CT/resolve/48a68e95c77a095870e3374f5b2cca1dd211f317/models/controlnet_3d_rflow-ct.pt"
+    },
+    "nvidia/NV-Generate-CT/models/diff_unet_3d_rflow-ct.pt": {
+      "model": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317",
+      "filename": "models/diff_unet_3d_rflow-ct.pt",
+      "url": "https://huggingface.co/nvidia/NV-Generate-CT/resolve/48a68e95c77a095870e3374f5b2cca1dd211f317/models/diff_unet_3d_rflow-ct.pt"
+    },
+    "nvidia/NV-Generate-MR/models/autoencoder_v2.pt": {
+      "model": "nvidia/NV-Generate-MR",
+      "revision": "47a4af30645063be184a322a24ed872c26a9b57f",
+      "filename": "models/autoencoder_v2.pt",
+      "url": "https://huggingface.co/nvidia/NV-Generate-MR/resolve/47a4af30645063be184a322a24ed872c26a9b57f/models/autoencoder_v2.pt"
+    },
+    "nvidia/NV-Generate-MR/models/diff_unet_3d_rflow-mr.pt": {
+      "model": "nvidia/NV-Generate-MR",
+      "revision": "47a4af30645063be184a322a24ed872c26a9b57f",
+      "filename": "models/diff_unet_3d_rflow-mr.pt",
+      "url": "https://huggingface.co/nvidia/NV-Generate-MR/resolve/47a4af30645063be184a322a24ed872c26a9b57f/models/diff_unet_3d_rflow-mr.pt"
+    },
+    "nvidia/NV-Generate-MR-Brain/models/diff_unet_3d_rflow-mr-brain_v1.pt": {
+      "model": "nvidia/NV-Generate-MR-Brain",
+      "revision": "ef9759bf221265b2704569cdeeac20bbf03b62ee",
+      "filename": "models/diff_unet_3d_rflow-mr-brain_v1.pt",
+      "url": "https://huggingface.co/nvidia/NV-Generate-MR-Brain/resolve/ef9759bf221265b2704569cdeeac20bbf03b62ee/models/diff_unet_3d_rflow-mr-brain_v1.pt"
+    }
+  },
+  "configurations": {
+    "ct": {
+      "checkpoints": {
+        "vae": "nvidia/NV-Generate-CT/models/autoencoder_v1.pt",
+        "controlnet": "nvidia/NV-Generate-CT/models/controlnet_3d_rflow-ct.pt",
+        "unet": "nvidia/NV-Generate-CT/models/diff_unet_3d_rflow-ct.pt"
+      },
+      "output_size": [
+        256,
+        256,
+        128
+      ],
+      "spacing_mm": [
+        1.7,
+        1.7,
+        2
+      ],
+      "modality": 1,
+      "guidance_scale": 0,
+      "num_inference_steps": 30,
+      "modalities": [
+        1
+      ]
+    },
+    "mr": {
+      "checkpoints": {
+        "vae": "nvidia/NV-Generate-MR/models/autoencoder_v2.pt",
+        "unet": "nvidia/NV-Generate-MR/models/diff_unet_3d_rflow-mr.pt"
+      },
+      "output_size": [
+        128,
+        256,
+        256
+      ],
+      "spacing_mm": [
+        1.25,
+        1.0,
+        1.0
+      ],
+      "modality": 9,
+      "guidance_scale": 15,
+      "num_inference_steps": 30,
+      "modalities": [
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    "mr-brain": {
+      "checkpoints": {
+        "vae": "nvidia/NV-Generate-CT/models/autoencoder_v1.pt",
+        "unet": "nvidia/NV-Generate-MR-Brain/models/diff_unet_3d_rflow-mr-brain_v1.pt"
+      },
+      "output_size": [
+        256,
+        256,
+        128
+      ],
+      "spacing_mm": [
+        0.94,
+        0.94,
+        1.36
+      ],
+      "modality": 9,
+      "guidance_scale": 2,
+      "num_inference_steps": 30,
+      "modalities": [
+        9,
+        10,
+        11,
+        16,
+        20,
+        29,
+        30,
+        31,
+        32,
+        33
+      ]
+    }
+  },
+  "modality_indices": {
+    "unknown": 0,
+    "ct": 1,
+    "ct_wo_contrast": 2,
+    "ct_contrast": 3,
+    "mri": 8,
+    "mri_t1": 9,
+    "mri_t2": 10,
+    "mri_flair": 11,
+    "mri_pd": 12,
+    "mri_dwi": 13,
+    "mri_adc": 14,
+    "mri_ssfp": 15,
+    "mri_mra": 16,
+    "mri_t1c": 17,
+    "mri_swi": 20,
+    "mri_t1_skull_stripped": 29,
+    "mri_t2_skull_stripped": 30,
+    "mri_flair_skull_stripped": 31,
+    "mri_swi_skull_stripped": 32,
+    "mri_mra_skull_stripped": 33
+  }
+}

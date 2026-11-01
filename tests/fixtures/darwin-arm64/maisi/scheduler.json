@@ -1,0 +1,109 @@
+{
+  "arrays": {
+    "dt": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": []
+    },
+    "next_timesteps": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        30
+      ]
+    },
+    "timesteps": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        30
+      ]
+    },
+    "v": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "z": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "z_next": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "z_origin": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    }
+  },
+  "boundary": "scheduler",
+  "constructor": {
+    "base_img_size_numel": 32768,
+    "num_train_timesteps": 1000,
+    "sample_method": "uniform",
+    "scale": 1.4,
+    "spatial_dim": 3,
+    "transform_scale": 1.0,
+    "use_discrete_timesteps": false,
+    "use_timestep_transform": true
+  },
+  "device": "cpu",
+  "dtype_policy": "schedule=float16, step_state=float32",
+  "input_img_size_numel": 262144,
+  "limitation": "Seeded MONAI parameters are regenerated for tests; no pretrained qualification.",
+  "module": "monai.networks.schedulers.rectified_flow.RFlowScheduler",
+  "num_inference_steps": 30,
+  "prediction_type": "v_prediction",
+  "recorded_platform": "darwin-arm64",
+  "schedule_note": "timesteps are the pinned float16 RFlow buffer for a 64^3 latent. The Euler step runs on a 4^3 synthetic latent.",
+  "seed": 19,
+  "source": {
+    "monai": {
+      "distribution_version": "1.6.0",
+      "path": "third_party/monai/MONAI",
+      "revision": "eccefc57550b111ed781d82249dfe77872a0e918"
+    },
+    "nv_generate_ctmr": {
+      "path": "third_party/nv_generate_ctmr/NV-Generate-CTMR",
+      "revision": "5cb04e82fed71f2fe64a2617ab695be1f5a37fea"
+    },
+    "weights": {
+      "kind": "synthetic",
+      "loaded": false,
+      "repo": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317"
+    }
+  },
+  "torch_version": "2.14.1",
+  "use_flash_attention": false,
+  "weight_init": null,
+  "weights_kind": "synthetic"
+}

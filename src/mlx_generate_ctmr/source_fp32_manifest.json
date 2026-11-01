@@ -1,0 +1,37 @@
+{
+  "reference": {
+    "device": "NVIDIA GeForce RTX 4090",
+    "torch": "2.13.0+cu130",
+    "torch_commit": "cf30153c4c131c8164ee7798e5022d810682e2cb",
+    "cudnn": "9.20.0",
+    "tf32": false
+  },
+  "encoding": "NPZ compressed signed int32 first differences; uint32 cumulative sum reconstructs float bit patterns or thresholds",
+  "tables": {
+    "rsqrt": "rsqrtf for every float32 mantissa in [1,4); other positive normal exponents use power-of-two scaling",
+    "exp2_positive": "lower input-bit thresholds for ex2.approx.ftz.f32 outputs on [0,1]",
+    "exp2_negative": "lower absolute-input-bit thresholds for ex2.approx.ftz.f32 outputs on [-1,0]"
+  },
+  "scope": "FP32 image UNet, ControlNet, CT VAE and categorical mask VAE arithmetic. Matrix dispatch depends on batch, layout and dimensions; qualification records identify tested grids. Tables are general function data, not checkpoint or activation data.",
+  "capture": {
+    "reference": {
+      "device": "NVIDIA GeForce RTX 4090",
+      "torch": "2.13.0+cu130",
+      "torch_commit": "cf30153c4c131c8164ee7798e5022d810682e2cb",
+      "cudnn": 92000,
+      "cuda": "13.0",
+      "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Sep_01_08:45:21_PDT_2026\nCuda compilation tools, release 13.4, V13.4.92\nBuild cuda_13.4.r13.4/compiler.38855100_0"
+    },
+    "exp2_validation": {
+      "positive_errors": 0,
+      "negative_errors": 0,
+      "samples_each": 16777216
+    }
+  },
+  "maisi_vae": {
+    "normalization": "Separate mean and unbiased=false variance reductions, sqrt, division, multiply, add; not the fused UNet group norm.",
+    "reference_reduce_sm_count": 128,
+    "reference_reduce_threads_per_sm": 1536,
+    "trilinear": "Half-pixel x2 interpolation with explicit nested FMA; boundary clamping matches source."
+  }
+}

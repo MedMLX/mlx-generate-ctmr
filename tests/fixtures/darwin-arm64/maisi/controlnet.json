@@ -1,0 +1,976 @@
+{
+  "arrays": {
+    "class_labels": {
+      "dtype": "int32",
+      "role": "input",
+      "shape": [
+        1
+      ]
+    },
+    "controlnet_cond": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1,
+        8,
+        16,
+        16,
+        16
+      ]
+    },
+    "down_0": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "down_1": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "down_2": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        4,
+        2,
+        2,
+        2
+      ]
+    },
+    "down_3": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        8,
+        2,
+        2,
+        2
+      ]
+    },
+    "mid": {
+      "dtype": "float32",
+      "role": "output",
+      "shape": [
+        1,
+        8,
+        2,
+        2,
+        2
+      ]
+    },
+    "timesteps": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1
+      ]
+    },
+    "weight.class_embedding.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        16
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.0.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.0.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.3.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_cond_embedding.blocks.3.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.controlnet_cond_embedding.conv_in.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_cond_embedding.conv_in.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        8,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.controlnet_cond_embedding.conv_out.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_cond_embedding.conv_out.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.controlnet_down_blocks.0.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_down_blocks.0.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        1,
+        1,
+        1
+      ]
+    },
+    "weight.controlnet_down_blocks.1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_down_blocks.1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        1,
+        1,
+        1
+      ]
+    },
+    "weight.controlnet_down_blocks.2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.controlnet_down_blocks.2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        1,
+        1,
+        1
+      ]
+    },
+    "weight.controlnet_down_blocks.3.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.controlnet_down_blocks.3.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8,
+        1,
+        1,
+        1
+      ]
+    },
+    "weight.controlnet_mid_block.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.controlnet_mid_block.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8,
+        1,
+        1,
+        1
+      ]
+    },
+    "weight.conv_in.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.conv_in.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.down_blocks.0.downsampler.conv1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.downsampler.conv1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.down_blocks.0.downsampler.conv2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.downsampler.conv2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.down_blocks.0.downsampler.norm1.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.downsampler.norm1.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.downsampler.norm2.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.downsampler.norm2.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.downsampler.time_emb_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.downsampler.time_emb_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        16
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.conv1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.conv1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.conv2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.conv2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.norm1.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.norm1.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.norm2.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.norm2.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.time_emb_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.0.resnets.0.time_emb_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4,
+        16
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.out_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.out_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.to_k.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.to_k.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.to_q.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.to_q.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.to_v.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.attn.to_v.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.norm.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.attentions.0.norm.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.conv1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.conv1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        4,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.conv2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.conv2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.norm1.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.norm1.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        4
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.norm2.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.norm2.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.skip_connection.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.skip_connection.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        4,
+        1,
+        1,
+        1
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.time_emb_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.down_blocks.1.resnets.0.time_emb_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        16
+      ]
+    },
+    "weight.middle_block.attention.attn.out_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.attention.attn.out_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.middle_block.attention.attn.to_k.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.attention.attn.to_k.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.middle_block.attention.attn.to_q.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.attention.attn.to_q.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.middle_block.attention.attn.to_v.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.attention.attn.to_v.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8
+      ]
+    },
+    "weight.middle_block.attention.norm.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.attention.norm.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.conv1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.conv1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.middle_block.resnet_1.conv2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.conv2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.middle_block.resnet_1.norm1.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.norm1.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.norm2.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.norm2.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.time_emb_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_1.time_emb_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        16
+      ]
+    },
+    "weight.middle_block.resnet_2.conv1.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_2.conv1.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.middle_block.resnet_2.conv2.conv.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_2.conv2.conv.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        8,
+        3,
+        3,
+        3
+      ]
+    },
+    "weight.middle_block.resnet_2.norm1.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_2.norm1.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_2.norm2.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_2.norm2.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_2.time_emb_proj.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8
+      ]
+    },
+    "weight.middle_block.resnet_2.time_emb_proj.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        8,
+        16
+      ]
+    },
+    "weight.time_embed.0.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        16
+      ]
+    },
+    "weight.time_embed.0.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        16,
+        4
+      ]
+    },
+    "weight.time_embed.2.bias": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        16
+      ]
+    },
+    "weight.time_embed.2.weight": {
+      "dtype": "float32",
+      "role": "weight",
+      "shape": [
+        16,
+        16
+      ]
+    },
+    "x": {
+      "dtype": "float32",
+      "role": "input",
+      "shape": [
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    }
+  },
+  "boundary": "controlnet",
+  "class_index": 1,
+  "conditioning_scale": 1.0,
+  "constructor": {
+    "attention_levels": [
+      false,
+      true
+    ],
+    "conditioning_embedding_in_channels": 8,
+    "conditioning_embedding_num_channels": [
+      4,
+      4,
+      4
+    ],
+    "cross_attention_dim": null,
+    "in_channels": 4,
+    "include_fc": true,
+    "norm_eps": 1e-06,
+    "norm_num_groups": 2,
+    "num_channels": [
+      4,
+      8
+    ],
+    "num_class_embeds": 4,
+    "num_head_channels": [
+      0,
+      2
+    ],
+    "num_res_blocks": 1,
+    "resblock_updown": true,
+    "spatial_dims": 3,
+    "transformer_num_layers": 1,
+    "upcast_attention": false,
+    "use_checkpointing": true,
+    "use_combined_linear": false,
+    "use_flash_attention": false,
+    "with_conditioning": false
+  },
+  "device": "cpu",
+  "dtype_policy": "float32",
+  "layout": "maisi.layout.ncdhw",
+  "limitation": "Seeded MONAI parameters are regenerated for tests; no pretrained qualification.",
+  "module": "monai.apps.generation.maisi.networks.controlnet_maisi.ControlNetMaisi",
+  "recorded_platform": "darwin-arm64",
+  "seed": 3707,
+  "source": {
+    "monai": {
+      "distribution_version": "1.6.0",
+      "path": "third_party/monai/MONAI",
+      "revision": "eccefc57550b111ed781d82249dfe77872a0e918"
+    },
+    "nv_generate_ctmr": {
+      "path": "third_party/nv_generate_ctmr/NV-Generate-CTMR",
+      "revision": "5cb04e82fed71f2fe64a2617ab695be1f5a37fea"
+    },
+    "weights": {
+      "kind": "synthetic",
+      "loaded": false,
+      "repo": "nvidia/NV-Generate-CT",
+      "revision": "48a68e95c77a095870e3374f5b2cca1dd211f317"
+    }
+  },
+  "torch_version": "2.14.1",
+  "use_flash_attention": false,
+  "weight_init": "normal(0, 0.02) after construct",
+  "weights_kind": "synthetic"
+}
