@@ -325,16 +325,6 @@ def _macos_release() -> tuple[int, ...]:
     return tuple(int(part) for part in (platform.mac_ver()[0] or "0").split(".")[:2])
 
 
-def nax_eligible(weight: Array) -> bool:
-    """Whether a Torch-layout ``(O, C, KD, KH, KW)`` FP16 or FP32 weight fits the kernel.
-
-    The kernel handles 3x3x3 filters with padding 1 and stride 1 or 2 (or 1
-    after a nearest 2x upsampling); packing zero-pads ``C`` to a multiple of
-    16 and ``O`` to a multiple of 32.
-    """
-    return weight.ndim == 5 and tuple(weight.shape[2:]) == (3, 3, 3)
-
-
 def _pad_channels(weight: Array, mx: Mlx) -> Array:
     """Pad convolution weights to the accelerator channel alignment."""
     out_channels, in_channels = int(weight.shape[0]), int(weight.shape[1])

@@ -33,9 +33,6 @@ from mlx_generate_ctmr.maisi_mlx_common import validate_catalog as _validate_cat
 CATALOG_NAME: Final = "maisi_mlx_from_mask_weight_catalog.json"
 
 NETWORKS: Final[tuple[str, ...]] = ("vae", "unet", "controlnet")
-VAE_FILE: Final = "autoencoder_v1.pt"
-UNET_FILE: Final = "diff_unet_3d_rflow-ct.pt"
-CONTROLNET_FILE: Final = "controlnet_3d_rflow-ct.pt"
 
 # Mask-AE constant from config_network_rflow.json. Image-from-mask scale_factor
 # lives in diff_unet_3d_rflow-ct.pt. Never substitute this value.

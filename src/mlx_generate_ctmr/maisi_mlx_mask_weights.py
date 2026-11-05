@@ -34,8 +34,6 @@ LAYOUT_CONV_TRANSPOSE3D_W: Final = "maisi.layout.conv_transpose3d_w"
 CATALOG_NAME: Final = "maisi_mlx_mask_generation_weight_catalog.json"
 
 NETWORKS: Final[tuple[str, ...]] = ("vae", "unet")
-VAE_FILE: Final = "mask_generation_autoencoder.pt"
-UNET_FILE: Final = "mask_generation_diffusion_unet.pt"
 
 INVENTORY_TENSOR_COUNTS: Final[dict[str, int]] = {
     "vae": 114,

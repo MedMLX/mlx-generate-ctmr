@@ -1641,14 +1641,6 @@ def write_label_nifti(source: Path, destination: Path, label: HostArray) -> None
     nib.save(output_image, str(destination))
 
 
-def write_mask(path: Path, labels: HostArray) -> None:
-    """Write a 3D label map as int16 NIfTI with a diagonal affine at 1.5 mm spacing."""
-    affine = np.diag((*MASK_SPACING_MM, 1.0)).astype(np.float64)
-    image = nib.Nifti1Image(labels, affine)
-    image.header.set_data_dtype(np.int16)
-    nib.save(image, str(path))
-
-
 def _load_nifti1(path: Path) -> NiftiImage:
     """Load and validate a NIfTI-1 image."""
     image: object = nib.load(str(path))

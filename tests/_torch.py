@@ -1,6 +1,6 @@
 """Narrow reference-only adapters for incomplete Torch NumPy/save annotations."""
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from pathlib import Path
 from typing import BinaryIO, Protocol, cast
 
@@ -36,11 +36,6 @@ class RFlowStep(Protocol):
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Run one reference rectified-flow scheduler step."""
         ...
-
-
-def construct[Model](factory: Callable[..., Model], constructor: Mapping[str, object]) -> Model:
-    """Call a real reference model with its recorded source constructor values."""
-    return factory(**constructor)
 
 
 class DDPMSchedule(Protocol):

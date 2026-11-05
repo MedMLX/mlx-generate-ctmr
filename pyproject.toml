@@ -99,8 +99,8 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 "src/mlx_generate_ctmr/vae.py" = ["RUF002"]
 
 [tool.pyright]
-include = ["scripts","src","tests","typings"]
-extraPaths = ["src", "scripts"]
+include = ["src", "tests", "typings"]
+extraPaths = ["src"]
 pythonVersion = "3.13"
 typeCheckingMode = "strict"
 enableTypeIgnoreComments = false

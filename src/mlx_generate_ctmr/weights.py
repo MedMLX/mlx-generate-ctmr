@@ -164,7 +164,7 @@ def _read_arrays(path: Path, *, network: str) -> dict[str, HostArray]:
                 if name.startswith(prefix)
             }
     if path.suffix == ".safetensors":
-        return cast(dict[str, HostArray], load_file(path))
+        return load_file(path)
     raise InvalidInputError(f"{path.name} must be a safetensors file")
 
 

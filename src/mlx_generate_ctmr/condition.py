@@ -15,7 +15,6 @@ from mlx_generate_ctmr.configurations import get_configuration
 
 BITS = 8
 SPACING_SCALE = 100.0
-CT_CLASS_INDEX = get_configuration().default_modality
 
 
 def binarize_labels_ncdhw(label: Array, *, mx: Mlx, bits: int = BITS) -> Array:

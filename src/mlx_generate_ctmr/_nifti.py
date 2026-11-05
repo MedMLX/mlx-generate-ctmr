@@ -32,9 +32,6 @@ class NiftiHeader(Protocol):
     def set_xyzt_units(self, xyz: str, t: str) -> None:
         """Set spatial and temporal unit names."""
         ...
-    def set_slope_inter(self, slope: float, inter: float) -> None:
-        """Set stored-data scaling slope and intercept."""
-        ...
     def set_data_dtype(self, dtype: type[np.generic] | np.dtype[np.generic]) -> None:
         """Set the stored image data dtype."""
         ...
@@ -53,9 +50,6 @@ class NiftiImage(Protocol):
         self, dataobj: HostArray, affine: HostArray, header: NiftiHeader | None = None
     ) -> None:
         """Construct a NIfTI image from data, affine, and header."""
-        ...
-    def get_data_dtype(self) -> np.dtype[np.generic]:
-        """Return the stored image dtype."""
         ...
     def get_qform(
         self, *, coded: Literal[True]
@@ -86,9 +80,6 @@ class Nibabel(Protocol):
         ...
     def as_closest_canonical(self, image: NiftiImage) -> NiftiImage:
         """Orient the image toward canonical axis order."""
-        ...
-    def aff2axcodes(self, affine: HostArray) -> tuple[str | None, ...]:
-        """Derive orientation axis codes from an affine."""
         ...
 
 
