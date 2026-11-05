@@ -1,4 +1,4 @@
-"""Native MAISI MRI sampling, source controls, decode, and intensity export."""
+"""Native MAISI MRI sampling, source controls, and decode."""
 
 from __future__ import annotations
 
@@ -154,24 +154,3 @@ def decode_mr_ncdhw(
     mx.eval(decoded)
     return decoded
 
-
-def export_mr_int16(image: Array, *, mx: Mlx) -> NDArray[np.int16]:
-    """Convert a decoded MR image ``(1, 1, D, H, W)`` to an int16 ``(D, H, W)`` array.
-
-    Multiplies by 1000, clamps negative values to 0 and truncates to int16. There is
-    no upper clip, so values beyond the int16 range are not clipped (as upstream).
-
-    Raises:
-        InvalidInputError: If the shape is not single-image or values are non-finite.
-    """
-    require_ncdhw(image, name="decoded MRI")
-    if tuple(image.shape[:2]) != (1, 1):
-        raise InvalidInputError("Decoded MRI requires a single image channel and batch")
-    if not bool(mx.all(mx.isfinite(image)).item()):
-        raise InvalidInputError("MRI decoder produced non-finite intensities")
-    intensities = mx.maximum(image * 1000.0, 0.0)
-    mx.eval(intensities)
-    host = np.asarray(intensities, dtype=np.float32)
-    if not np.isfinite(host).all():
-        raise InvalidInputError("MRI decoder produced non-finite intensities")
-    return host[0, 0].astype(np.int16)

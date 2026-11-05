@@ -208,7 +208,7 @@ caller-supplied weights and `mx`, and tensors use NCDHW.
 
 ```python
 from mlx_generate_ctmr import arithmetic_mode, attention_memory_budget
-from mlx_generate_ctmr.mr import decode_mr_ncdhw, export_mr_int16, sample_mr_latent_ncdhw
+from mlx_generate_ctmr.mr import decode_mr_ncdhw, sample_mr_latent_ncdhw
 from mlx_generate_ctmr.weights import load_network
 
 with arithmetic_mode("source"), attention_memory_budget(512 * 1024**2):
