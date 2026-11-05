@@ -118,9 +118,6 @@ environments = ["sys_platform == 'darwin' and platform_machine == 'arm64'"]
 required-environments = ["sys_platform == 'darwin' and platform_machine == 'arm64'"]
 constraint-dependencies = ["setuptools>=84.1.0", "filelock>=4.2.1", ]
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.hatch.build.targets.sdist]
 only-include = [
   "src/mlx_generate_ctmr",
