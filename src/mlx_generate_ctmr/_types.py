@@ -103,6 +103,7 @@ if TYPE_CHECKING:
         all = staticmethod(mx.all)
         argmax = staticmethod(mx.argmax)
         bitwise_and = staticmethod(mx.bitwise_and)
+        clear_cache = staticmethod(mx.clear_cache)
         clip = staticmethod(mx.clip)
         contiguous = staticmethod(mx.contiguous)
         cos = staticmethod(mx.cos)

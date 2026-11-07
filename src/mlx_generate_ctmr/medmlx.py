@@ -15,6 +15,7 @@ research data, not for clinical use.
 from __future__ import annotations
 
 import hashlib
+import sys
 import time
 from collections.abc import Mapping, Sequence
 from contextlib import nullcontext
@@ -508,33 +509,36 @@ def run(
             if attention_scratch_bytes is not None
             else nullcontext()
         )
-        with context, arithmetic_mode(mode):
-            result = _run_once(
-                output_dir=attempt_output,
-                seed=attempt_seed,
-                weights_path=weights_path,
-                configuration=configuration,
-                modality=modality,
-                output_size=output_size,
-                spacing_mm=spacing_mm,
-                guidance_scale=guidance_scale,
-                mask_path=mask_path,
-                anatomy=anatomy,
-                anatomy_size=anatomy_size,
-                mask_weights_path=mask_weights_path,
-                mask_label_dict_path=mask_label_dict_path,
-                anatomy_size_conditions_path=anatomy_size_conditions_path,
-                generation_mode=generation_mode,
-                body_regions=body_regions,
-                mask_database_path=mask_database_path,
-                mask_directory=mask_directory,
-                num_inference_steps=num_inference_steps,
-                mask_generation_num_inference_steps=mask_generation_num_inference_steps,
-                sliding_window_size=sliding_window_size,
-                sliding_window_overlap=sliding_window_overlap,
-                autoencoder_tp_num_splits=autoencoder_tp_num_splits,
-                overwrite=overwrite,
-            )
+        try:
+            with context, arithmetic_mode(mode):
+                result = _run_once(
+                    output_dir=attempt_output,
+                    seed=attempt_seed,
+                    weights_path=weights_path,
+                    configuration=configuration,
+                    modality=modality,
+                    output_size=output_size,
+                    spacing_mm=spacing_mm,
+                    guidance_scale=guidance_scale,
+                    mask_path=mask_path,
+                    anatomy=anatomy,
+                    anatomy_size=anatomy_size,
+                    mask_weights_path=mask_weights_path,
+                    mask_label_dict_path=mask_label_dict_path,
+                    anatomy_size_conditions_path=anatomy_size_conditions_path,
+                    generation_mode=generation_mode,
+                    body_regions=body_regions,
+                    mask_database_path=mask_database_path,
+                    mask_directory=mask_directory,
+                    num_inference_steps=num_inference_steps,
+                    mask_generation_num_inference_steps=mask_generation_num_inference_steps,
+                    sliding_window_size=sliding_window_size,
+                    sliding_window_overlap=sliding_window_overlap,
+                    autoencoder_tp_num_splits=autoencoder_tp_num_splits,
+                    overwrite=overwrite,
+                )
+        finally:
+            _release_mlx_cache()
         if attention_scratch_bytes is not None:
             result["details"]["attention_scratch_bytes"] = attention_scratch_bytes
         result["details"]["arithmetic"] = mode
@@ -555,6 +559,20 @@ def run(
     return generate_with_ct_qc(
         generate, output=output, seed=seed, statistics=statistics, max_attempts=ct_qc_max_attempts
     )
+
+
+def _release_mlx_cache() -> None:
+    """Return MLX's cached buffers to the system after a generation attempt.
+
+    MLX keeps freed buffers for reuse, by default up to its memory limit, so a
+    process that runs several generations keeps every finished run's buffers:
+    seven runs in one process reached a 97 GB footprint on a 128 GB Mac while
+    each run's MLX peak was about 10 GiB. MLX is touched only if it was
+    imported, so a missing MLX error from the run is not replaced.
+    """
+    mlx_core = sys.modules.get("mlx.core")
+    if mlx_core is not None:
+        cast("Mlx", mlx_core).clear_cache()
 
 
 def _run_once(
