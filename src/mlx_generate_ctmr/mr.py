@@ -153,4 +153,3 @@ def decode_mr_ncdhw(
     )
     mx.eval(decoded)
     return decoded
-

@@ -75,6 +75,4 @@ def test_vae_encode_decode_smoke_matches_pinned_torch(
     z_mu, z_sigma = encode_vae_ncdhw(native_image, weights, constructor=native_constructor, mx=mx)
     _post_quant, decoded = decode_vae_ncdhw(z_mu, weights, constructor=constructor, mx=mx)
     for actual, expected in ((z_mu, z_mu_t), (z_sigma, z_sigma_t), (decoded, decoded_t)):
-        np.testing.assert_allclose(
-            as_numpy(actual), expected.numpy(), rtol=VAE_RTOL, atol=VAE_ATOL
-        )
+        np.testing.assert_allclose(as_numpy(actual), expected.numpy(), rtol=VAE_RTOL, atol=VAE_ATOL)

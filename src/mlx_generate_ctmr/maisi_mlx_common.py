@@ -79,9 +79,7 @@ def validate_catalog(
     or scientific validity; mismatches raise ``InvalidInputError``.
     """
     errors: list[str] = []
-    for key, expected in (
-        ("destination_dtype", DESTINATION_DTYPE),
-    ):
+    for key, expected in (("destination_dtype", DESTINATION_DTYPE),):
         if catalog.get(key) != expected:
             errors.append(key)
     networks = catalog.get("networks")

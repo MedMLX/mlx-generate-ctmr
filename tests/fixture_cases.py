@@ -52,8 +52,7 @@ def run_case(
         if isinstance(value, mx.array):
             mx.eval(value)
     return {
-        key: as_numpy(value)
-        if isinstance(value, mx.array) else cast(NumericArray, value)
+        key: as_numpy(value) if isinstance(value, mx.array) else cast(NumericArray, value)
         for key, value in output.items()
     }
 

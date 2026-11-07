@@ -71,7 +71,6 @@ def synthetic_catalog(
     return catalog, arrays
 
 
-
 @pytest.mark.parametrize("contract", [image_contract, mask_contract], ids=["image", "mask"])
 def test_native_weight_layouts(contract: WeightContract, tmp_path: Path, metal: Mlx) -> None:
     """Validate native checkpoint layouts and restored source tensor values."""

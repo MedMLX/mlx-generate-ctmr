@@ -41,6 +41,7 @@ if TYPE_CHECKING:
         def int32(self) -> Dtype:
             """Return the native int32 dtype."""
             ...
+
         def full(self, shape: Sequence[int], vals: int, *, dtype: Dtype) -> Tensor:
             """Create a native array filled with an integer value."""
             ...
@@ -214,6 +215,7 @@ if TYPE_CHECKING:
         def linear(self, array: Array, weight: Array, bias: Array | None, mx: Mlx) -> Array:
             """Apply a linear projection and optional bias."""
             ...
+
         def silu(self, array: Array, mx: Mlx) -> Array:
             """Apply the SiLU activation."""
             ...
@@ -222,6 +224,7 @@ if TYPE_CHECKING:
         def silu(self, array: Array, mx: Mlx) -> Array:
             """Apply the SiLU activation."""
             ...
+
         def group_norm_ncdhw(
             self,
             array: Array,
@@ -234,6 +237,7 @@ if TYPE_CHECKING:
         ) -> Array:
             """Normalize NCDHW values by channel groups."""
             ...
+
         def conv3d_ncdhw(
             self,
             array: Array,
@@ -256,16 +260,16 @@ if TYPE_CHECKING:
         def avg_pool3d_ncdhw(self, array: Array, *, mx: Mlx) -> Array:
             """Average-pool spatial dimensions of an NCDHW array."""
             ...
+
         def upsample_nearest_ncdhw(self, array: Array, *, mx: Mlx) -> Array:
             """Upsample an NCDHW array by nearest neighbor."""
             ...
 
     class AttentionArithmetic(MlpArithmetic, Protocol):
-        def attention_projection(
-            self, array: Array, weight: Array, bias: Array, mx: Mlx
-        ) -> Array:
+        def attention_projection(self, array: Array, weight: Array, bias: Array, mx: Mlx) -> Array:
             """Project attention outputs with an optional bias."""
             ...
+
         def attention(
             self, query: Array, key: Array, value: Array, *, scale: float, mx: Mlx
         ) -> Array:

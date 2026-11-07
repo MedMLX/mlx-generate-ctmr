@@ -135,12 +135,8 @@ _CT_NETWORKS = ("vae", "unet", "controlnet")
 _MASK_NETWORKS = ("unet", "vae")
 _VALID_LABELS = frozenset((*range(133), 200))
 _RUNTIME_ERRORS = (OSError, RuntimeError, ValueError)
-_CT_WEIGHTS_HINT = (
-    "Download the CT safetensors weights from MedMLX/mlx-generate-ctmr."
-)
-_MASK_WEIGHTS_HINT = (
-    "Download the paired-mask safetensors weights from MedMLX/mlx-generate-ctmr."
-)
+_CT_WEIGHTS_HINT = "Download the CT safetensors weights from MedMLX/mlx-generate-ctmr."
+_MASK_WEIGHTS_HINT = "Download the paired-mask safetensors weights from MedMLX/mlx-generate-ctmr."
 _MASK_WEIGHTS_LABEL = "NV-Generate-CT mask-generation weights"
 _MASK_DATABASE_LABEL = "MAISI candidate-mask database"
 _LABEL_DICT_LABEL = "MAISI mask label remap (configs/label_dict_124_to_132.json)"
@@ -468,7 +464,8 @@ def run(
         # local model folders can instead contain mask/ themselves.
         if mask_weights_path is None:
             for candidate in (
-                folder / "mask", None if managed_root is None else managed_root / "mask"
+                folder / "mask",
+                None if managed_root is None else managed_root / "mask",
             ):
                 if candidate is not None and candidate.is_dir():
                     mask_weights_path = candidate
@@ -477,17 +474,25 @@ def run(
             mask_label_dict_path = _bundle_asset(folder, "label_dict_124_to_132.json", "configs")
         if anatomy_size_conditions_path is None:
             anatomy_size_conditions_path = _bundle_asset(
-                folder, "all_anatomy_size_conditions.json", "datasets",
+                folder,
+                "all_anatomy_size_conditions.json",
+                "datasets",
             )
         if mask_database_path is None:
-            for filename in ("database.json", "candidate_masks_flexible_size_and_spacing_4000.json",
-                             "candidate_masks_flexible_size_and_spacing_3000.json"):
+            for filename in (
+                "database.json",
+                "candidate_masks_flexible_size_and_spacing_4000.json",
+                "candidate_masks_flexible_size_and_spacing_3000.json",
+            ):
                 mask_database_path = _bundle_asset(folder, filename, "datasets")
                 if mask_database_path is not None:
                     break
         if mask_directory is None:
-            for candidate in (folder / "masks", folder / "all_masks_flexible_size_and_spacing_4000",
-                              folder / "datasets" / "all_masks_flexible_size_and_spacing_4000"):
+            for candidate in (
+                folder / "masks",
+                folder / "all_masks_flexible_size_and_spacing_4000",
+                folder / "datasets" / "all_masks_flexible_size_and_spacing_4000",
+            ):
                 if candidate.is_dir():
                     mask_directory = candidate
                     break
@@ -2008,11 +2013,11 @@ def run_ct(
     ct_qc_statistics_path: _PathArg | None = None,
     ct_qc_max_attempts: int = 2,
     attention_scratch_bytes: int | None = None,
-    arithmetic: str = 'fast',
+    arithmetic: str = "fast",
 ) -> RunResult[str]:
     """Generate ct images; omitted weights are downloaded automatically."""
     return run(
-        configuration='ct',
+        configuration="ct",
         output_dir=output_dir,
         weights_path=weights_path,
         modality=modality,
@@ -2059,11 +2064,11 @@ def run_mr(
     autoencoder_tp_num_splits: int | None = None,
     overwrite: bool = False,
     attention_scratch_bytes: int | None = None,
-    arithmetic: str = 'fast',
+    arithmetic: str = "fast",
 ) -> RunResult[str]:
     """Generate mr images; omitted weights are downloaded automatically."""
     return run(
-        configuration='mr',
+        configuration="mr",
         output_dir=output_dir,
         weights_path=weights_path,
         modality=modality,
@@ -2096,11 +2101,11 @@ def run_mr_brain(
     autoencoder_tp_num_splits: int | None = None,
     overwrite: bool = False,
     attention_scratch_bytes: int | None = None,
-    arithmetic: str = 'fast',
+    arithmetic: str = "fast",
 ) -> RunResult[str]:
     """Generate mr-brain images; omitted weights are downloaded automatically."""
     return run(
-        configuration='mr-brain',
+        configuration="mr-brain",
         output_dir=output_dir,
         weights_path=weights_path,
         modality=modality,

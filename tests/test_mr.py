@@ -87,15 +87,16 @@ def test_fixture_inventory_and_native_weights(configuration: str, tmp_path: Path
     write_native(tmp_path, raw, configuration=configuration)
     for network in raw:
         loaded, factor = weights.load_network(
-            tmp_path / "model.safetensors", network=network, configuration=configuration,
-            catalog=catalog, mx=cast("ArrayFactory[Array, Dtype]", metal),
+            tmp_path / "model.safetensors",
+            network=network,
+            configuration=configuration,
+            catalog=catalog,
+            mx=cast("ArrayFactory[Array, Dtype]", metal),
         )
         assert factor == (1.25 if network == "unet" else None)
         assert loaded.keys() == raw[network].keys()
         for name in loaded:
-            np.testing.assert_array_equal(
-                as_numpy(loaded[name]), raw[network][name], err_msg=name
-            )
+            np.testing.assert_array_equal(as_numpy(loaded[name]), raw[network][name], err_msg=name)
 
 
 @pytest.mark.parametrize("problem", ["missing", "shape", "dtype", "nonfinite", "scale"])
@@ -119,7 +120,10 @@ def test_strict_loading(problem: str, tmp_path: Path, metal: Mlx):
     save_file(arrays, path)
     with pytest.raises(InvalidInputError):
         weights.load_network(
-            path, network="unet", catalog=catalog, configuration="mr",
+            path,
+            network="unet",
+            catalog=catalog,
+            configuration="mr",
             mx=cast("ArrayFactory[Array, Dtype]", metal),
         )
 

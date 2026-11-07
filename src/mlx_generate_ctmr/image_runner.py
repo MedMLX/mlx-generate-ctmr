@@ -185,8 +185,10 @@ def check_image_request(
     if options.autoencoder_tp_num_splits is not None:
         constructor["num_splits"] = options.autoencoder_tp_num_splits
     latent = tuple(axis // 4 for axis in size)
-    window = latent if math.prod(latent) <= math.prod(roi) else tuple(
-        min(axis, bound) for axis, bound in zip(latent, roi, strict=True)
+    window = (
+        latent
+        if math.prod(latent) <= math.prod(roi)
+        else tuple(min(axis, bound) for axis, bound in zip(latent, roi, strict=True))
     )
     split_length = window[int(constructor["dim_split"])]
     splits = int(constructor["num_splits"])
@@ -249,7 +251,8 @@ def run_image(request: ImageRequest, *, weights_path: PathArg) -> RunResult[str]
         require_configuration(directory, configuration=configuration)
     except InvalidInputError as exc:
         raise AssetNotReadyError(
-            str(exc), reason=str(exc),
+            str(exc),
+            reason=str(exc),
             hint="Download the matching safetensors weights and conversion.json.",
         ) from exc
     if request.destination.parent == directory:

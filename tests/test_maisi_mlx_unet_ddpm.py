@@ -120,9 +120,7 @@ def test_ddpm_ct_controlnet_matches_pinned_torch(mx: Mlx) -> None:
     timesteps = np.asarray([250.0], dtype=np.float32)
     cond = rng.normal(size=(1, 8, 16, 16, 16)).astype(np.float32)
     with torch.inference_mode():
-        down_t, mid_t = module(
-            from_numpy(x), from_numpy(timesteps), from_numpy(cond)
-        )
+        down_t, mid_t = module(from_numpy(x), from_numpy(timesteps), from_numpy(cond))
     array = cast("ArrayConstructor", mx.array)
     down, mid = controlnet_residuals_ncdhw(
         array(x), array(timesteps), None, array(cond), weights, constructor=_CONTROLNET, mx=mx

@@ -138,8 +138,11 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
     nib.save(nib.Nifti1Image(label, affine), mask)
     first, second = (
         medmlx.run_ct(
-            ct_intensity_qc=False, output_dir=tmp_path / name, weights_path=tiny_ct,
-            mask_path=mask, seed=3,
+            ct_intensity_qc=False,
+            output_dir=tmp_path / name,
+            weights_path=tiny_ct,
+            mask_path=mask,
+            seed=3,
         )
         for name in ("a", "b")
     )

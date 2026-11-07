@@ -15,6 +15,7 @@ class TorchSerialization(Protocol):
     def from_numpy(self, array: HostArray) -> torch.Tensor:
         """Create a reference tensor from a host array."""
         ...
+
     def save(self, obj: object, f: Path | str | BinaryIO) -> None:
         """Serialize a reference object to a path or stream."""
         ...

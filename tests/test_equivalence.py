@@ -95,4 +95,3 @@ def _assert_stable_labels(
     assert stable.any(), "fixture must contain labels with a certified argmax margin"
     np.testing.assert_array_equal(actual["labels"][stable], expected["labels"][stable])
     assert set(np.unique(actual["labels"])) <= set(lookup)
-

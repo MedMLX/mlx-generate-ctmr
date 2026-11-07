@@ -56,6 +56,4 @@ def test_mask_vae_encode_decode_matches_pinned_torch(mx: Mlx) -> None:
     )
     _post_quant, logits = decode_mask_vae_ncdhw(z_mu, weights, constructor=constructor, mx=mx)
     for actual, expected in ((z_mu, z_mu_t), (z_sigma, z_sigma_t), (logits, logits_t)):
-        np.testing.assert_allclose(
-            as_numpy(actual), expected.numpy(), rtol=VAE_RTOL, atol=VAE_ATOL
-        )
+        np.testing.assert_allclose(as_numpy(actual), expected.numpy(), rtol=VAE_RTOL, atol=VAE_ATOL)
