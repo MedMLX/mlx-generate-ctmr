@@ -23,7 +23,7 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 | :--- | :--- |
 | **Input** | Noise, or a CT anatomy mask |
 | **Output** | Synthetic 3D CT or MRI |
-| **Hardware** | Apple Silicon with Metal. Peak MLX memory: **10.3 GiB** for `mlx-generate-ctmr-ct` (256³, from-mask, ControlNet + four-window decode); **9.5 GiB** for `mlx-generate-ctmr-mr-brain` (256×256×128, guided batch 2). No recorded peak for `mlx-generate-ctmr-mr`. |
+| **Hardware** | Apple Silicon with Metal. Peak MLX memory: **10.3 GiB** for `mlx-generate-ctmr-ct` (256³, from-mask, ControlNet + four-window decode); **9.5 GiB** for `mlx-generate-ctmr-mr-brain` (256×256×128, guided batch 2); **9.5 GiB** for `mlx-generate-ctmr-mr` (128×256×256). |
 
 The memory figures are the runs' recorded `details.peak_memory_bytes` with MLX
 0.32.4 on the released weights: default `fast` arithmetic with FP32 accumulation

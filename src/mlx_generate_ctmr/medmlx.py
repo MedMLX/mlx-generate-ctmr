@@ -156,12 +156,14 @@ CT_MODEL: Final[dict[str, object]] = {
     # README: fast CT from-mask at 256³; convert the recorded GiB to decimal GB.
     "peak_memory_gb": 10.3 * 1024**3 / 1e9,
 }
-MR_MODEL: Final[dict[str, str]] = {
+MR_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr",
     "label": "NV-Generate MR",
     "task": "generation",
     "run": "mlx_generate_ctmr.medmlx:run_mr",
     "summary": "Synthetic image-only body MRI (T1, T2 or FLAIR), without a label map.",
+    # README: default MR at 128x256x256; GiB to decimal GB.
+    "peak_memory_gb": 9.5 * 1024**3 / 1e9,
 }
 MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr-brain",
