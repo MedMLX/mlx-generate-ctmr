@@ -116,19 +116,7 @@ def vae_resblock_ncdhw(
     """
 
     if arithmetic is fast_fp32:
-        shortcut = f"{prefix}.nin_shortcut"
-        has_shortcut = f"{shortcut}.conv.conv.weight" in weights
-        return fast_fp32.vae_resblock_ncdhw(
-            array,
-            _conv_weights(weights, f"{prefix}.conv1"),
-            _conv_weights(weights, f"{prefix}.conv2"),
-            (_need(weights, f"{prefix}.norm1.weight"), _need(weights, f"{prefix}.norm1.bias")),
-            (_need(weights, f"{prefix}.norm2.weight"), _need(weights, f"{prefix}.norm2.bias")),
-            _conv_weights(weights, shortcut) if has_shortcut else None,
-            num_groups=num_groups,
-            eps=eps,
-            mx=mx,
-        )
+        return _fast_resblock([array], weights, prefix, num_groups=num_groups, eps=eps, mx=mx)
     hidden = arithmetic.group_norm_ncdhw(
         array,
         _need(weights, f"{prefix}.norm1.weight"),
@@ -209,6 +197,13 @@ def vae_upsample_ncdhw(
             mx=mx,
         )
 
+    if arithmetic is fast_fp32:
+        return fast_fp32.trilinear_conv3d_ncdhw(
+            array,
+            _need(weights, f"{prefix}.conv.conv.conv.weight"),
+            _need(weights, f"{prefix}.conv.conv.conv.bias"),
+            mx=mx,
+        )
     upsampled = arithmetic.upsample_trilinear_ncdhw(array, mx=mx)
     return split_conv3d_ncdhw(
         upsampled,
@@ -315,17 +310,25 @@ def run_vae_decoder_ncdhw(
         if has_attn:
             raise ValueError("image VAE dest has no attention blocks")
         for _ in range(n_res):
-            hidden = vae_resblock_ncdhw(
-                hidden,
-                weights,
-                f"decoder.blocks.{index}",
-                num_groups=groups,
-                eps=eps,
-                mx=mx,
-                num_splits=splits,
-                dim_split=dim_split,
-                arithmetic=arithmetic,
-            )
+            if arithmetic is fast_fp32:
+                # Hand over the only reference so the block can free its input early.
+                state = [hidden]
+                del hidden
+                hidden = _fast_resblock(
+                    state, weights, f"decoder.blocks.{index}", num_groups=groups, eps=eps, mx=mx
+                )
+            else:
+                hidden = vae_resblock_ncdhw(
+                    hidden,
+                    weights,
+                    f"decoder.blocks.{index}",
+                    num_groups=groups,
+                    eps=eps,
+                    mx=mx,
+                    num_splits=splits,
+                    dim_split=dim_split,
+                    arithmetic=arithmetic,
+                )
             index += 1
         if level != len(reversed_channels) - 1:
             hidden = vae_upsample_ncdhw(
@@ -338,6 +341,9 @@ def run_vae_decoder_ncdhw(
                 use_convtranspose=use_convtranspose,
                 arithmetic=arithmetic,
             )
+            if arithmetic is fast_fp32:
+                # Free the smaller input before the next block packs this output.
+                mx.eval(hidden)
             index += 1
     norm = (
         _need(weights, f"decoder.blocks.{index}.weight"),
@@ -453,6 +459,31 @@ def _run_encoder(
         mx=mx,
         num_splits=splits,
         dim_split=dim_split,
+    )
+
+
+def _fast_resblock(
+    state: list[Array],
+    weights: Mapping[str, Array],
+    prefix: str,
+    *,
+    num_groups: int,
+    eps: float,
+    mx: Mlx,
+) -> Array:
+    """Run one decoder ``MaisiResBlock`` through ``fast_fp32``, consuming ``state``."""
+    shortcut = f"{prefix}.nin_shortcut"
+    has_shortcut = f"{shortcut}.conv.conv.weight" in weights
+    return fast_fp32.vae_resblock_ncdhw(
+        state,
+        _conv_weights(weights, f"{prefix}.conv1"),
+        _conv_weights(weights, f"{prefix}.conv2"),
+        (_need(weights, f"{prefix}.norm1.weight"), _need(weights, f"{prefix}.norm1.bias")),
+        (_need(weights, f"{prefix}.norm2.weight"), _need(weights, f"{prefix}.norm2.bias")),
+        _conv_weights(weights, shortcut) if has_shortcut else None,
+        num_groups=num_groups,
+        eps=eps,
+        mx=mx,
     )
 
 

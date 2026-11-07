@@ -9,9 +9,10 @@ attention blocks that callers select with ``arithmetic is fast_fp32``:
   ``2^-22`` relative product error, not TF32. A preceding group norm and SiLU
   are applied while packing the input, the residual block's time embedding is
   a per-batch bias, and the skip path is added to the FP32 sum before the single
-  FP32 store. A nearest 2x upsampling is folded into the weights. Other GPUs
-  and ``MLX_GENERATE_NAX_CONV=0`` use MLX's FP32 ``conv3d`` after a separate
-  group norm.
+  FP32 store. A nearest 2x upsampling is folded into the weights, and the
+  VAE's trilinear 2x upsampling is computed while packing, so neither
+  upsampled tensor is stored. Other GPUs and ``MLX_GENERATE_NAX_CONV=0`` use
+  MLX's FP32 ``conv3d`` after a separate group norm.
 * Group normalization uses a shifted-sum chunk reduction (``_group_norm``).
 * Self-attention over 32-wide heads uses the flash kernel in ``_flash_attention``
   without materializing scores, so the attention scratch budget does not apply.
@@ -36,7 +37,7 @@ if TYPE_CHECKING:
 
 import math
 import weakref
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 
 from medmlx_core import ops
 from medmlx_core.group_norm import (
@@ -80,6 +81,13 @@ def _pack(weight: Array, *, upsample: bool, mx: Mlx) -> Array:
     packed = (pack_upsample_weight if upsample else pack_weight)(weight, mx)
     _packed[key] = (weakref.ref(weight, lambda _: _packed.pop(key, None)), packed)
     return packed
+
+
+def drop_packed_weights(weights: Iterable[Array]) -> None:
+    """Forget the packed copies of ``weights``; a later use packs them again."""
+    ids = {id(weight) for weight in weights}
+    for key in [key for key in _packed if key[0] in ids]:
+        del _packed[key]
 
 
 def _use_nax(array: Array, weight: Array, mx: Mlx) -> bool:
@@ -284,7 +292,7 @@ def residual_block_ncdhw(
 
 
 def vae_resblock_ncdhw(
-    array: Array,
+    state: list[Array],
     conv1: tuple[Array, Array],
     conv2: tuple[Array, Array],
     norm1: tuple[Array, Array],
@@ -295,12 +303,25 @@ def vae_resblock_ncdhw(
     eps: float,
     mx: Mlx,
 ) -> Array:
-    """Fused ``MaisiResBlock``: GN-SiLU-conv twice, with the skip in conv2's accumulator."""
+    """Fused ``MaisiResBlock``: GN-SiLU-conv twice, with the skip in conv2's accumulator.
+
+    ``state`` holds the block input and is emptied, so a caller that keeps no
+    other reference lets the input be freed once the skip no longer needs it.
+    conv1, the optional 1x1x1 shortcut and conv2 are evaluated one after another.
+    At the decoder's full resolution each tensor is gigabytes, and without these
+    boundaries MLX schedules the shortcut and conv1 together and keeps the input,
+    both packed convolution copies and both outputs alive at once. Evaluation
+    boundaries do not change any value.
+    """
+    array = state.pop()
     hidden = norm_conv3d_ncdhw(
         array, *conv1, norm=norm1, num_groups=num_groups, eps=eps, apply_silu=True, mx=mx
     )
+    mx.eval(hidden)
     skip = array if shortcut is None else conv3d_ncdhw(array, *shortcut, padding=0, mx=mx)
-    return norm_conv3d_ncdhw(
+    del array
+    mx.eval(skip)
+    output = norm_conv3d_ncdhw(
         hidden,
         *conv2,
         norm=norm2,
@@ -310,6 +331,22 @@ def vae_resblock_ncdhw(
         residual=skip,
         mx=mx,
     )
+    del hidden, skip
+    mx.eval(output)
+    return output
+
+
+def trilinear_conv3d_ncdhw(array: Array, weight: Array, bias: Array, *, mx: Mlx) -> Array:
+    """Padding-1 3x3x3 convolution of the source VAE's trilinear 2x upsampling of ``array``.
+
+    On the NAX path the upsampling is computed while packing the convolution
+    input with the arithmetic of ``source_vae.upsample_trilinear_ncdhw``, so the
+    eight-times-larger upsampled tensor is never stored and the values match
+    the materialized sequence used elsewhere.
+    """
+    if _use_nax(array, weight, mx):
+        return nax_conv3d(array, _pack(weight, upsample=False, mx=mx), bias, trilinear=True, mx=mx)
+    return conv3d_ncdhw(upsample_trilinear_ncdhw(array, mx=mx), weight, bias, padding=1, mx=mx)
 
 
 def self_attention_tokens(
