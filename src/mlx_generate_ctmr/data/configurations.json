@@ -81,9 +81,7 @@
       "num_inference_steps": 30,
       "modalities": [
         8,
-        9,
-        10,
-        11
+        9
       ]
     },
     "mr-brain": {

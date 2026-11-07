@@ -129,7 +129,7 @@ CT, `controlnet.` prefixes. A local `weights_path` folder may also contain `mask
 ### MR
 
 `modality` is a contrast name from the upstream mapping or its index; the default
-is T1 (9). General MR accepts 8 to 11. MR-Brain accepts T1, T2, FLAIR, MRA and SWI
+is T1 (9). General MR accepts unspecified contrast (8) and T1 (9). MR-Brain accepts T1, T2, FLAIR, MRA and SWI
 (9, 10, 11, 16, 20) and their skull-stripped variants (29, 30, 31, 33, 32). Other
 contrasts are rejected. `guidance_scale` defaults to 15 for MR and 2 for MR-Brain,
 as in the pinned inference configurations.
@@ -140,11 +140,10 @@ at most 512 each and 256³ voxels in total.
 
 General MR is NVIDIA's `rflow-mr`, which takes no body-region input; NVIDIA
 recommends fine-tuning it on your own data. Its default grid is the T1 brain field
-of view, so it generates head MRI. With the default settings, T1 and unspecified
-contrast (8) give usable images; T2 comes out T1-weighted and FLAIR does not form a
-recognizable brain, also at NVIDIA's recommended T2 and FLAIR fields of view. NVIDIA's
-reference pipeline produces the same images from the same starting noise. For brain
-MRI use MR-Brain. NVIDIA lists few MR-Brain training scans for MRA, and its MRA
+of view, so it generates head MRI. Its T2 (10) and FLAIR (11) are rejected: T2
+comes out T1-weighted and FLAIR does not form a recognizable brain, also at NVIDIA's
+recommended T2 and FLAIR fields of view, and NVIDIA's reference pipeline produces the
+same images from the same starting noise. For brain MRI use MR-Brain. NVIDIA lists few MR-Brain training scans for MRA, and its MRA
 output is of low quality.
 
 MR writes `synthetic_mr.nii.gz` or `synthetic_mr_brain.nii.gz`: int16, with a

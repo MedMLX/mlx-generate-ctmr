@@ -133,9 +133,14 @@ class ModelConfiguration:
             or not isinstance(cast(object, value), int)
             or value not in self.modalities
         ):
+            hint = ""
+            if self.name is Configuration.MR:
+                # NVIDIA's general MR weights give unusable T2 and FLAIR, in its own
+                # reference pipeline as well; MR-Brain generates those contrasts.
+                hint = "; for brain T2, FLAIR, MRA or SWI use configuration 'mr-brain'"
             raise InvalidInputError(
                 f"modality {modality!r} is unsupported for {self.name}; "
-                f"supported indices: {sorted(self.modalities)}"
+                f"supported indices: {sorted(self.modalities)}{hint}"
             )
         return value
 

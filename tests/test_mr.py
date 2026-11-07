@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Sequence
+from dataclasses import replace
 from pathlib import Path
+from types import MappingProxyType
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -20,6 +22,7 @@ from mlx_generate_ctmr import condition, image, image_runner, medmlx, rflow, wei
 from mlx_generate_ctmr._arrays import NumericArray, RealArray, as_numpy
 from mlx_generate_ctmr._nifti import nib
 from mlx_generate_ctmr._records import Catalog, NetworkInventory, TensorSpec
+from mlx_generate_ctmr.configurations import Configuration, get_configuration
 from mlx_generate_ctmr.maisi_mlx_common import PINNED_MONAI_REVISION, PINNED_NV_GENERATE_REVISION
 from mlx_generate_ctmr.maisi_mlx_feasibility import UNET_ATOL, UNET_RTOL, VAE_ATOL, VAE_RTOL
 from mlx_generate_ctmr.maisi_mlx_weights import classify_torch_layout, load_catalog
@@ -42,6 +45,23 @@ def recorded(configuration: str) -> tuple[dict[str, NumericArray], Metadata]:
 
 
 type Networks = dict[str, dict[str, NumericArray]]
+
+
+def allow_recorded_modality(
+    monkeypatch: pytest.MonkeyPatch, configuration: str, modality: int
+) -> None:
+    """Admit a fixture's recorded modality index for one test.
+
+    The general-MR fixtures were recorded from MONAI with T2 (10), which the
+    runner now rejects because the released general-MR weights give unusable T2
+    and FLAIR. These tests compare network and pipeline numerics for that
+    embedding index, which do not depend on the contrasts the runner offers.
+    """
+    loaded = {name: get_configuration(name.value) for name in Configuration}
+    selected = loaded[Configuration(configuration)]
+    loaded[selected.name] = replace(selected, modalities=selected.modalities | {modality})
+    widened = MappingProxyType(loaded)
+    monkeypatch.setattr("mlx_generate_ctmr.configurations._load_configurations", lambda: widened)
 
 
 def native_fixture(payload: dict[str, NumericArray]) -> tuple[Catalog, Networks]:
@@ -129,9 +149,12 @@ def test_strict_loading(problem: str, tmp_path: Path, metal: Mlx):
 
 
 @pytest.mark.parametrize("configuration", CONFIGURATIONS)
-def test_conditions_and_intensity_mapping_match_source(configuration: str, metal: Mlx):
+def test_conditions_and_intensity_mapping_match_source(
+    configuration: str, metal: Mlx, monkeypatch: pytest.MonkeyPatch
+):
     """Compare MR modality, spacing, schedule and output intensities with the recordings."""
     payload, meta = recorded(configuration)
+    allow_recorded_modality(monkeypatch, configuration, meta["modality"])
     classes = condition.modality_class_labels(
         mx=metal, configuration=configuration, modality=meta["modality"]
     )
@@ -149,9 +172,12 @@ def test_conditions_and_intensity_mapping_match_source(configuration: str, metal
 
 
 @pytest.mark.parametrize("configuration", CONFIGURATIONS)
-def test_seeded_mr_unet_and_pipeline_parity(configuration: str, metal: Mlx):
+def test_seeded_mr_unet_and_pipeline_parity(
+    configuration: str, metal: Mlx, monkeypatch: pytest.MonkeyPatch
+):
     """Compare a seeded MR UNet and pipeline with the reference."""
     payload, meta = recorded(configuration)
+    allow_recorded_modality(monkeypatch, configuration, meta["modality"])
     assert meta["monai_version"] == "1.6.0" and meta["precision"] == "fp32"
     array = cast("ArrayConstructor", metal.array)
     params = {
@@ -206,6 +232,7 @@ def test_seeded_public_runner_on_metal(
 ):
     """Run the registered MR runner on Metal from the recorded latent and match the source."""
     payload, meta = recorded(configuration)
+    allow_recorded_modality(monkeypatch, configuration, meta["modality"])
     catalog, raw = native_fixture(payload)
     directory = tmp_path / "weights"
     write_native(directory, raw, configuration=configuration)
@@ -239,3 +266,11 @@ def test_seeded_public_runner_on_metal(
     assert_mr_intensity_parity(stored[None, None], payload["output.decoded"])
     np.testing.assert_allclose(volume.affine, np.diag((*spacing, 1)))
     assert result["details"]["modality"] == meta["modality"]
+
+
+@pytest.mark.parametrize("modality", ["mri_t2", "mri_flair", 10, 11])
+def test_general_mr_rejects_t2_and_flair(modality: str | int) -> None:
+    """General MR refuses the contrasts its released weights cannot generate."""
+    with pytest.raises(InvalidInputError, match="use configuration 'mr-brain'"):
+        get_configuration("mr").modality_index(modality)
+    assert get_configuration("mr-brain").modality_index(modality) in (10, 11)
