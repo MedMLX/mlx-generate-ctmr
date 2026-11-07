@@ -107,6 +107,38 @@ METAL_FUNC hfrag load_frag(const device half* p, uint ld) {
 }
 """
 
+# The source VAE's half-pixel trilinear 2x upsampling (``source_vae``'s
+# ``vae_trilinear``), evaluated at output voxel (oz, oy, ox) of the D x H x W
+# upsampled grid from the ID x IH x IW input. Contraction is off so every
+# product rounds before its FMA exactly as in that kernel, and the packed value
+# equals the one the materialized upsampling would have stored.
+_PACK_HEADER = r"""
+template <typename T>
+METAL_FUNC float trilinear_2x(const device T* x, ulong nc, uint oz, uint oy, uint ox,
+                               uint ID, uint IH, uint IW) {
+#pragma clang fp contract(off)
+  const float fx = metal::max(0.f, float(ox) * .5f - .25f),
+              fy = metal::max(0.f, float(oy) * .5f - .25f),
+              fz = metal::max(0.f, float(oz) * .5f - .25f);
+  const uint x0 = uint(fx), y0 = uint(fy), z0 = uint(fz);
+  const uint x1 = metal::min(x0 + 1, IW - 1), y1 = metal::min(y0 + 1, IH - 1),
+             z1 = metal::min(z0 + 1, ID - 1);
+  const float ax = fx - x0, ay = fy - y0, az = fz - z0;
+  const float bx = 1 - ax, by = 1 - ay, bz = 1 - az;
+  const uint ys[2] = {y0, y1}, zs[2] = {z0, z1};
+  float row[4];
+  for (uint z = 0; z < 2; ++z) {
+    for (uint y = 0; y < 2; ++y) {
+      const ulong base = nc * (ID * IH * IW) + (zs[z] * IH + ys[y]) * IW;
+      row[z * 2 + y] = metal::fma(bx, float(x[base + x0]), ax * float(x[base + x1]));
+    }
+  }
+  const float plane0 = metal::fma(by, row[0], ay * row[1]);
+  const float plane1 = metal::fma(by, row[2], ay * row[3]);
+  return metal::fma(bz, plane0, az * plane1);
+}
+"""
+
 _PACK = r"""
 // Threadgroup (padded line, channel chunk, batch item) writes the Q padded rows
 // of one (d, h) line for CB of the C >= CIN packed channels; channels from CIN
@@ -114,6 +146,8 @@ _PACK = r"""
 // reads walk W along NCDHW rows, writes walk channels along NDHWC rows, so both
 // device accesses are contiguous. With EXACT a row holds 2 C halves: FP16 hi =
 // half(y) in channels [0, C) and lo = half((y - hi) * 2^11) in [C, 2 C).
+// With TRILINEAR, x is the ID x IH x IW input and each value is its trilinear
+// 2x upsampling at that voxel of the D x H x W grid.
 const uint line = threadgroup_position_in_grid.x, c0 = threadgroup_position_in_grid.y * CB;
 const uint b = threadgroup_position_in_grid.z, tid = thread_position_in_threadgroup.x;
 const uint d = line / (H + 2), h = line % (H + 2);
@@ -128,7 +162,8 @@ if (interior) {
     const uint c = e / W, ww = e % W;
     float y = 0.0f;
     if (c0 + c < CIN) {
-      y = float(x[base + ulong(c) * (D * H * W) + ww]);
+      y = TRILINEAR ? trilinear_2x(x, ulong(b * CIN + c0 + c), d - 1, h - 1, ww, ID, IH, IW)
+                    : float(x[base + ulong(c) * (D * H * W) + ww]);
       if (AFFINE) {
         y = y * affine[(b * CIN + c0 + c) * 2] + affine[(b * CIN + c0 + c) * 2 + 1];
       }
@@ -410,6 +445,7 @@ def _kernels(mx: Mlx) -> tuple[MetalKernel, MetalKernel, MetalKernel]:
             input_names=["x", "affine"],
             output_names=["out"],
             source=_PACK,
+            header=_PACK_HEADER,
         ),
         mx.fast.metal_kernel(
             name="nv_generate_nax_conv3x3x3",
@@ -436,6 +472,7 @@ def nax_conv3d(
     silu: bool = False,
     stride: int = 1,
     upsample: bool = False,
+    trilinear: bool = False,
     residual: Array | None = None,
     mx: Mlx,
 ) -> Array:
@@ -461,6 +498,10 @@ def nax_conv3d(
         stride: 1 or 2, on every spatial axis.
         upsample: Convolve the nearest-neighbour 2x upsampling of ``x``
             without materializing it (stride 1 only).
+        trilinear: Convolve the source VAE's half-pixel trilinear 2x
+            upsampling of ``x`` (``source_vae.upsample_trilinear_ncdhw``),
+            computed while packing so the upsampled tensor is never stored;
+            weights from ``pack_weight``, stride 1 and no ``affine``/``silu``.
         residual: Optional NCDHW tensor of the output's shape, added in FP32
             before rounding.
         mx: The imported ``mlx.core`` module.
@@ -468,13 +509,18 @@ def nax_conv3d(
     Returns:
         Contiguous NCDHW output ``(B, O, D', H', W')`` in ``x``'s dtype: the
         input size for stride 1, ``(n - 1) // 2 + 1`` per axis for stride 2,
-        and twice the input size with ``upsample``.
+        and twice the input size with ``upsample`` or ``trilinear``.
 
     Raises:
         ValueError: If ``packed`` does not match ``x``'s channels and dtype, or
             ``residual`` does not have the output's shape.
     """
     batch, in_channels, d, h, w = (int(size) for size in x.shape)
+    source_dims = (d, h, w)
+    if trilinear:
+        if upsample or stride != 1 or affine is not None or silu:
+            raise ValueError("trilinear packing supports only a plain stride-1 convolution")
+        d, h, w = 2 * d, 2 * h, 2 * w
     exact = x.dtype == mx.float32
     dtype = mx.float32 if exact else mx.float16
     taps = 8 if upsample else 27
@@ -512,6 +558,10 @@ def nax_conv3d(
             ("AFFINE", affine is not None),
             ("SILU", silu),
             ("EXACT", exact),
+            ("TRILINEAR", trilinear),
+            ("ID", source_dims[0]),
+            ("IH", source_dims[1]),
+            ("IW", source_dims[2]),
         ],
         grid=(_PACK_THREADS * (d + 2) * (h + 2), channels // chunk, batch),
         threadgroup=(_PACK_THREADS, 1, 1),

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     )
 
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -30,6 +30,7 @@ from medmlx_core.layout import require_ncdhw
 from medmlx_core.maisi import MAISI_LABELS
 from medmlx_core.ops import as_fp32
 
+from mlx_generate_ctmr import fast_fp32
 from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
 from mlx_generate_ctmr.condition import (
     binarize_labels_ncdhw,
@@ -178,34 +179,25 @@ def sample_ct_from_mask_ncdhw(
     )
     mx.eval(conditioning_embedding)
 
-    def _velocity(state: Array, timestep: float) -> Array:
-        """Predict one CT diffusion velocity for the current timestep."""
-        t = cast("ArrayConstructor", mx.array)([float(timestep)], dtype=mx.float32)
-        down, mid = controlnet_residuals_ncdhw(
-            state,
-            t,
-            class_labels,
-            cond,
-            controlnet_weights,
-            constructor=controlnet_constructor,
-            mx=mx,
-            conditioning_embedding=conditioning_embedding,
-        )
-        _t_emb, velocity = denoise_unet_ncdhw(
-            state,
-            t,
-            class_labels,
-            spacing,
-            unet_weights,
-            constructor=unet_constructor,
-            mx=mx,
-            down_block_additional_residuals=down,
-            mid_block_additional_residual=mid,
-        )
-        return velocity
-
-    final = sample_rflow(hidden, _velocity, timesteps, mx=mx, guidance_scale=0.0)
+    velocity = _ct_velocity(
+        cond,
+        conditioning_embedding,
+        class_labels,
+        spacing,
+        unet_weights=unet_weights,
+        controlnet_weights=controlnet_weights,
+        unet_constructor=unet_constructor,
+        controlnet_constructor=controlnet_constructor,
+        mx=mx,
+    )
+    final = sample_rflow(hidden, velocity, timesteps, mx=mx, guidance_scale=0.0)
     mx.eval(final)
+    # Decoding needs only the latent. Free the float32 condition (8 x the label
+    # grid) and the packed UNet/ControlNet convolution weights (about 1 GB for
+    # the production networks) so the decoder's full-resolution windows do not
+    # add to them; a later generation packs the weights again.
+    del cond, conditioning_embedding, label_mx, velocity
+    fast_fp32.drop_packed_weights([*unet_weights.values(), *controlnet_weights.values()])
     rflow_s = time.perf_counter() - rflow_started
     decode_started = time.perf_counter()
     decoded = sliding_window_decode_ncdhw(
@@ -245,6 +237,49 @@ def sample_ct_from_mask_ncdhw(
             "total_synchronized_inference": time.perf_counter() - inference_started,
         },
     )
+
+
+def _ct_velocity(
+    cond: Array,
+    conditioning_embedding: Array,
+    class_labels: Array,
+    spacing: Array,
+    *,
+    unet_weights: Mapping[str, Array],
+    controlnet_weights: Mapping[str, Array],
+    unet_constructor: RflowConstructor,
+    controlnet_constructor: ControlnetConstructor,
+    mx: Mlx,
+) -> Callable[[Array, float], Array]:
+    """Return the ControlNet-conditioned UNet velocity for one from-mask generation."""
+
+    def velocity(state: Array, timestep: float) -> Array:
+        """Predict one CT diffusion velocity for the current timestep."""
+        t = cast("ArrayConstructor", mx.array)([float(timestep)], dtype=mx.float32)
+        down, mid = controlnet_residuals_ncdhw(
+            state,
+            t,
+            class_labels,
+            cond,
+            controlnet_weights,
+            constructor=controlnet_constructor,
+            mx=mx,
+            conditioning_embedding=conditioning_embedding,
+        )
+        _t_emb, predicted = denoise_unet_ncdhw(
+            state,
+            t,
+            class_labels,
+            spacing,
+            unet_weights,
+            constructor=unet_constructor,
+            mx=mx,
+            down_block_additional_residuals=down,
+            mid_block_additional_residual=mid,
+        )
+        return predicted
+
+    return velocity
 
 
 def require_scale_factor(scale_factor: float) -> float:

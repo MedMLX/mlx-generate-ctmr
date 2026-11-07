@@ -23,13 +23,14 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 | :--- | :--- |
 | **Input** | Noise, or a CT anatomy mask |
 | **Output** | Synthetic 3D CT or MRI |
-| **Hardware** | Apple Silicon with Metal. Peak MLX memory: **27.9 GiB** for `mlx-generate-ctmr-ct` (256³, from-mask, ControlNet + four-window decode); **23.8 GiB** for `mlx-generate-ctmr-mr-brain` (256×256×128, guided batch 2). No recorded peak for `mlx-generate-ctmr-mr`. |
+| **Hardware** | Apple Silicon with Metal. Peak MLX memory: **12.7 GiB** for `mlx-generate-ctmr-ct` (256³, from-mask, ControlNet + four-window decode); **11.6 GiB** for `mlx-generate-ctmr-mr-brain` (256×256×128, guided batch 2). No recorded peak for `mlx-generate-ctmr-mr`. |
 
-The v0.5.1 memory measurements used MLX 0.32.4 and `MLX_ENABLE_TF32=0`: default `fast` arithmetic with FP32 accumulation and
-split-FP16 convolution operands, production constructors with random fan-in-scaled
-weights, seed 0 and 30 steps. Peaks include VAE decoding and exclude weight
-loading. These figures cover the stated pipelines and grids; they are MLX
-allocations, excluding host preprocessing and other applications.
+The memory figures are the runs' recorded `details.peak_memory_bytes` with MLX
+0.32.4 on the released weights: default `fast` arithmetic with FP32 accumulation
+and split-FP16 convolution operands, seed 0 and 30 steps, CT from a 256³ MAISI
+label mask with intensity QC off. Peaks include VAE decoding. These figures
+cover the stated pipelines and grids; they are MLX allocations, excluding host
+preprocessing and other applications.
 
 ## Use with MedMLX
 

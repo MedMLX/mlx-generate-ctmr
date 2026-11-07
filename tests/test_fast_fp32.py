@@ -125,3 +125,26 @@ def test_fused_norm_conv_matches_float64(metal: Mlx, upsample: bool) -> None:
     expected = _conv_reference(prepared, w.astype(np.float64), 1)
     expected += batch_bias[:, :, None, None, None] + residual
     _close(y, expected)
+
+
+def test_trilinear_conv_matches_materialized_upsampling(metal: Mlx) -> None:
+    """The fused VAE upsampling convolution equals the materialized sequence bitwise."""
+    from mlx_generate_ctmr import fast_fp32
+    from mlx_generate_ctmr._nax_conv import nax_available
+    from mlx_generate_ctmr.source_vae import upsample_trilinear_ncdhw
+
+    if not nax_available(metal):
+        pytest.skip("NAX convolution needs an M5-class GPU")
+    rng = np.random.default_rng(7)
+    # Odd, unequal axes exercise the clamped upper neighbours on every axis.
+    x = metal.array(rng.standard_normal((2, 24, 3, 5, 6)).astype(np.float32))
+    w = metal.array((rng.standard_normal((32, 24, 3, 3, 3)) / np.sqrt(27 * 24)).astype(np.float32))
+    b = metal.array(rng.standard_normal(32).astype(np.float32))
+    fused = fast_fp32.trilinear_conv3d_ncdhw(x, w, b, mx=metal)
+    materialized = fast_fp32.conv3d_ncdhw(
+        upsample_trilinear_ncdhw(x, mx=metal), w, b, padding=1, mx=metal
+    )
+    assert fused.shape == (2, 32, 6, 10, 12)
+    np.testing.assert_array_equal(
+        np.asarray(fused, dtype=np.float32), np.asarray(materialized, dtype=np.float32)
+    )
