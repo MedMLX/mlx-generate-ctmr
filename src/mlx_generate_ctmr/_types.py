@@ -116,6 +116,7 @@ if TYPE_CHECKING:
         ones = staticmethod(mx.ones)
         ones_like = staticmethod(mx.ones_like)
         sin = staticmethod(mx.sin)
+        slice_update = staticmethod(mx.slice_update)
         softmax = staticmethod(mx.softmax)
         split = staticmethod(mx.split)
         sqrt = staticmethod(mx.sqrt)

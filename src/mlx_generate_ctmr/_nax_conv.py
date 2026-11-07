@@ -147,23 +147,28 @@ _PACK = r"""
 // device accesses are contiguous. With EXACT a row holds 2 C halves: FP16 hi =
 // half(y) in channels [0, C) and lo = half((y - hi) * 2^11) in [C, 2 C).
 // With TRILINEAR, x is the ID x IH x IW input and each value is its trilinear
-// 2x upsampling at that voxel of the D x H x W grid.
+// 2x upsampling at that voxel of the DF x H x W grid.
+// The packed volume covers depths [D0, D0 + D) of the DF-deep input grid plus
+// one line either side, which holds the neighbouring input depth inside the
+// grid and zero padding outside it, so a depth slab convolves exactly like the
+// matching rows of the whole volume.
 const uint line = threadgroup_position_in_grid.x, c0 = threadgroup_position_in_grid.y * CB;
 const uint b = threadgroup_position_in_grid.z, tid = thread_position_in_threadgroup.x;
 const uint d = line / (H + 2), h = line % (H + 2);
-const bool interior = d >= 1 && d <= D && h >= 1 && h <= H;
+const int g = int(D0 + d) - 1;
+const bool interior = g >= 0 && g < int(DF) && h >= 1 && h <= H;
 constexpr uint LD = CB + 2;
 constexpr uint XC = EXACT ? 2 * C : C;
 threadgroup half tile[W * LD];
 threadgroup half tile_lo[EXACT ? W * LD : 1];
 if (interior) {
-  const ulong base = ulong(b * CIN + c0) * (D * H * W) + ((d - 1) * H + (h - 1)) * W;
+  const ulong base = ulong(b * CIN + c0) * (DF * H * W) + (ulong(g) * H + (h - 1)) * W;
   for (uint e = tid; e < CB * W; e += TG) {
     const uint c = e / W, ww = e % W;
     float y = 0.0f;
     if (c0 + c < CIN) {
-      y = TRILINEAR ? trilinear_2x(x, ulong(b * CIN + c0 + c), d - 1, h - 1, ww, ID, IH, IW)
-                    : float(x[base + ulong(c) * (D * H * W) + ww]);
+      y = TRILINEAR ? trilinear_2x(x, ulong(b * CIN + c0 + c), uint(g), h - 1, ww, ID, IH, IW)
+                    : float(x[base + ulong(c) * (DF * H * W) + ww]);
       if (AFFINE) {
         y = y * affine[(b * CIN + c0 + c) * 2] + affine[(b * CIN + c0 + c) * 2 + 1];
       }
@@ -338,6 +343,8 @@ _SMALL_GRID_SIMDGROUP_ROWS = 4
 _SPLIT_TARGET_THREADGROUPS = 192
 _SPLIT_MIN_CHANNELS = 256
 _PACK_THREADS = 256
+# Largest packed input copy built at once; see nax_conv3d.
+_SLAB_PACK_BYTES = 512 * 1024**2
 
 
 def nax_available(mx: Mlx) -> bool:
@@ -533,7 +540,6 @@ def nax_conv3d(
     width = int(packed.shape[-1])
     out_channels = int(bias.shape[-1])
     q, p = w + 2, (h + 2) * (w + 2)
-    rows = (d + 2) * p
     # The conv kernel's row grid: output voxels, or source voxels when UP.
     grid = (d, h, w) if stride == 1 else tuple((n - 1) // 2 + 1 for n in (d, h, w))
     pack_kernel, conv_kernel, reduce_kernel = _kernels(mx)
@@ -542,32 +548,6 @@ def nax_conv3d(
     chunk = 8
     while channels % (2 * chunk) == 0 and w * (2 * chunk + 2) * (4 if exact else 2) <= 16384:
         chunk *= 2
-    flat = pack_kernel(
-        inputs=[x, affine if affine is not None else mx.zeros((1,), dtype=mx.float32)],
-        template=[
-            ("T", x.dtype),
-            ("C", channels),
-            ("CIN", in_channels),
-            ("D", d),
-            ("H", h),
-            ("W", w),
-            ("Q", q),
-            ("ROWS", rows),
-            ("CB", chunk),
-            ("TG", _PACK_THREADS),
-            ("AFFINE", affine is not None),
-            ("SILU", silu),
-            ("EXACT", exact),
-            ("TRILINEAR", trilinear),
-            ("ID", source_dims[0]),
-            ("IH", source_dims[1]),
-            ("IW", source_dims[2]),
-        ],
-        grid=(_PACK_THREADS * (d + 2) * (h + 2), channels // chunk, batch),
-        threadgroup=(_PACK_THREADS, 1, 1),
-        output_shapes=[(batch, rows, channels * (2 if exact else 1))],
-        output_dtypes=[mx.float16],
-    )[0]
     # Four 32-column simdgroups per threadgroup when O' allows; this was the
     # fastest shape for 128-512 channel layers on M5 Max (measured upstream).
     columns = 4 if width % 128 == 0 else 1
@@ -577,69 +557,126 @@ def nax_conv3d(
     if residual is not None and tuple(residual.shape) != output_shape:
         raise ValueError(f"residual shape {tuple(residual.shape)} != output {output_shape}")
 
-    def tile_count(simdgroup_rows: int) -> int:
+    def tile_count(voxels: int, simdgroup_rows: int) -> int:
         """Count tiles needed for the selected SIMD-group rows."""
-        return -(-math.prod(grid) // (simdgroup_rows * 32))
+        return -(-voxels // (simdgroup_rows * 32))
 
     def threadgroup_count(simdgroup_rows: int) -> int:
         """Count threadgroups for the selected output tiling."""
-        return width // (tile_width * columns) * tile_count(simdgroup_rows) * batch * scale**3
+        tiles = tile_count(math.prod(grid), simdgroup_rows)
+        return width // (tile_width * columns) * tiles * batch * scale**3
 
+    # Tiling and the tap split are chosen for the whole volume and reused for
+    # every depth slab: the split fixes each output's summation order, so a
+    # slabbed convolution returns exactly the values of the whole one.
     simdgroup_rows = _SIMDGROUP_ROWS
     if threadgroup_count(simdgroup_rows) < _SMALL_GRID_THREADGROUPS:
         simdgroup_rows = _SMALL_GRID_SIMDGROUP_ROWS
-    tiles = tile_count(simdgroup_rows)
     threadgroups = threadgroup_count(simdgroup_rows)
     split = 1
     if not upsample and channels >= _SPLIT_MIN_CHANNELS and math.prod(grid) % 4 == 0:
         while split < 9 and threadgroups * split < _SPLIT_TARGET_THREADGROUPS:
             split *= 3
-    output = conv_kernel(
-        inputs=[flat, packed, bias, residual if residual is not None else flat],
-        template=[
-            ("C", channels),
-            ("O", width),
-            ("OUT", out_channels),
-            ("NB", batch),
-            ("D", grid[0]),
-            ("H", grid[1]),
-            ("W", grid[2]),
-            ("P", p),
-            ("Q", q),
-            ("ROWS", rows),
-            ("STRIDE", stride),
-            ("K", 2 if upsample else 3),
-            ("UP", upsample),
-            ("SPLIT", split),
-            ("BATCH_BIAS", bias.ndim == 2),
-            ("RESIDUAL", residual is not None),
-            ("WM", simdgroup_rows),
-            ("WN", columns),
-            ("TN", tile_width),
-            ("EXACT", exact),
-            ("OT", dtype),
-        ],
-        grid=(32 * simdgroup_rows * width // tile_width, tiles, batch * scale**3 * split),
-        threadgroup=(32 * simdgroup_rows * columns, 1, 1),
-        output_shapes=[(split, *output_shape) if split > 1 else output_shape],
-        output_dtypes=[mx.float32 if split > 1 else dtype],
-    )[0]
-    if split == 1:
-        return output
-    size = math.prod(output_shape)
-    return reduce_kernel(
-        inputs=[output, bias, residual if residual is not None else output],
-        template=[
-            ("N", size),
-            ("SPATIAL", math.prod(grid)),
-            ("OUT", out_channels),
-            ("SPLIT", split),
-            ("BATCH_BIAS", bias.ndim == 2),
-            ("RESIDUAL", residual is not None),
-            ("OT", dtype),
-        ],
-        grid=(size // 4, 1, 1),
-        threadgroup=(256, 1, 1),
-        output_shapes=[output_shape],
-        output_dtypes=[dtype],
-    )[0]
+
+    def convolve(start: int, depth: int, out_depth: int, part_residual: Array | None) -> Array:
+        """Pack input depths ``[start, start + depth)`` and convolve them."""
+        rows = (depth + 2) * p
+        flat = pack_kernel(
+            inputs=[x, affine if affine is not None else mx.zeros((1,), dtype=mx.float32)],
+            template=[
+                ("T", x.dtype),
+                ("C", channels),
+                ("CIN", in_channels),
+                ("D", depth),
+                ("D0", start),
+                ("DF", d),
+                ("H", h),
+                ("W", w),
+                ("Q", q),
+                ("ROWS", rows),
+                ("CB", chunk),
+                ("TG", _PACK_THREADS),
+                ("AFFINE", affine is not None),
+                ("SILU", silu),
+                ("EXACT", exact),
+                ("TRILINEAR", trilinear),
+                ("ID", source_dims[0]),
+                ("IH", source_dims[1]),
+                ("IW", source_dims[2]),
+            ],
+            grid=(_PACK_THREADS * (depth + 2) * (h + 2), channels // chunk, batch),
+            threadgroup=(_PACK_THREADS, 1, 1),
+            output_shapes=[(batch, rows, channels * (2 if exact else 1))],
+            output_dtypes=[mx.float16],
+        )[0]
+        part_grid = (out_depth, grid[1], grid[2])
+        part_shape = (batch, out_channels, *(scale * n for n in part_grid))
+        tiles = tile_count(math.prod(part_grid), simdgroup_rows)
+        output = conv_kernel(
+            inputs=[flat, packed, bias, part_residual if part_residual is not None else flat],
+            template=[
+                ("C", channels),
+                ("O", width),
+                ("OUT", out_channels),
+                ("NB", batch),
+                ("D", part_grid[0]),
+                ("H", part_grid[1]),
+                ("W", part_grid[2]),
+                ("P", p),
+                ("Q", q),
+                ("ROWS", rows),
+                ("STRIDE", stride),
+                ("K", 2 if upsample else 3),
+                ("UP", upsample),
+                ("SPLIT", split),
+                ("BATCH_BIAS", bias.ndim == 2),
+                ("RESIDUAL", part_residual is not None),
+                ("WM", simdgroup_rows),
+                ("WN", columns),
+                ("TN", tile_width),
+                ("EXACT", exact),
+                ("OT", dtype),
+            ],
+            grid=(32 * simdgroup_rows * width // tile_width, tiles, batch * scale**3 * split),
+            threadgroup=(32 * simdgroup_rows * columns, 1, 1),
+            output_shapes=[(split, *part_shape) if split > 1 else part_shape],
+            output_dtypes=[mx.float32 if split > 1 else dtype],
+        )[0]
+        if split == 1:
+            return output
+        size = math.prod(part_shape)
+        return reduce_kernel(
+            inputs=[output, bias, part_residual if part_residual is not None else output],
+            template=[
+                ("N", size),
+                ("SPATIAL", math.prod(part_grid)),
+                ("OUT", out_channels),
+                ("SPLIT", split),
+                ("BATCH_BIAS", bias.ndim == 2),
+                ("RESIDUAL", part_residual is not None),
+                ("OT", dtype),
+            ],
+            grid=(size // 4, 1, 1),
+            threadgroup=(256, 1, 1),
+            output_shapes=[part_shape],
+            output_dtypes=[dtype],
+        )[0]
+
+    # The packed copy holds 2 bytes per (padded voxel, packed channel), doubled
+    # in exact mode: as large as an FP32 input. Above the budget a stride-1
+    # convolution packs and convolves depth slabs one at a time and writes each
+    # into the output, so only one slab's packed copy exists at once.
+    plane_bytes = (h + 2) * q * channels * (2 if exact else 1) * 2
+    slab = max(1, _SLAB_PACK_BYTES // plane_bytes - 2)
+    if stride != 1 or upsample or d <= slab:
+        return convolve(0, d, grid[0], residual)
+    output = mx.zeros(output_shape, dtype=dtype)
+    for start in range(0, d, slab):
+        depth = min(slab, d - start)
+        part_residual = None if residual is None else residual[:, :, start : start + depth]
+        part = convolve(start, depth, depth, part_residual)
+        output = mx.slice_update(output, part, mx.array([start]), axes=(2,))
+        # Evaluate per slab so the output buffer is updated in place and this
+        # slab's packed copy is freed before the next one is packed.
+        mx.eval(output)
+    return output

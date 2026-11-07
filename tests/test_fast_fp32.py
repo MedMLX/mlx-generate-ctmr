@@ -148,3 +148,69 @@ def test_trilinear_conv_matches_materialized_upsampling(metal: Mlx) -> None:
     np.testing.assert_array_equal(
         np.asarray(fused, dtype=np.float32), np.asarray(materialized, dtype=np.float32)
     )
+
+
+@pytest.mark.parametrize(
+    ("shape", "out_channels", "fused", "trilinear"),
+    [
+        ((2, 32, 9, 6, 8), 32, True, False),  # norm, SiLU, residual epilogue
+        ((1, 16, 5, 3, 4), 16, False, True),  # trilinear packing on a 10-deep grid
+        ((1, 256, 6, 4, 4), 256, False, False),  # small grid: tap split and reduction
+    ],
+)
+def test_depth_slabs_match_whole_volume(
+    metal: Mlx,
+    monkeypatch: pytest.MonkeyPatch,
+    shape: tuple[int, ...],
+    out_channels: int,
+    fused: bool,
+    trilinear: bool,
+) -> None:
+    """A convolution packed and run in depth slabs equals the whole-volume one bitwise."""
+    from medmlx_core.group_norm import group_norm_affine
+
+    from mlx_generate_ctmr import _nax_conv
+
+    if not _nax_conv.nax_available(metal):
+        pytest.skip("NAX convolution needs an M5-class GPU")
+    rng = np.random.default_rng(11)
+    x = metal.array((3 * rng.standard_normal(shape) + 1).astype(np.float32))
+    channels = shape[1]
+    w = metal.array(
+        (rng.standard_normal((out_channels, channels, 3, 3, 3)) / np.sqrt(27 * channels)).astype(
+            np.float32
+        )
+    )
+    b = metal.array(rng.standard_normal(out_channels).astype(np.float32))
+    packed = _nax_conv.pack_weight(w, metal)
+    out_spatial = tuple((2 if trilinear else 1) * n for n in shape[2:])
+    affine = None
+    residual = None
+    if fused:
+        norm_w = metal.array((1 + 0.1 * rng.standard_normal(channels)).astype(np.float32))
+        norm_b = metal.array((0.1 * rng.standard_normal(channels)).astype(np.float32))
+        affine = group_norm_affine(x, norm_w, norm_b, groups=8, eps=1e-6, mx=metal)
+        residual = metal.array(
+            rng.standard_normal((shape[0], out_channels, *out_spatial)).astype(np.float32)
+        )
+
+    def run() -> NDArray[np.float32]:
+        """Convolve with the current slab budget."""
+        y = _nax_conv.nax_conv3d(
+            x,
+            packed,
+            b,
+            affine=affine,
+            silu=fused,
+            trilinear=trilinear,
+            residual=residual,
+            mx=metal,
+        )
+        return np.asarray(y, dtype=np.float32)
+
+    whole = run()
+    plane = (out_spatial[1] + 2) * (out_spatial[2] + 2) * (channels + -channels % 16) * 4
+    # Two-deep slabs: interior slab edges on every boundary and a short last slab.
+    monkeypatch.setattr(_nax_conv, "_SLAB_PACK_BYTES", 4 * plane)
+    slabbed = run()
+    np.testing.assert_array_equal(slabbed, whole)
