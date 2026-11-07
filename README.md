@@ -80,7 +80,7 @@ for a folder without a MedMLX download record.
 | Model ID | `configuration` | Generates |
 | --- | --- | --- |
 | `mlx-generate-ctmr-ct` | `ct` (default) | CT from a MAISI label mask, or paired CT and labels |
-| `mlx-generate-ctmr-mr` | `mr` | Image-only MR |
+| `mlx-generate-ctmr-mr` | `mr` | Image-only MR; the default grid generates head MRI |
 | `mlx-generate-ctmr-mr-brain` | `mr-brain` | Image-only brain MR |
 
 `run_ct`, `run_mr` and `run_mr_brain` fix the configuration; `run` takes it as an
@@ -137,6 +137,15 @@ as in the pinned inference configurations.
 Default grids are 128×256×256 at 1.25×1×1 mm for MR and 256×256×128 at
 0.94×0.94×1.36 mm for MR-Brain. `output_size` axes must be positive multiples of 32,
 at most 512 each and 256³ voxels in total.
+
+General MR is NVIDIA's `rflow-mr`, which takes no body-region input; NVIDIA
+recommends fine-tuning it on your own data. Its default grid is the T1 brain field
+of view, so it generates head MRI. With the default settings, T1 and unspecified
+contrast (8) give usable images; T2 comes out T1-weighted and FLAIR does not form a
+recognizable brain, also at NVIDIA's recommended T2 and FLAIR fields of view. NVIDIA's
+reference pipeline produces the same images from the same starting noise. For brain
+MRI use MR-Brain. NVIDIA lists few MR-Brain training scans for MRA, and its MRA
+output is of low quality.
 
 MR writes `synthetic_mr.nii.gz` or `synthetic_mr_brain.nii.gz`: int16, with a
 diagonal RAS affine from `spacing_mm`. As upstream, decoded values are multiplied

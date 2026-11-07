@@ -162,7 +162,11 @@ MR_MODEL: Final[dict[str, str | float]] = {
     "label": "NV-Generate MR",
     "task": "generation",
     "run": "mlx_generate_ctmr.medmlx:run_mr",
-    "summary": "Synthetic image-only body MRI (T1, T2 or FLAIR), without a label map.",
+    "summary": (
+        "Synthetic image-only MRI from NVIDIA's general MR model, without a label map. "
+        "The default grid is a T1 brain field of view and generates head MRI; T1 and "
+        "unspecified contrast are usable, T2 and FLAIR are not. Use MR-Brain for brain MRI."
+    ),
     # README: default MR at 128x256x256; GiB to decimal GB.
     "peak_memory_gb": 9.5 * 1024**3 / 1e9,
 }
