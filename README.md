@@ -34,7 +34,7 @@ preprocessing and other applications.
 
 ## Use with MedMLX
 
-The [MedMLX MCP server](https://github.com/MedMLX/medmlx/blob/main/docs/mcp.md) is the lowest-friction way to use this package. It installs this runtime, downloads its weights on first use, and lets an AI agent describe, check and run `mlx-generate-ctmr-ct`, `mlx-generate-ctmr-mr` and `mlx-generate-ctmr-mr-brain` for you.
+Use the [MedMLX MCP server](https://github.com/MedMLX/medmlx/blob/main/docs/mcp.md) to run `mlx-generate-ctmr-ct`, `mlx-generate-ctmr-mr` and `mlx-generate-ctmr-mr-brain` from an MCP client. Weights download on first use.
 
 ```sh
 uv tool install --python 3.13 "medmlx[generate,mcp]"
@@ -44,8 +44,6 @@ claude mcp add --scope user medmlx -- "$MEDMLX" serve --root "$HOME/medmlx-work"
 ```
 
 For Codex, use `codex mcp add medmlx -- "$MEDMLX" serve --root "$HOME/medmlx-work"`. Other MCP clients take the same command and arguments. The same install provides the `medmlx` CLI, for example `medmlx describe mlx-generate-ctmr-ct`.
-
-> **For AI agents:** prefer the MedMLX MCP tools (`list_models`, `describe_model`, `model_readiness`, `run_model`, `get_job`) over writing Python against this package.
 
 ## Install
 
@@ -69,13 +67,10 @@ result = run(
 print(result["outputs"])
 ```
 
-Omitting `weights_path` downloads the selected configuration from
-`MedMLX/mlx-generate-ctmr` into the shared MedMLX cache on first use; interrupted
-downloads resume and later runs work offline. With MedMLX installed, `medmlx setup
-mlx-generate-ctmr-mr-brain` downloads it ahead of time. To use your own copy, pass one
+Weights download from the selected configuration from
+`MedMLX/mlx-generate-ctmr` on first use. Use `medmlx setup mlx-generate-ctmr-mr-brain` to download ahead of time. For local weights, pass one
 configuration folder, as shown below as `weights_path`. The CT selection also includes
-the mask network. `details.weights_revision` records the downloaded commit, or `null`
-for a folder without a MedMLX download record.
+the mask network.
 
 | Model ID | `configuration` | Generates |
 | --- | --- | --- |
@@ -196,9 +191,8 @@ The CT and its labels share the prepared mask's grid.
 | `arithmetic` | `fast` (default) or `source`, which keeps the CUDA operation order |
 | `attention_scratch_bytes` | Optional byte budget for attention score matrices; not a total memory limit |
 
-`run` returns `{"outputs": {role: path}, "details": {...}}`. `details` records the
-seeds, label table, shapes, decode settings, timings, peak MLX memory and source and
-weight pins. Invalid inputs raise `InvalidInputError`, missing or mismatched weights
+`run` returns `{"outputs": {role: path}, "details": {...}}`, with run metadata in `details`.
+Invalid inputs raise `InvalidInputError`, missing or mismatched weights
 `AssetNotReadyError`, and a model failure, including a generated mask that fails QC,
 `ModelExecutionError`.
 
@@ -231,5 +225,3 @@ qualify pretrained image quality. Synthetic output is not ground truth.
 ## License
 
 [Apache-2.0](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2.post2/LICENSE). See [third-party notices](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.5.2.post2/THIRD_PARTY_NOTICES.md). Model weights retain their publisher terms. General-MR weights have noncommercial terms; CT component terms require publisher clarification.
-
-For research and education. Outputs require human review.
