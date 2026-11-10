@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mlx-generate-ctmr"
-version = "0.5.2.post2"
+version = "0.6.0"
 description = "Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and native MLX"
 readme = "README.md"
 classifiers = [
@@ -39,7 +39,7 @@ authors = [
   { name = "Alfredo Sandoval Jr." },
 ]
 dependencies = [
-  "medmlx-core==0.2.6",
+  "medmlx-core>=0.2.6,<0.3",
   # Pin the MLX release used for Apple Silicon inference and reviewer validation.
   "mlx==0.32.4; platform_system == 'Darwin' and platform_machine == 'arm64'",
   "nibabel>=5.3,<6",

@@ -215,7 +215,7 @@ wheels = [
 
 [[package]]
 name = "mlx-generate-ctmr"
-version = "0.5.2.post2"
+version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "medmlx-core" },
@@ -239,7 +239,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "medmlx-core", specifier = "==0.2.6" },
+    { name = "medmlx-core", specifier = ">=0.2.6,<0.3" },
     { name = "mlx", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = "==0.32.4" },
     { name = "nibabel", specifier = ">=5.3,<6" },
     { name = "numpy", specifier = ">=2.0,<3" },
