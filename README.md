@@ -195,15 +195,32 @@ The module functions port the NV-Generate, MAISI and MONAI components. They take
 caller-supplied weights and `mx`, and tensors use NCDHW.
 
 ```python
+from pathlib import Path
+
+import mlx.core as mx
 from mlx_generate_ctmr import arithmetic_mode, attention_memory_budget
-from mlx_generate_ctmr.mr import decode_mr_ncdhw, sample_mr_latent_ncdhw
+from mlx_generate_ctmr.image import sample_image_ncdhw
+from mlx_generate_ctmr.maisi_mlx_from_mask import (
+    PRODUCTION_UNET_CONSTRUCTOR, PRODUCTION_VAE_CONSTRUCTOR,
+)
 from mlx_generate_ctmr.weights import load_network
 
+weights = Path("mlx-generate-ctmr/mr/model.safetensors")
+vae, _ = load_network(weights, network="vae", mx=mx, configuration="mr")
+unet, scale_factor = load_network(weights, network="unet", mx=mx, configuration="mr")
+
 with arithmetic_mode("source"), attention_memory_budget(512 * 1024**2):
-    latent = sample_mr_latent_ncdhw(...)
+    result = sample_image_ncdhw(
+        (128, 128, 128), (1.0, 1.0, 1.0),  # output voxels (D, H, W) and spacing in mm
+        unet_weights=unet, vae_weights=vae,
+        unet_constructor=PRODUCTION_UNET_CONSTRUCTOR,
+        vae_constructor=PRODUCTION_VAE_CONSTRUCTOR,
+        mx=mx, scale_factor=scale_factor, configuration="mr", seed=0,
+    )
+print(result.image.shape, result.affine)  # (1, 1, 128, 128, 128) int16 image
 ```
 
-- Other entry points include `unet.denoise_unet_ncdhw`,
+- Other entry points include `mr.sample_mr_latent_ncdhw`, `unet.denoise_unet_ncdhw`,
   `controlnet.controlnet_residuals_ncdhw`, `vae.decode_vae_ncdhw`,
   `from_mask.sample_ct_from_mask_ncdhw`, `mask_ddpm.sample_mask_labels_ncdhw` and
   `mask_postprocess.postprocess_mask`.
