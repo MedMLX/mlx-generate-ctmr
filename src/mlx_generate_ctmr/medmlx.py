@@ -73,8 +73,10 @@ from mlx_generate_ctmr.attention_budget import attention_memory_budget
 from mlx_generate_ctmr.configurations import Configuration, get_configuration
 from mlx_generate_ctmr.decode import DEFAULT_OVERLAP, DEFAULT_ROI_SIZE
 from mlx_generate_ctmr.from_mask import (
+    FromMaskLatent,
+    decode_ct_latent_ncdhw,
     require_supported_production_shape,
-    sample_ct_from_mask_ncdhw,
+    sample_ct_latent_ncdhw,
 )
 from mlx_generate_ctmr.maisi_mlx_common import (
     PINNED_MONAI_REVISION,
@@ -100,8 +102,8 @@ from mlx_generate_ctmr.mask_condition import (
     prepare_mask_generation_controls,
     select_canonical_mask_labels_ncdhw,
 )
-from mlx_generate_ctmr.mask_ddpm import PRODUCTION_MASK_LATENT_SHAPE, sample_mask_labels_ncdhw
-from mlx_generate_ctmr.mask_decode import load_mask_label_id_map
+from mlx_generate_ctmr.mask_ddpm import PRODUCTION_MASK_LATENT_SHAPE, sample_mask_latent_ncdhw
+from mlx_generate_ctmr.mask_decode import decode_mask_latent_to_labels_ncdhw, load_mask_label_id_map
 from mlx_generate_ctmr.mask_postprocess import postprocess_mask
 from mlx_generate_ctmr.mask_qc import validate_write_and_require_maisi_mask
 from mlx_generate_ctmr.mask_unet import PRODUCTION_MASK_UNET_CONSTRUCTOR
@@ -231,6 +233,7 @@ def run(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
+    guidance_execution: str = "batched",
     mask_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
@@ -301,6 +304,7 @@ def run(
         spacing_mm: Requested voxel spacing in mm for CT paired or MR generation.
             CT from-mask takes spacing from the mask and rejects this argument.
         guidance_scale: MR classifier-free guidance scale; rejected for CT.
+        guidance_execution: ``"batched"`` (default) or lower-memory ``"sequential"`` for MR.
         mask_path: CT from-mask input NIfTI (``.nii`` or ``.nii.gz``) with MAISI
             labels 0..132 and required body-envelope label 200.
         anatomy: Canonical MAISI names to retain in CT paired output; required for
@@ -397,6 +401,7 @@ def run(
     if config.name is Configuration.CT:
         options, resolved_mask = _check_ct_request(
             guidance_scale=guidance_scale,
+            guidance_execution=guidance_execution,
             mask_path=mask_path,
             anatomy=anatomy,
             anatomy_size=anatomy_size,
@@ -449,6 +454,7 @@ def run(
             output_size=output_size,
             spacing_mm=spacing_mm,
             guidance_scale=guidance_scale,
+            guidance_execution=guidance_execution,
             seed=seed,
             num_inference_steps=num_inference_steps,
             sliding_window_size=sliding_window_size,
@@ -524,6 +530,7 @@ def run(
                     output_size=output_size,
                     spacing_mm=spacing_mm,
                     guidance_scale=guidance_scale,
+                    guidance_execution=guidance_execution,
                     mask_path=mask_path,
                     anatomy=anatomy,
                     anatomy_size=anatomy_size,
@@ -588,6 +595,7 @@ def _run_once(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
+    guidance_execution: str = "batched",
     mask_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
@@ -655,6 +663,7 @@ def _run_once(
             output_size=output_size,
             spacing_mm=spacing_mm,
             guidance_scale=guidance_scale,
+            guidance_execution=guidance_execution,
             seed=seed,
             num_inference_steps=num_inference_steps,
             sliding_window_size=sliding_window_size,
@@ -665,6 +674,7 @@ def _run_once(
         return run_image(request, weights_path=weights_path)
     options, resolved_mask = _check_ct_request(
         guidance_scale=guidance_scale,
+        guidance_execution=guidance_execution,
         mask_path=mask_path,
         anatomy=anatomy,
         anatomy_size=anatomy_size,
@@ -748,6 +758,7 @@ def _run_once(
 def _check_ct_request(
     *,
     guidance_scale: float | None,
+    guidance_execution: str,
     mask_path: _PathArg | None,
     anatomy: Sequence[str] | None,
     anatomy_size: Mapping[str, float] | None,
@@ -772,6 +783,8 @@ def _check_ct_request(
     """
     if guidance_scale is not None:
         raise InvalidInputError("CT ControlNet inference does not use classifier-free guidance")
+    if guidance_execution != "batched":
+        raise InvalidInputError("sequential guidance_execution only applies to MR configurations")
     mode = generation_mode or ("from_mask" if mask_path is not None else "paired")
     options = parse_options(
         generation_mode=mode,
@@ -910,28 +923,18 @@ def _run_from_mask(
         host = probe_mlx_runtime()
         default_device = mlx_default_device_name(mx)
         mx.reset_peak_memory()
-        load_started = time.perf_counter()
-        vae_weights, unet_weights, controlnet_weights, scale_factor = _load_ct_networks(
-            weights_dir, mx
+        sampled, diffusion_load_s = _sample_owned_ct_latent(
+            weights_dir, mx, label, spacing_mm, affine=affine, seed=seed, options=options,
         )
-        mx.eval(*vae_weights.values(), *unet_weights.values(), *controlnet_weights.values())
-        load_s = time.perf_counter() - load_started
-        result = sample_ct_from_mask_ncdhw(
-            label,
-            spacing_mm,
-            unet_weights=unet_weights,
-            controlnet_weights=controlnet_weights,
-            vae_weights=vae_weights,
-            unet_constructor=PRODUCTION_UNET_CONSTRUCTOR,
-            controlnet_constructor=PRODUCTION_CONTROLNET_CONSTRUCTOR,
-            vae_constructor=vae_ctor,
-            mx=mx,
-            scale_factor=scale_factor,
-            seed=seed,
-            num_inference_steps=options.num_inference_steps or 30,
-            affine=affine,
-            roi=roi,
-            overlap=overlap,
+        scale_factor = sampled.scale_factor
+        load_started = time.perf_counter()
+        vae_weights, _ = _load_ct_network(weights_dir, mx, "vae")
+        mx.eval(*vae_weights.values())
+        vae_load_s = time.perf_counter() - load_started
+        load_s = diffusion_load_s + vae_load_s
+        result = decode_ct_latent_ncdhw(
+            sampled, vae_weights=vae_weights, vae_constructor=vae_ctor,
+            mx=mx, roi=roi, overlap=overlap,
         )
         export_started = time.perf_counter()
         hu_host = np.asarray(result.hu, dtype=np.float32)
@@ -999,6 +1002,8 @@ def _run_from_mask(
             },
             "timings_s": {
                 "cold_weight_load": load_s,
+                "diffusion_weight_load": diffusion_load_s,
+                "vae_weight_load": vae_load_s,
                 **dict(result.stage_timings_s),
                 "host_export": export_s,
                 "total_stage": elapsed_s,
@@ -1148,36 +1153,22 @@ def _run_paired_mask_stage(
             zip(MASK_ANATOMY_SIZE_SLOTS, controls.anatomy_size.tolist(), strict=True)
         )
         mx = cast("Mlx", import_mlx())
-        unet_weights, scale_factor = _load_mask_network(mask_weights_dir, "unet", mx)
-        vae_weights, _ = _load_mask_network(mask_weights_dir, "vae", mx)
-        if scale_factor is None:
-            raise AssetNotReadyError(
-                "converted paired-mask UNet is missing scale_factor",
-                reason=f"missing scale_factor in {mask_weights_dir / 'model.safetensors'}",
-                hint=_MASK_WEIGHTS_HINT,
-            )
         label_id_map = load_mask_label_id_map(label_dict_path)
-        mx.eval(*unet_weights.values(), *vae_weights.values())
         mx.reset_peak_memory()
-        _latent, labels = sample_mask_labels_ncdhw(
-            anatomy_size=controls.anatomy_size,
-            unet_weights=unet_weights,
-            vae_weights=vae_weights,
-            label_id_map=label_id_map,
-            scale_factor=scale_factor,
-            constructor=_MASK_UNET_CONSTRUCTOR,
-            vae_constructor=PRODUCTION_MASK_VAE_CONSTRUCTOR,
-            mx=mx,
-            num_inference_steps=options.mask_generation_num_inference_steps or 1000,
-            latent_shape=_MASK_LATENT_SHAPE,
-            seed=seed,
-            decode_roi=options.sliding_window_size or DEFAULT_ROI_SIZE,
-            decode_overlap=(
-                DEFAULT_OVERLAP
-                if options.sliding_window_overlap is None
-                else options.sliding_window_overlap
-            ),
+        latent, scale_factor = _sample_owned_mask_latent(
+            mask_weights_dir, mx, controls.anatomy_size, options=options, seed=seed,
         )
+        vae_weights, _ = _load_mask_network(mask_weights_dir, "vae", mx)
+        mx.eval(*vae_weights.values())
+        logits, labels = decode_mask_latent_to_labels_ncdhw(
+            latent, vae_weights, label_id_map=label_id_map, scale_factor=scale_factor,
+            constructor=PRODUCTION_MASK_VAE_CONSTRUCTOR, mx=mx,
+            roi=options.sliding_window_size or DEFAULT_ROI_SIZE,
+            overlap=(DEFAULT_OVERLAP if options.sliding_window_overlap is None
+                     else options.sliding_window_overlap),
+        )
+        mx.eval(logits, labels)
+        del latent, logits
         raw_labels = np.asarray(labels[0, 0], dtype=np.int16)
         processed_labels = postprocess_mask(
             raw_labels, target_tumor_label=controls.target_tumor_label
@@ -1678,48 +1669,70 @@ def _load_nifti1(path: Path) -> NiftiImage:
     return image
 
 
-def _load_ct_networks(
-    weights_dir: Path, mx: Mlx
-) -> tuple[dict[str, Array], dict[str, Array], dict[str, Array], float]:
-    """Load VAE, UNet and ControlNet weights checked against the catalog; returns them plus the UNet
-    scale factor.
-
-    Raises AssetNotReadyError when the weights do not match the catalog or the scale factor is
-    missing.
-    """
-    catalog = load_catalog()
+def _load_ct_network(
+    weights_dir: Path, mx: Mlx, network: str
+) -> tuple[dict[str, Array], float | None]:
+    """Admit one CT network; return its optional UNet latent scale."""
     try:
-        vae, _ = load_network(
-            network_file(weights_dir),
-            network="vae",
-            mx=cast("ArrayFactory[Array, Dtype]", mx),
-            catalog=catalog,
-        )
-        unet, scale_factor = load_network(
-            network_file(weights_dir),
-            network="unet",
-            mx=cast("ArrayFactory[Array, Dtype]", mx),
-            catalog=catalog,
-        )
-        controlnet, _ = load_network(
-            network_file(weights_dir),
-            network="controlnet",
-            mx=cast("ArrayFactory[Array, Dtype]", mx),
-            catalog=catalog,
+        return load_network(
+            network_file(weights_dir), network=network,
+            mx=cast("ArrayFactory[Array, Dtype]", mx), catalog=load_catalog(),
         )
     except InvalidInputError as exc:
         raise AssetNotReadyError(
             f"NV-Generate-CT from-mask weights in {weights_dir} do not match the catalog: {exc}",
-            reason=str(exc),
-            hint=_CT_WEIGHTS_HINT,
+            reason=str(exc), hint=_CT_WEIGHTS_HINT,
         ) from exc
-    if scale_factor is None:
+
+
+def _sample_owned_ct_latent(
+    weights_dir: Path, mx: Mlx, label: HostArray, spacing_mm: Sequence[float],
+    *, affine: HostArray, seed: int, options: _Options,
+) -> tuple[FromMaskLatent, float]:
+    """Release caller-owned diffusion dictionaries before the runner loads its VAE."""
+    started = time.perf_counter()
+    unet, factor = _load_ct_network(weights_dir, mx, "unet")
+    controlnet, _ = _load_ct_network(weights_dir, mx, "controlnet")
+    if factor is None:
         raise AssetNotReadyError(
             "converted UNet is missing scale_factor",
             reason=f"missing scale_factor in {weights_dir / 'model.safetensors'}",
             hint=_CT_WEIGHTS_HINT,
         )
-    return vae, unet, controlnet, scale_factor
+    mx.eval(*unet.values(), *controlnet.values())
+    loaded = time.perf_counter() - started
+    sampled = sample_ct_latent_ncdhw(
+        label, spacing_mm, unet_weights=unet, controlnet_weights=controlnet,
+        unet_constructor=PRODUCTION_UNET_CONSTRUCTOR,
+        controlnet_constructor=PRODUCTION_CONTROLNET_CONSTRUCTOR,
+        mx=mx, scale_factor=factor, seed=seed,
+        num_inference_steps=options.num_inference_steps or 30, affine=affine,
+    )
+    return sampled, loaded
+
+
+def _sample_owned_mask_latent(
+    weights_dir: Path, mx: Mlx, anatomy_size: HostArray, *, options: _Options, seed: int
+) -> tuple[Array, float]:
+    """Own mask diffusion weights through evaluated sampling, then release their packing."""
+    from mlx_generate_ctmr.fast_fp32 import drop_packed_weights
+
+    unet, factor = _load_mask_network(weights_dir, "unet", mx)
+    if factor is None:
+        raise AssetNotReadyError(
+            "converted paired-mask UNet is missing scale_factor",
+            reason=f"missing scale_factor in {weights_dir / 'model.safetensors'}",
+            hint=_MASK_WEIGHTS_HINT,
+        )
+    mx.eval(*unet.values())
+    latent = sample_mask_latent_ncdhw(
+        anatomy_size=anatomy_size, unet_weights=unet, constructor=_MASK_UNET_CONSTRUCTOR,
+        mx=mx, num_inference_steps=options.mask_generation_num_inference_steps or 1000,
+        latent_shape=_MASK_LATENT_SHAPE, seed=seed,
+    )
+    mx.eval(latent)
+    drop_packed_weights(unet.values())
+    return latent, factor
 
 
 def _load_mask_network(
@@ -2016,6 +2029,7 @@ def run_ct(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
+    guidance_execution: str = "batched",
     mask_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
@@ -2048,6 +2062,7 @@ def run_ct(
         output_size=output_size,
         spacing_mm=spacing_mm,
         guidance_scale=guidance_scale,
+        guidance_execution=guidance_execution,
         mask_path=mask_path,
         anatomy=anatomy,
         anatomy_size=anatomy_size,
@@ -2081,6 +2096,7 @@ def run_mr(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
+    guidance_execution: str = "batched",
     seed: int = 0,
     num_inference_steps: int | None = None,
     sliding_window_size: Sequence[int] | None = None,
@@ -2099,6 +2115,7 @@ def run_mr(
         output_size=output_size,
         spacing_mm=spacing_mm,
         guidance_scale=guidance_scale,
+        guidance_execution=guidance_execution,
         seed=seed,
         num_inference_steps=num_inference_steps,
         sliding_window_size=sliding_window_size,
@@ -2118,6 +2135,7 @@ def run_mr_brain(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
+    guidance_execution: str = "batched",
     seed: int = 0,
     num_inference_steps: int | None = None,
     sliding_window_size: Sequence[int] | None = None,
@@ -2136,6 +2154,7 @@ def run_mr_brain(
         output_size=output_size,
         spacing_mm=spacing_mm,
         guidance_scale=guidance_scale,
+        guidance_execution=guidance_execution,
         seed=seed,
         num_inference_steps=num_inference_steps,
         sliding_window_size=sliding_window_size,

@@ -33,10 +33,15 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "darwin-arm64"
         ("run_ct", {"anatomy": ["liver"], "num_inference_steps": 0}, None),
         ("run_mr", {"modality": "ct"}, None),
         ("run_mr_brain", {"overwrite": "false"}, None),
+        ("run_mr", {"guidance_execution": "unknown"}, None),
+        ("run_ct", {"guidance_execution": "sequential"}, None),
         ("run_ct", {"anatomy": ["liver"], "ct_qc_statistics_path": "absent.json"}, None),
         ("run_ct", {"mask_path": "mask.nii.gz"}, "stages/ct_qc/attempt-2/synthetic_ct.nii.gz"),
     ],
-    ids=["path", "range", "choice", "boolean", "qc-statistics", "output-conflict"],
+    ids=[
+        "path", "range", "choice", "boolean", "guidance-mode", "ct-guidance",
+        "qc-statistics", "output-conflict",
+    ],
 )
 def test_invalid_arguments_fail_before_downloading_weights(
     runner: str,
@@ -150,6 +155,7 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
     data = cast(FloatArray, np.asanyarray(ct.dataobj))
     assert ct.shape == (16, 16, 16) and data.dtype == np.float32
     np.testing.assert_array_equal(ct.affine, affine)
+    assert ct.header.get_xyzt_units() == ("mm", "unknown")
     assert np.isfinite(data).all() and data.min() >= -1000.0 and data.max() <= 1000.0
     written = nib.load(first["outputs"]["target_mask"])
     np.testing.assert_array_equal(np.asanyarray(written.dataobj), label)

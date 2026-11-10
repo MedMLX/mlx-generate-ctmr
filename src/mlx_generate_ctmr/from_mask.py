@@ -86,6 +86,18 @@ class FromMaskArrays:
     stage_timings_s: Mapping[str, float]
 
 
+@dataclass(frozen=True, slots=True)
+class FromMaskLatent:
+    """Evaluated CT latent and validated host metadata, without diffusion-weight references."""
+
+    latent: Array
+    label: HostArray
+    affine: Float64Array
+    scale_factor: float
+    num_inference_steps: int
+    rflow_seconds: float
+
+
 def require_supported_production_shape(shape: Sequence[int]) -> tuple[int, int, int]:
     """Return ``shape`` as a 3-tuple if this port supports it, else raise ``ValueError``.
 
@@ -145,6 +157,35 @@ def sample_ct_from_mask_ncdhw(
             nor ``latent`` is given.
     """
 
+    sampled = sample_ct_latent_ncdhw(
+        label, spacing_mm, unet_weights=unet_weights, controlnet_weights=controlnet_weights,
+        unet_constructor=unet_constructor, controlnet_constructor=controlnet_constructor,
+        mx=mx, scale_factor=scale_factor, seed=seed, latent=latent,
+        num_inference_steps=num_inference_steps, guidance_scale=guidance_scale, affine=affine,
+    )
+    return decode_ct_latent_ncdhw(
+        sampled, vae_weights=vae_weights, vae_constructor=vae_constructor,
+        mx=mx, roi=roi, overlap=overlap,
+    )
+
+
+def sample_ct_latent_ncdhw(
+    label: HostArray,
+    spacing_mm: Sequence[float],
+    *,
+    unet_weights: Mapping[str, Array],
+    controlnet_weights: Mapping[str, Array],
+    unet_constructor: RflowConstructor,
+    controlnet_constructor: ControlnetConstructor,
+    mx: Mlx,
+    scale_factor: float,
+    seed: int | None = None,
+    latent: Array | None = None,
+    num_inference_steps: int = DEFAULT_STEPS,
+    guidance_scale: float = 0.0,
+    affine: HostArray | None = None,
+) -> FromMaskLatent:
+    """Materialize the ControlNet-conditioned latent without owning decoder weights."""
     if float(guidance_scale) != 0.0:
         raise ValueError("CFG>0 majority vote is not an MLX destination")
     factor = require_scale_factor(scale_factor)
@@ -170,7 +211,6 @@ def sample_ct_from_mask_ncdhw(
         num_inference_steps=int(num_inference_steps),
         input_img_size_numel=_prod(latent_shape[2:]),
     )
-    inference_started = time.perf_counter()
     rflow_started = time.perf_counter()
     # The label map and ControlNet weights are fixed throughout this generation.
     # Materialize the embedding once so its convolution intermediates can be freed.
@@ -199,42 +239,58 @@ def sample_ct_from_mask_ncdhw(
     del cond, conditioning_embedding, label_mx, velocity
     fast_fp32.drop_packed_weights([*unet_weights.values(), *controlnet_weights.values()])
     rflow_s = time.perf_counter() - rflow_started
+    out_affine = IDENTITY_AFFINE.copy() if affine is None else np.asarray(affine, dtype=np.float64)
+    if out_affine.shape != (4, 4):
+        raise ValueError(f"affine must be 4x4; got {out_affine.shape}")
+    return FromMaskLatent(
+        latent=final, label=host_label, affine=out_affine, scale_factor=factor,
+        num_inference_steps=int(num_inference_steps), rflow_seconds=rflow_s,
+    )
+
+
+def decode_ct_latent_ncdhw(
+    sampled: FromMaskLatent,
+    *,
+    vae_weights: Mapping[str, Array],
+    vae_constructor: VaeConstructor,
+    mx: Mlx,
+    roi: Sequence[int] = DEFAULT_ROI_SIZE,
+    overlap: float = DEFAULT_OVERLAP,
+) -> FromMaskArrays:
+    """Decode a sampled CT latent, applying its validated label mask and physical affine."""
     decode_started = time.perf_counter()
     decoded = sliding_window_decode_ncdhw(
-        final,
+        sampled.latent,
         vae_weights,
         constructor=vae_constructor,
         mx=mx,
         roi=roi,
         overlap=overlap,
-        scale_factor=factor,
+        scale_factor=sampled.scale_factor,
         arithmetic=vae_arithmetic(),
     )
     mx.eval(decoded)
     decode_s = time.perf_counter() - decode_started
     hu_started = time.perf_counter()
-    hu = to_hu_ncdhw(decoded, as_fp32(host_label, mx), mx)
+    hu = to_hu_ncdhw(decoded, as_fp32(sampled.label, mx), mx)
     mx.eval(hu)
     hu_s = time.perf_counter() - hu_started
     spatial = tuple(int(dim) for dim in decoded.shape[2:])
     roi_image = tuple(int(axis) * Z_SCALE for axis in roi)
     seam = SEAM_NOT_APPLICABLE if _prod(spatial) <= _prod(roi_image) else "tiled"
-    out_affine = IDENTITY_AFFINE.copy() if affine is None else np.asarray(affine, dtype=np.float64)
-    if out_affine.shape != (4, 4):
-        raise ValueError(f"affine must be 4x4; got {out_affine.shape}")
     return FromMaskArrays(
-        latent=final,
+        latent=sampled.latent,
         decoded=decoded,
         hu=hu,
-        affine=out_affine,
-        scale_factor=factor,
-        num_inference_steps=int(num_inference_steps),
+        affine=sampled.affine,
+        scale_factor=sampled.scale_factor,
+        num_inference_steps=sampled.num_inference_steps,
         seam_audit=seam,
         stage_timings_s={
-            "rflow_controlnet_unet": rflow_s,
+            "rflow_controlnet_unet": sampled.rflow_seconds,
             "vae_decode": decode_s,
             "hu_postprocess": hu_s,
-            "total_synchronized_inference": time.perf_counter() - inference_started,
+            "total_synchronized_inference": sampled.rflow_seconds + decode_s + hu_s,
         },
     )
 

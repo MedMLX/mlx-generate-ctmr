@@ -133,6 +133,9 @@ is T1 (9). General MR accepts unspecified contrast (8) and T1 (9). MR-Brain acce
 (9, 10, 11, 16, 20) and their skull-stripped variants (29, 30, 31, 33, 32). Other
 contrasts are rejected. `guidance_scale` defaults to 15 for MR and 2 for MR-Brain,
 as in the pinned inference configurations.
+Set `guidance_execution="sequential"` to run conditional and unconditional passes
+separately with lower activation memory. The default `"batched"` combines both
+passes in one batch. A zero guidance scale runs the conditional pass in either mode.
 
 Default grids are 128×256×256 at 1.25×1×1 mm for MR and 256×256×128 at
 0.94×0.94×1.36 mm for MR-Brain. `output_size` axes must be positive multiples of 32,

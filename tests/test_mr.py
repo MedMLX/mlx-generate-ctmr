@@ -178,8 +178,9 @@ def test_conditions_and_intensity_mapping_match_source(
 
 
 @pytest.mark.parametrize("configuration", CONFIGURATIONS)
+@pytest.mark.parametrize("guidance_execution", ["batched", "sequential"])
 def test_seeded_mr_unet_and_pipeline_parity(
-    configuration: str, metal: Mlx, monkeypatch: pytest.MonkeyPatch
+    configuration: str, guidance_execution: str, metal: Mlx, monkeypatch: pytest.MonkeyPatch
 ):
     """Compare a seeded MR UNet and pipeline with the reference."""
     payload, meta = recorded(configuration)
@@ -208,11 +209,21 @@ def test_seeded_mr_unet_and_pipeline_parity(
     np.testing.assert_allclose(
         as_numpy(actual), payload["output.velocity_batch"], rtol=UNET_RTOL, atol=UNET_ATOL
     )
+    conditional = image.guided_velocity(
+        x, 1000.0, class_labels=array([meta["modality"]], dtype=metal.int32),
+        spacing=array(payload["output.spacing"]), weights=params["unet"],
+        constructor=ctor["unet"], mx=metal, guidance_scale=0.0,
+        guidance_execution=guidance_execution,
+    )
+    np.testing.assert_allclose(
+        as_numpy(conditional), payload["output.velocity_batch"][:1], rtol=UNET_RTOL, atol=UNET_ATOL
+    )
     result = image.sample_image_ncdhw(
         (32, 32, 32),
         cast(RealArray, payload["input.spacing_mm"]),
         configuration=configuration,
         modality=meta["modality"],
+        guidance_execution=guidance_execution,
         latent=x,
         scale_factor=1.25,
         unet_weights=params["unet"],
@@ -233,8 +244,10 @@ def test_seeded_mr_unet_and_pipeline_parity(
 @pytest.mark.parametrize(
     ("configuration", "runner"), [("mr", "run_mr"), ("mr-brain", "run_mr_brain")]
 )
+@pytest.mark.parametrize("guidance_execution", ["batched", "sequential"])
 def test_seeded_public_runner_on_metal(
-    configuration: str, runner: str, metal: Mlx, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    configuration: str, runner: str, guidance_execution: str,
+    metal: Mlx, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     """Run the registered MR runner on Metal from the recorded latent and match the source."""
     payload, meta = recorded(configuration)
@@ -265,13 +278,16 @@ def test_seeded_public_runner_on_metal(
         output_size=(32, 32, 32),
         spacing_mm=spacing.tolist(),
         modality=meta["modality"],
+        guidance_execution=guidance_execution,
         seed=meta["seed"],
     )
     volume = nib.load(result["outputs"]["synthetic_image"])
     stored = cast(NumericArray, np.asanyarray(volume.dataobj))
     assert_mr_intensity_parity(stored[None, None], payload["output.decoded"])
     np.testing.assert_allclose(volume.affine, np.diag((*spacing, 1)))
+    assert volume.header.get_xyzt_units() == ("mm", "unknown")
     assert result["details"]["modality"] == meta["modality"]
+    assert result["details"]["guidance_execution"] == guidance_execution
 
 
 @pytest.mark.parametrize("modality", ["mri_t2", "mri_flair", 10, 11])

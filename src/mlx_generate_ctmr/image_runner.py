@@ -23,8 +23,10 @@ from mlx_generate_ctmr.configurations import ModelConfiguration, get_configurati
 from mlx_generate_ctmr.image import (
     IMAGE_OVERLAP,
     IMAGE_ROI,
+    ImageLatent,
+    decode_image_latent_ncdhw,
     guidance_scale_value,
-    sample_image_ncdhw,
+    sample_image_latent_ncdhw,
 )
 from mlx_generate_ctmr.maisi_mlx_common import source_pins
 from mlx_generate_ctmr.maisi_mlx_from_mask import (
@@ -73,45 +75,49 @@ def _geometry(
     return size, tuple(float(v) for v in spacing)
 
 
-def _load_networks(
-    directory: Path, config: ModelConfiguration, mx: Mlx
-) -> tuple[dict[str, Array], dict[str, Array], float]:
-    """Load VAE and UNet weights checked against the catalog; returns `(vae, unet,
-    unet_scale_factor)`.
-
-    Raises AssetNotReadyError on a catalog mismatch, unreadable weights or a missing scale
-    factor.
-    """
-    catalog = load_catalog(config.name)
+def _load_image_network(
+    directory: Path, config: ModelConfiguration, network: str, mx: Mlx
+) -> tuple[dict[str, Array], float | None]:
+    """Admit one stage's weights without loading other networks."""
     try:
-        vae, _ = load_network(
-            network_file(directory),
-            network="vae",
+        return load_network(
+            network_file(directory), network=network,
             mx=cast("ArrayFactory[Array, Dtype]", mx),
-            catalog=catalog,
-            configuration=config.name,
-        )
-        unet, factor = load_network(
-            network_file(directory),
-            network="unet",
-            mx=cast("ArrayFactory[Array, Dtype]", mx),
-            catalog=catalog,
-            configuration=config.name,
+            catalog=load_catalog(config.name), configuration=config.name,
         )
     except (InvalidInputError, OSError, ValueError) as exc:
         raise AssetNotReadyError(
             f"{config.name} weights do not match their catalog: {exc}",
-            reason=str(exc),
-            hint="Download the matching safetensors weights again.",
+            reason=str(exc), hint="Download the matching safetensors weights again.",
         ) from exc
+
+
+def _sample_owned_image_latent(
+    directory: Path, config: ModelConfiguration, mx: Mlx, *, size: tuple[int, ...],
+    spacing: tuple[float, ...], modality: int, guidance: float, guidance_execution: str, seed: int,
+    num_inference_steps: int,
+) -> tuple[ImageLatent, float]:
+    """Own diffusion dictionaries and closures only until the final latent is evaluated."""
+    from mlx_generate_ctmr.fast_fp32 import drop_packed_weights
+
+    started = time.perf_counter()
+    unet, factor = _load_image_network(directory, config, "unet", mx)
     if factor is None:
         raise AssetNotReadyError(
-            "UNet scale_factor is missing",
-            reason="missing scale_factor",
+            "UNet scale_factor is missing", reason="missing scale_factor",
             hint="Download the matching safetensors weights again.",
         )
-    mx.eval(*vae.values(), *unet.values())
-    return vae, unet, factor
+    mx.eval(*unet.values())
+    loaded = time.perf_counter() - started
+    sampled = sample_image_latent_ncdhw(
+        size, spacing, configuration=config.name, modality=modality,
+        guidance_scale=guidance, guidance_execution=guidance_execution,
+        seed=seed, num_inference_steps=num_inference_steps,
+        scale_factor=factor, mx=mx, unet_weights=unet,
+        unet_constructor=PRODUCTION_UNET_CONSTRUCTOR,
+    )
+    drop_packed_weights(unet.values())
+    return sampled, loaded
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,6 +129,7 @@ class ImageRequest:
     spacing: tuple[float, ...]
     modality: int
     guidance: float
+    guidance_execution: str
     seed: int
     num_inference_steps: int
     roi: tuple[int, ...]
@@ -139,6 +146,7 @@ def check_image_request(
     output_size: Sequence[int] | None,
     spacing_mm: Sequence[float] | None,
     guidance_scale: float | None,
+    guidance_execution: str = "batched",
     seed: int,
     num_inference_steps: int | None,
     sliding_window_size: Sequence[int] | None,
@@ -164,6 +172,8 @@ def check_image_request(
         guidance = guidance_scale_value(config, guidance_scale)
     except ValueError as exc:
         raise InvalidInputError(str(exc)) from exc
+    if guidance_execution not in ("batched", "sequential"):
+        raise InvalidInputError("guidance_execution must be 'batched' or 'sequential'")
     options = parse_options(
         generation_mode="from_mask",
         anatomy=(),
@@ -212,6 +222,7 @@ def check_image_request(
         spacing=spacing,
         modality=index,
         guidance=guidance,
+        guidance_execution=guidance_execution,
         seed=options.seed,
         num_inference_steps=options.num_inference_steps or config.num_inference_steps,
         roi=tuple(roi),
@@ -228,7 +239,7 @@ def run_image(request: ImageRequest, *, weights_path: PathArg) -> RunResult[str]
     ``synthetic_mr.nii.gz`` or ``synthetic_mr_brain.nii.gz`` (``request.destination``).
     The saved affine is diagonal with the requested millimeter spacing and zero
     origin; no reference-image geometry is copied. The NIfTI header's spatial
-    unit is left unknown even though the spacing values are specified in mm. Returns
+    unit is millimeters. Returns
     ``{"outputs": {"synthetic_image": path}, "details": {...}}``.
 
     Raises:
@@ -265,6 +276,7 @@ def run_image(request: ImageRequest, *, weights_path: PathArg) -> RunResult[str]
         spacing=request.spacing,
         modality=request.modality,
         guidance=request.guidance,
+        guidance_execution=request.guidance_execution,
         seed=request.seed,
         num_inference_steps=request.num_inference_steps,
         roi=request.roi,
@@ -282,6 +294,7 @@ def _execute_image(
     spacing: tuple[float, ...],
     modality: int,
     guidance: float,
+    guidance_execution: str,
     seed: int,
     num_inference_steps: int,
     roi: Sequence[int],
@@ -297,29 +310,27 @@ def _execute_image(
     started = time.perf_counter()
     mx = cast("Mlx", import_mlx())
     mx.reset_peak_memory()
-    vae, unet, factor = _load_networks(directory, config, mx)
     try:
-        result = sample_image_ncdhw(
-            size,
-            spacing,
-            configuration=config.name,
-            modality=modality,
-            guidance_scale=guidance,
-            seed=seed,
-            num_inference_steps=num_inference_steps,
-            scale_factor=factor,
-            mx=mx,
-            unet_weights=unet,
-            vae_weights=vae,
-            unet_constructor=PRODUCTION_UNET_CONSTRUCTOR,
-            vae_constructor=constructor,
-            roi=roi,
-            overlap=overlap,
+        sampled, diffusion_load_s = _sample_owned_image_latent(
+            directory, config, mx, size=size, spacing=spacing, modality=modality,
+            guidance=guidance, guidance_execution=guidance_execution,
+            seed=seed, num_inference_steps=num_inference_steps,
+        )
+        factor = sampled.scale_factor
+        load_started = time.perf_counter()
+        vae, _ = _load_image_network(directory, config, "vae", mx)
+        mx.eval(*vae.values())
+        vae_load_s = time.perf_counter() - load_started
+        result = decode_image_latent_ncdhw(
+            sampled, vae_weights=vae, vae_constructor=constructor,
+            mx=mx, roi=roi, overlap=overlap,
         )
         if result.image.shape != (1, 1, *size) or result.image.dtype != np.int16:
             raise ValueError("image-only output does not match the requested grid/int16 dtype")
         destination.parent.mkdir(parents=True, exist_ok=True)
-        nib.save(nib.Nifti1Image(result.image[0, 0], result.affine), destination)
+        output = nib.Nifti1Image(result.image[0, 0], result.affine)
+        output.header.set_xyzt_units("mm", "unknown")
+        nib.save(output, destination)
     except (OSError, RuntimeError, ValueError) as exc:
         raise ModelExecutionError(f"NV-Generate-{config.name} MLX failed: {exc}") from exc
     return {
@@ -330,6 +341,7 @@ def _execute_image(
             "modality": modality,
             "seed": seed,
             "guidance_scale": guidance,
+            "guidance_execution": guidance_execution,
             "num_inference_steps": num_inference_steps,
             "shape": list(size),
             "spacing_mm": list(spacing),
@@ -340,7 +352,10 @@ def _execute_image(
             "sliding_window_overlap": overlap,
             "autoencoder_tp_num_splits": int(constructor["num_splits"]),
             "source": source_pins(config.name),
-            "stage_timings_s": dict(result.stage_timings_s),
+            "stage_timings_s": {
+                "diffusion_weight_load": diffusion_load_s, "vae_weight_load": vae_load_s,
+                **dict(result.stage_timings_s),
+            },
             "peak_memory_bytes": mx.get_peak_memory(),
             "elapsed_s": time.perf_counter() - started,
         },

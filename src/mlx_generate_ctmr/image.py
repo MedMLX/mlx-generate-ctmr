@@ -54,6 +54,17 @@ class ImageArrays:
     stage_timings_s: Mapping[str, float]
 
 
+@dataclass(frozen=True, slots=True)
+class ImageLatent:
+    """Evaluated diffusion output and decoder metadata, with no network ownership."""
+
+    latent: Array
+    scale_factor: float
+    configuration: str
+    affine: Float64Array
+    rflow_seconds: float
+
+
 def output_intensities(decoded: HostArray, *, configuration: str = "ct") -> IntArray:
     """Convert decoded VAE output to the int16 image the upstream image-only path writes.
 
@@ -114,14 +125,19 @@ def guided_velocity(
     constructor: RflowConstructor,
     mx: Mlx,
     guidance_scale: float,
+    guidance_execution: str = "batched",
 ) -> Array:
     """Velocity for one sampler step, with modality classifier-free guidance.
 
     With ``guidance_scale == 0`` this is a single conditional pass. Otherwise the
-    batch is doubled with the unconditional copy labelled class 0 (spacing and time
+    default batch is doubled with the unconditional copy labelled class 0 (spacing and time
     are identical for both), and the result is
-    ``unconditional + guidance_scale * (conditional - unconditional)``.
+    ``unconditional + guidance_scale * (conditional - unconditional)``. Selecting
+    ``guidance_execution="sequential"`` evaluates the conditional and unconditional
+    passes separately, reducing activation residency while keeping this combine order.
     """
+    if guidance_execution not in ("batched", "sequential"):
+        raise ValueError("guidance_execution must be 'batched' or 'sequential'")
     t = mx.full((int(state.shape[0]),), float(timestep), dtype=mx.float32)
     if guidance_scale == 0.0:
         return denoise_unet_ncdhw(
@@ -133,6 +149,17 @@ def guided_velocity(
             constructor=constructor,
             mx=mx,
         )[1]
+    if guidance_execution == "sequential":
+        conditional = denoise_unet_ncdhw(
+            state, t, class_labels, spacing, weights, constructor=constructor, mx=mx,
+        )[1]
+        mx.eval(conditional)
+        unconditional = denoise_unet_ncdhw(
+            state, t, mx.zeros_like(class_labels), spacing, weights,
+            constructor=constructor, mx=mx,
+        )[1]
+        mx.eval(unconditional)
+        return unconditional + guidance_scale * (conditional - unconditional)
     batch = int(state.shape[0])
     classes = mx.concatenate([class_labels, mx.zeros_like(class_labels)])
     _, velocity = denoise_unet_ncdhw(
@@ -187,6 +214,7 @@ def sample_image_ncdhw(
     configuration: str = "ct",
     modality: str | int | None = None,
     guidance_scale: float | None = None,
+    guidance_execution: str = "batched",
     seed: int | None = None,
     latent: Array | None = None,
     num_inference_steps: int = 30,
@@ -209,9 +237,41 @@ def sample_image_ncdhw(
         ValueError: If a size, seed, latent, scale or guidance value is invalid.
         InvalidInputError: If the configuration or modality is unsupported.
     """
+    sampled = sample_image_latent_ncdhw(
+        output_size, spacing_mm, unet_weights=unet_weights,
+        unet_constructor=unet_constructor, mx=mx, scale_factor=scale_factor,
+        configuration=configuration, modality=modality, guidance_scale=guidance_scale,
+        guidance_execution=guidance_execution,
+        seed=seed, latent=latent, num_inference_steps=num_inference_steps,
+    )
+    return decode_image_latent_ncdhw(
+        sampled, vae_weights=vae_weights, vae_constructor=vae_constructor,
+        mx=mx, roi=roi, overlap=overlap,
+    )
+
+
+def sample_image_latent_ncdhw(
+    output_size: Sequence[int],
+    spacing_mm: Sequence[float] | RealArray,
+    *,
+    unet_weights: Mapping[str, Array],
+    unet_constructor: RflowConstructor,
+    mx: Mlx,
+    scale_factor: float,
+    configuration: str = "ct",
+    modality: str | int | None = None,
+    guidance_scale: float | None = None,
+    guidance_execution: str = "batched",
+    seed: int | None = None,
+    latent: Array | None = None,
+    num_inference_steps: int = 30,
+) -> ImageLatent:
+    """Materialize the final image latent without loading or retaining a VAE."""
     config = get_configuration(configuration)
     factor = require_scale_factor(scale_factor)
     guidance = guidance_scale_value(config, guidance_scale)
+    if guidance_execution not in ("batched", "sequential"):
+        raise ValueError("guidance_execution must be 'batched' or 'sequential'")
     hidden = _prepare_latent(
         output_size, constructor=unet_constructor, mx=mx, seed=seed, latent=latent
     )
@@ -233,31 +293,53 @@ def sample_image_ncdhw(
             constructor=unet_constructor,
             mx=mx,
             guidance_scale=guidance,
+            guidance_execution=guidance_execution,
         )
 
     started = time.perf_counter()
     final = sample_rflow(hidden, velocity, timesteps, mx=mx)
     rflow_s = time.perf_counter() - started
+    mx.eval(final)
+    return ImageLatent(
+        latent=final, scale_factor=factor, configuration=configuration,
+        affine=np.diag((*map(float, spacing_mm), 1.0)), rflow_seconds=rflow_s,
+    )
+
+
+def decode_image_latent_ncdhw(
+    sampled: ImageLatent,
+    *,
+    vae_weights: Mapping[str, Array],
+    vae_constructor: VaeConstructor,
+    mx: Mlx,
+    roi: Sequence[int] = IMAGE_ROI,
+    overlap: float = IMAGE_OVERLAP,
+) -> ImageArrays:
+    """Decode an evaluated image latent and restore its specified intensity units."""
     decode_started = time.perf_counter()
     decoded = sliding_window_decode_ncdhw(
-        final,
+        sampled.latent,
         vae_weights,
         constructor=vae_constructor,
         mx=mx,
-        scale_factor=factor,
+        scale_factor=sampled.scale_factor,
         roi=roi,
         overlap=overlap,
         arithmetic=vae_arithmetic(),
     )
     mx.eval(decoded)
-    image = output_intensities(np.asarray(decoded, dtype=np.float32), configuration=configuration)
-    affine = np.diag((*map(float, spacing_mm), 1.0))
+    image = output_intensities(
+        np.asarray(decoded, dtype=np.float32), configuration=sampled.configuration
+    )
     return ImageArrays(
-        latent=final,
+        latent=sampled.latent,
         decoded=decoded,
         image=image,
-        affine=affine,
-        stage_timings_s={"rflow_unet": rflow_s, "vae_decode": time.perf_counter() - decode_started},
+        affine=sampled.affine,
+        stage_timings_s={
+            "rflow_unet": sampled.rflow_seconds,
+            "vae_decode": time.perf_counter() - decode_started,
+        },
     )
 
 
