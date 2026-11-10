@@ -11,8 +11,6 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97_Hugging_Face-weights-yellow)](https://huggingface.co/MedMLX/mlx-generate-ctmr)
 [![MedMLX](https://img.shields.io/badge/MedMLX-runtime-A51C30)](https://github.com/MedMLX/medmlx)
 
-[Model weights](https://huggingface.co/MedMLX/mlx-generate-ctmr) · [MedMLX](https://github.com/MedMLX/medmlx)
-
 <img src="https://raw.githubusercontent.com/MedMLX/mlx-generate-ctmr/main/docs/example.png" alt="Synthetic axial CT of the abdomen, liver and chest, and synthetic T1, T2 and FLAIR brain MR" width="100%">
 
 <sub>Synthetic CT, each generated with its label mask, and MR-Brain in three contrasts; no patient data.</sub>
