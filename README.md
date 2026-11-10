@@ -19,18 +19,19 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 
 </div>
 
-| | |
+| Input | Output |
 | :--- | :--- |
-| **Input** | Noise, or a CT anatomy mask |
-| **Output** | Synthetic 3D CT or MRI |
-| **Hardware** | Apple Silicon with Metal. Peak MLX memory: **12.7 GiB** for `mlx-generate-ctmr-ct` (256³, from-mask, ControlNet + four-window decode); **11.6 GiB** for `mlx-generate-ctmr-mr-brain` (256×256×128, guided batch 2). No recorded peak for `mlx-generate-ctmr-mr`. |
+| Noise, or a CT anatomy mask | Synthetic 3D CT or MRI |
 
-The memory figures are the runs' recorded `details.peak_memory_bytes` with MLX
-0.32.4 on the released weights: default `fast` arithmetic with FP32 accumulation
-and split-FP16 convolution operands, seed 0 and 30 steps, CT from a 256³ MAISI
-label mask with intensity QC off. Peaks include VAE decoding. These figures
-cover the stated pipelines and grids; they are MLX allocations, excluding host
-preprocessing and other applications.
+| Model | Peak MLX memory | Measured on |
+| :--- | ---: | :--- |
+| `mlx-generate-ctmr-ct` | 12.7 GiB | 256³ CT from a mask, ControlNet + four-window decode |
+| `mlx-generate-ctmr-mr-brain` | 11.6 GiB | 256×256×128 MR-Brain, guided batch 2 |
+| `mlx-generate-ctmr-mr` | Not recorded | |
+
+Requires Apple Silicon with Metal. The
+[technical notes](https://github.com/MedMLX/mlx-generate-ctmr/blob/main/docs/technical.md)
+give the arithmetic and settings of these measurements.
 
 ## Use with MedMLX
 
@@ -69,10 +70,10 @@ result = run(
 print(result["outputs"])
 ```
 
-Weights download from the selected configuration from
-`MedMLX/mlx-generate-ctmr` on first use. Use `medmlx setup mlx-generate-ctmr-mr-brain` to download ahead of time. For local weights, pass one
-configuration folder, as shown below as `weights_path`. The CT selection also includes
-the mask network.
+The selected configuration's weights download from `MedMLX/mlx-generate-ctmr` on first
+use; `medmlx setup mlx-generate-ctmr-mr-brain` downloads them ahead of time. For local
+weights, pass one configuration folder as `weights_path`, as shown below. The CT
+selection also includes the mask network.
 
 | Model ID | `configuration` | Generates |
 | --- | --- | --- |
@@ -125,21 +126,23 @@ CT, `controlnet.` prefixes. A local `weights_path` folder may also contain `mask
 
 ### MR
 
-`modality` is a contrast name from the upstream mapping or its index; the default
-is T1 (9). General MR accepts 8 to 11. MR-Brain accepts T1, T2, FLAIR, MRA and SWI
-(9, 10, 11, 16, 20) and their skull-stripped variants (29, 30, 31, 33, 32). Other
-contrasts are rejected. `guidance_scale` defaults to 15 for MR and 2 for MR-Brain,
-as in the pinned inference configurations.
+`modality` is a contrast name from the upstream mapping or its index; the default is
+T1 (9). Other contrasts are rejected.
 
-Default grids are 128×256×256 at 1.25×1×1 mm for MR and 256×256×128 at
-0.94×0.94×1.36 mm for MR-Brain. `output_size` axes must be positive multiples of 32,
-at most 512 each and 256³ voxels in total.
+| | General MR (`mr`) | MR-Brain (`mr-brain`) |
+| :--- | :--- | :--- |
+| `modality` | 8 to 11 | T1, T2, FLAIR, MRA and SWI (9, 10, 11, 16, 20) and their skull-stripped variants (29, 30, 31, 33, 32) |
+| `guidance_scale` default | 15 | 2 |
+| Default grid | 128×256×256 at 1.25×1×1 mm | 256×256×128 at 0.94×0.94×1.36 mm |
+| Output | `synthetic_mr.nii.gz` | `synthetic_mr_brain.nii.gz` |
 
-MR writes `synthetic_mr.nii.gz` or `synthetic_mr_brain.nii.gz`: int16, with a
-diagonal RAS affine from `spacing_mm`. As upstream, decoded values are multiplied
-by 1000, clipped below zero only and truncated, so intensities are arbitrary scaled
-units. Skull stripping is a modality embedding, not a brain mask. MR needs no input
-image.
+- The `guidance_scale` defaults are those of the pinned inference configurations.
+- `output_size` axes must be positive multiples of 32, at most 512 each and 256³ voxels
+  in total.
+- Outputs are int16, with a diagonal RAS affine from `spacing_mm`. As upstream, decoded
+  values are multiplied by 1000, clipped below zero only and truncated, so intensities
+  are arbitrary scaled units.
+- Skull stripping is a modality embedding, not a brain mask. MR needs no input image.
 
 ### CT
 
@@ -164,12 +167,14 @@ Paired grids are 256×256×256 (the default) or 256×256×128, at 1.5 mm by defa
 Mask generation takes 1000 DDPM steps by default
 (`mask_generation_num_inference_steps`).
 
-CT intensity QC is on by default. Each image is checked against the pinned
-per-region median HU statistics and regenerated with a derived seed, up to
-`ct_qc_max_attempts` (2) attempts; if all fail, the run raises
-`ModelExecutionError`. `ct_intensity_qc=False` records an opt-out, and
-`ct_qc_statistics_path` replaces the statistics. With QC on, outputs are under
-`stages/ct_qc/attempt-N/`.
+**CT intensity QC** is on by default.
+
+- Each image is checked against the pinned per-region median HU statistics and
+  regenerated with a derived seed, up to `ct_qc_max_attempts` (2) attempts. If all fail,
+  the run raises `ModelExecutionError`.
+- `ct_intensity_qc=False` records an opt-out, and `ct_qc_statistics_path` replaces the
+  statistics.
+- With QC on, outputs are under `stages/ct_qc/attempt-N/`.
 
 | Role | File |
 | --- | --- |
@@ -194,9 +199,12 @@ The CT and its labels share the prepared mask's grid.
 | `attention_scratch_bytes` | Optional byte budget for attention score matrices; not a total memory limit |
 
 `run` returns `{"outputs": {role: path}, "details": {...}}`, with run metadata in `details`.
-Invalid inputs raise `InvalidInputError`, missing or mismatched weights
-`AssetNotReadyError`, and a model failure, including a generated mask that fails QC,
-`ModelExecutionError`.
+
+| Error | Raised when |
+| :--- | :--- |
+| `InvalidInputError` | Inputs are invalid |
+| `AssetNotReadyError` | Weights are missing or mismatched |
+| `ModelExecutionError` | The model fails, including a generated mask that fails QC |
 
 ### Python API
 
@@ -212,17 +220,16 @@ with arithmetic_mode("source"), attention_memory_budget(512 * 1024**2):
     latent = sample_mr_latent_ncdhw(...)
 ```
 
-Other entry points include `unet.denoise_unet_ncdhw`,
-`controlnet.controlnet_residuals_ncdhw`, `vae.decode_vae_ncdhw`,
-`from_mask.sample_ct_from_mask_ncdhw`, `mask_ddpm.sample_mask_labels_ncdhw` and
-`mask_postprocess.postprocess_mask`. `load_network` takes `configuration="ct"`,
-`"mr"` or `"mr-brain"` and checks parameter keys, shapes, finite float32 values and
-the UNet scale factor. The two context managers apply to a complete call in the
-current thread or task, not to a new process; use the runner arguments in worker
-requests.
-
-Numerical parity is checked against MONAI on small seeded networks. That does not
-qualify pretrained image quality. Synthetic output is not ground truth.
+- Other entry points include `unet.denoise_unet_ncdhw`,
+  `controlnet.controlnet_residuals_ncdhw`, `vae.decode_vae_ncdhw`,
+  `from_mask.sample_ct_from_mask_ncdhw`, `mask_ddpm.sample_mask_labels_ncdhw` and
+  `mask_postprocess.postprocess_mask`.
+- `load_network` takes `configuration="ct"`, `"mr"` or `"mr-brain"` and checks parameter
+  keys, shapes, finite float32 values and the UNet scale factor.
+- The two context managers apply to a complete call in the current thread or task, not
+  to a new process; use the runner arguments in worker requests.
+- Numerical parity is checked against MONAI on small seeded networks. That does not
+  qualify pretrained image quality. Synthetic output is not ground truth.
 
 ## License
 
