@@ -18,7 +18,7 @@ class TumorAugmentation:
     ``label`` is the tumor's MAISI id. ``host`` is the label written over the
     tumor's original voxels before the deformed tumor is painted back: the
     surrounding organ, or 200 (body) for bone lesions; lung tumors use their most
-    common neighbouring lobe instead. ``translation`` (voxels), ``rotation``
+    common neighboring lobe instead. ``translation`` (voxels), ``rotation``
     (radians per axis) and ``scale`` (fractional) are the maximum random affine
     amounts, as in MONAI's ``translate_range``, ``rotate_range`` and
     ``scale_range``. ``retention`` is the minimum fraction of the original tumor
@@ -74,7 +74,7 @@ def augment_archive_mask(labels: HostArray, *, seed: int, max_attempts: int = 10
 
     Raises:
         ValueError: If ``labels`` is not 3D, ``max_attempts`` is below 1, a lung tumor
-            has no neighbouring lobe, or no acceptable deformation is found within
+            has no neighboring lobe, or no acceptable deformation is found within
             ``max_attempts`` tries.
     """
 
@@ -230,7 +230,7 @@ def deform_tumor_geometry(
 ) -> BoolArray:
     """Return a randomly rotated, shifted, scaled (and optionally elastic) copy of ``tumor``.
 
-    The transform is applied about the volume center with nearest-neighbour
+    The transform is applied about the volume center with nearest-neighbor
     sampling; voxels mapped outside the volume are dropped. ``rng`` and
     ``affine_rng`` are separate generators because the source draws the affine
     parameters from its own random state.

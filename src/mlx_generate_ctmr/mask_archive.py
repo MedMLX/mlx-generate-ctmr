@@ -237,10 +237,10 @@ def resample_mask_geometry(
 ) -> tuple[IntArray, Float64Array]:
     """Resample a label volume to ``target`` spacing, then center-crop or pad to its shape.
 
-    Reimplements MONAI's nearest-neighbour ``Spacing`` followed by a centered
+    Reimplements MONAI's nearest-neighbor ``Spacing`` followed by a centered
     ``ResizeWithPadOrCrop`` without Torch. ``labels`` is a 3D array with a 4x4
     voxel-to-world ``affine``; returns ``(int16 labels of shape target.shape, new
-    affine)``. Nearest-neighbour samples outside the source use the nearest edge
+    affine)``. Nearest-neighbor samples outside the source use the nearest edge
     label; padding after resampling uses label 0. The rounded resampling shape
     need not extend to every input voxel center.
 

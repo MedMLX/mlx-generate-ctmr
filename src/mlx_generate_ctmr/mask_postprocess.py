@@ -47,7 +47,7 @@ def postprocess_mask(labels: HostArray, *, target_tumor_label: int | None) -> In
     int16 array of the same shape. Like the pinned source, enclosed background is
     left unfilled; the CT stage conditions on this map unchanged.
 
-    Two source behaviours are deliberately not reproduced: the hepatic-union
+    Two source behaviors are deliberately not reproduced: the hepatic-union
     threshold, whose ``>1`` test cannot hold for mutually exclusive labels, and
     restoration outside retained support, which would resurrect rejected components.
     Original hepatic vessel voxels inside retained support are restored as liver
@@ -55,7 +55,7 @@ def postprocess_mask(labels: HostArray, *, target_tumor_label: int | None) -> In
 
     Raises:
         ValueError: If ``target_tumor_label`` is unsupported, ``labels`` is not 3D, or a
-            lung tumor has no labeled neighbouring tissue.
+            lung tumor has no labeled neighboring tissue.
     """
 
     if target_tumor_label not in {None, *_TUMOR_HOST}:
@@ -155,8 +155,8 @@ def _refine_hepatic(
 def _refine_other_tumor(data: IntArray, target: int, removed: BoolArray) -> None:
     """Restore target tumor label 23 (lung) or 27 into voxels removed by cleanup near it, in place.
 
-    For lung tumors, a dominant neighbouring label in 28-32 is also re-closed.
-    Raises ValueError for a lung tumor without labeled neighbours.
+    For lung tumors, a dominant neighboring label in 28-32 is also re-closed.
+    Raises ValueError for a lung tumor without labeled neighbors.
     """
     dilated = _dilate(data == target)
     if target == 23:

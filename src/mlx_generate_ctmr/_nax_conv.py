@@ -505,7 +505,7 @@ def nax_conv3d(
         silu: Apply SiLU after ``affine``. FP16 mode rounds the prepared
             input once to FP16, as a separate normalize-SiLU kernel would.
         stride: 1 or 2, on every spatial axis.
-        upsample: Convolve the nearest-neighbour 2x upsampling of ``x``
+        upsample: Convolve the nearest-neighbor 2x upsampling of ``x``
             without materializing it (stride 1 only).
         trilinear: Convolve the source VAE's half-pixel trilinear 2x
             upsampling of ``x`` (``source_vae.upsample_trilinear_ncdhw``),

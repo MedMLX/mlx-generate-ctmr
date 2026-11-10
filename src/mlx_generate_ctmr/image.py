@@ -130,7 +130,7 @@ def guided_velocity(
     """Velocity for one sampler step, with modality classifier-free guidance.
 
     With ``guidance_scale == 0`` this is a single conditional pass. Otherwise the
-    default batch is doubled with the unconditional copy labelled class 0 (spacing and time
+    default batch is doubled with the unconditional copy labeled class 0 (spacing and time
     are identical for both), and the result is
     ``unconditional + guidance_scale * (conditional - unconditional)``. Selecting
     ``guidance_execution="sequential"`` evaluates the conditional and unconditional

@@ -136,7 +136,7 @@ def test_trilinear_conv_matches_materialized_upsampling(metal: Mlx) -> None:
     if not nax_available(metal):
         pytest.skip("NAX convolution needs an M5-class GPU")
     rng = np.random.default_rng(7)
-    # Odd, unequal axes exercise the clamped upper neighbours on every axis.
+    # Odd, unequal axes exercise the clamped upper neighbors on every axis.
     x = metal.array(rng.standard_normal((2, 24, 3, 5, 6)).astype(np.float32))
     w = metal.array((rng.standard_normal((32, 24, 3, 3, 3)) / np.sqrt(27 * 24)).astype(np.float32))
     b = metal.array(rng.standard_normal(32).astype(np.float32))

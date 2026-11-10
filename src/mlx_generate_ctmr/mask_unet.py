@@ -429,7 +429,7 @@ def _downsample_conv_ncdhw(hidden: Array, weights: Mapping[str, Array], *, mx: M
 
 
 def _upsample_postconv_ncdhw(hidden: Array, weights: Mapping[str, Array], *, mx: Mlx) -> Array:
-    """Nearest-neighbour 2x upsample followed by the `postconv` convolution (NCDHW)."""
+    """Nearest-neighbor 2x upsample followed by the `postconv` convolution (NCDHW)."""
     weight = required_weight(weights, "postconv.conv.weight")
     bias = required_weight(weights, "postconv.conv.bias")
     if _arithmetic() is fast_fp32:
