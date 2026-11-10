@@ -243,7 +243,7 @@ requires-dist = [
     { name = "mlx", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = "==0.32.4" },
     { name = "nibabel", specifier = ">=5.3,<6" },
     { name = "numpy", specifier = ">=2.0,<3" },
-    { name = "safetensors", specifier = ">=0.6,<1" },
+    { name = "safetensors", specifier = ">=0.8,<1" },
     { name = "scipy", specifier = ">=1.15,<2" },
 ]
 

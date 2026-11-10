@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 from _contracts import WeightContract
 from _native_fixture import write_native
+from safetensors.numpy import load_file, save_file
 
 from mlx_generate_ctmr import maisi_mlx_mask_weights as mask_contract
 from mlx_generate_ctmr import maisi_mlx_weights as image_contract
@@ -72,7 +73,10 @@ def synthetic_catalog(
 
 
 @pytest.mark.parametrize("contract", [image_contract, mask_contract], ids=["image", "mask"])
-def test_native_weight_layouts(contract: WeightContract, tmp_path: Path, metal: Mlx) -> None:
+@pytest.mark.parametrize("consolidated", [True, False], ids=["consolidated", "single-network"])
+def test_native_weight_layouts(
+    contract: WeightContract, consolidated: bool, tmp_path: Path, metal: Mlx
+) -> None:
     """Validate native checkpoint layouts and restored source tensor values."""
     catalog, raw = synthetic_catalog(contract)
     arrays = {
@@ -82,8 +86,18 @@ def test_native_weight_layouts(contract: WeightContract, tmp_path: Path, metal: 
     write_native(tmp_path, arrays, mask=contract is mask_contract)
     loader = weights.load_network if contract is image_contract else weights.load_mask_network
     for network in raw:
+        path = tmp_path / "model.safetensors"
+        if not consolidated:
+            prefix = network + "."
+            selected = {
+                name.removeprefix(prefix): value
+                for name, value in load_file(path).items()
+                if name.startswith(prefix)
+            }
+            path = tmp_path / f"{network}.safetensors"
+            save_file(selected, path)
         loaded, scale = loader(
-            tmp_path / "model.safetensors",
+            path,
             network=network,
             mx=cast("ArrayFactory[Array, Dtype]", metal),
             catalog=catalog,

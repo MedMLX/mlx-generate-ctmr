@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 import numpy as np
 from medmlx_core.errors import InvalidInputError
 from safetensors import safe_open
-from safetensors.numpy import load_file
 
 from mlx_generate_ctmr.configurations import get_configuration
 from mlx_generate_ctmr.maisi_mlx_mask_weights import (
@@ -53,7 +52,8 @@ def load_network[Tensor, Dtype](
     ``.safetensors`` file. A file named ``model.safetensors`` uses
     ``<network>.``-prefixed keys; other files use unprefixed keys for one network.
     Every selected tensor is checked against the catalog for name, shape, dtype
-    and finiteness. A conversion receipt is not required.
+    and finiteness. Host tensors are read and converted individually while the
+    safetensors mapping is open. A conversion receipt is not required.
 
     Raises:
         InvalidInputError: If the file does not match the configured tensor catalog.
@@ -112,60 +112,58 @@ def _load_with_catalog[Tensor, Dtype](
     if network not in networks:
         raise InvalidInputError(f"unknown network {network!r}")
     specs = {str(item["name"]): item for item in networks[network]["tensors"]}
-    arrays = _read_arrays(path, network=network)
+    if path.suffix != ".safetensors":
+        raise InvalidInputError(f"{path.name} must be a safetensors file")
     weights: dict[str, Tensor] = {}
     scale_factor: float | None = None
-    for name, array in arrays.items():
-        if name == "scale_factor":
-            scale_factor = _require_scale(array)
-            continue
-        spec = specs.get(name)
-        if spec is None:
-            raise InvalidInputError(f"{path.name} has unexpected tensor {name}")
-        layout = str(spec["layout"])
-        if layout == MASK_LAYOUT_CONV_TRANSPOSE3D_W:
-            shape = spec["torch_shape"]
-            expected = (shape[1], *shape[2:], shape[0])
-        else:
-            expected = mlx_shape_for(layout, spec["torch_shape"])
-        if array.shape != expected or array.dtype != np.float32 or not np.isfinite(array).all():
-            raise InvalidInputError(
-                f"{path.name} tensor {name} must be finite float32 with shape {expected}; "
-                f"got {array.dtype} {array.shape}"
-            )
-        if layout == LAYOUT_CONV3D_W:
-            array = np.transpose(array, (0, 4, 1, 2, 3))
-        elif layout == MASK_LAYOUT_CONV_TRANSPOSE3D_W:
-            array = np.transpose(array, (4, 0, 1, 2, 3))
-        weights[name] = mx.array(array, dtype=mx.float32)
-    missing = [name for name in specs if name not in weights]
-    if missing:
-        raise InvalidInputError(f"{path.name} is missing {missing[0]}")
-    if network == "unet":
-        if scale_factor is None:
-            raise InvalidInputError(
-                f"{path.name} is missing scale_factor. "
-                f"Refuse to invent {MASK_AUTOENCODER_SCALE_FACTOR}."
-            )
-    elif scale_factor is not None:
-        raise InvalidInputError(f"{path.name} must not contain scale_factor")
+    prefix = network + "." if path.name == "model.safetensors" else ""
+    # pread avoids keeping pages from the entire mapped checkpoint resident
+    # alongside native arrays as validation advances through the file.
+    with safe_open(path, framework="np", backend="pread") as tensors:
+        names = tensors.keys()
+        selected = {
+            name.removeprefix(prefix): name for name in names if name.startswith(prefix)
+        }
+        for name in selected:
+            if name != "scale_factor" and name not in specs:
+                raise InvalidInputError(f"{path.name} has unexpected tensor {name}")
+        missing = [name for name in specs if name not in selected]
+        if missing:
+            raise InvalidInputError(f"{path.name} is missing {missing[0]}")
+        if network == "unet":
+            if "scale_factor" not in selected:
+                raise InvalidInputError(
+                    f"{path.name} is missing scale_factor. "
+                    f"Refuse to invent {MASK_AUTOENCODER_SCALE_FACTOR}."
+                )
+            scale_factor = _require_scale(tensors.get_tensor(selected["scale_factor"]))
+        elif "scale_factor" in selected:
+            raise InvalidInputError(f"{path.name} must not contain scale_factor")
+        # MLX's array constructor copies the host tensor. Keep only one host
+        # tensor (and its temporary validation mask) live beside native weights.
+        for name, stored_name in selected.items():
+            if name == "scale_factor":
+                continue
+            spec = specs[name]
+            array = tensors.get_tensor(stored_name)
+            layout = str(spec["layout"])
+            if layout == MASK_LAYOUT_CONV_TRANSPOSE3D_W:
+                shape = spec["torch_shape"]
+                expected = (shape[1], *shape[2:], shape[0])
+            else:
+                expected = mlx_shape_for(layout, spec["torch_shape"])
+            if array.shape != expected or array.dtype != np.float32 or not np.isfinite(array).all():
+                raise InvalidInputError(
+                    f"{path.name} tensor {name} must be finite float32 with shape {expected}; "
+                    f"got {array.dtype} {array.shape}"
+                )
+            if layout == LAYOUT_CONV3D_W:
+                array = np.transpose(array, (0, 4, 1, 2, 3))
+            elif layout == MASK_LAYOUT_CONV_TRANSPOSE3D_W:
+                array = np.transpose(array, (4, 0, 1, 2, 3))
+            weights[name] = mx.array(array, dtype=mx.float32)
+            del array
     return weights, scale_factor
-
-
-def _read_arrays(path: Path, *, network: str) -> dict[str, HostArray]:
-    """Read native checkpoint arrays and admit the supported file layout."""
-    if path.name == "model.safetensors":
-        prefix = network + "."
-        with safe_open(path, framework="np") as tensors:
-            names = tensors.keys()
-            return {
-                name.removeprefix(prefix): tensors.get_tensor(name)
-                for name in names
-                if name.startswith(prefix)
-            }
-    if path.suffix == ".safetensors":
-        return load_file(path)
-    raise InvalidInputError(f"{path.name} must be a safetensors file")
 
 
 def _require_scale(array: HostArray) -> float:

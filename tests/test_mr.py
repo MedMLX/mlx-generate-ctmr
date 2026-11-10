@@ -119,7 +119,9 @@ def test_fixture_inventory_and_native_weights(configuration: str, tmp_path: Path
             np.testing.assert_array_equal(as_numpy(loaded[name]), raw[network][name], err_msg=name)
 
 
-@pytest.mark.parametrize("problem", ["missing", "shape", "dtype", "nonfinite", "scale"])
+@pytest.mark.parametrize(
+    "problem", ["missing", "unexpected", "shape", "dtype", "nonfinite", "scale", "missing-scale"]
+)
 def test_strict_loading(problem: str, tmp_path: Path, metal: Mlx):
     """Reject malformed native checkpoints at the weight boundary."""
     catalog, raw = native_fixture(recorded("mr")[0])
@@ -129,6 +131,10 @@ def test_strict_loading(problem: str, tmp_path: Path, metal: Mlx):
     key = next(name for name in arrays if name.startswith("unet.") and name != "unet.scale_factor")
     if problem == "missing":
         del arrays[key]
+    elif problem == "unexpected":
+        arrays["unet.unexpected"] = np.ones(1, dtype=np.float32)
+    elif problem == "missing-scale":
+        del arrays["unet.scale_factor"]
     elif problem == "shape":
         arrays[key] = arrays[key].reshape(-1)[:1]
     elif problem == "dtype":
