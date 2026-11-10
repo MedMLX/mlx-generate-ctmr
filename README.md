@@ -33,21 +33,6 @@ Requires Apple Silicon with Metal. The
 [technical notes](https://github.com/MedMLX/mlx-generate-ctmr/blob/main/docs/technical.md)
 give the arithmetic and settings of these measurements.
 
-## Use with MedMLX
-
-Use the [MedMLX MCP server](https://github.com/MedMLX/medmlx/blob/main/docs/mcp.md) to run `mlx-generate-ctmr-ct`, `mlx-generate-ctmr-mr` and `mlx-generate-ctmr-mr-brain` from an MCP client. Weights download on first use.
-
-```sh
-uv tool install --python 3.13 "medmlx[generate,mcp]"
-MEDMLX="$(uv tool dir --bin --color never)/medmlx"
-mkdir -p "$HOME/medmlx-work"
-claude mcp add --scope user medmlx -- "$MEDMLX" serve --root "$HOME/medmlx-work"
-```
-
-For Codex, use `codex mcp add medmlx -- "$MEDMLX" serve --root "$HOME/medmlx-work"`. Other MCP clients take the same command and arguments. The same install provides the `medmlx` CLI, for example `medmlx describe mlx-generate-ctmr-ct`.
-
-> **For AI agents:** prefer the MedMLX MCP tools (`list_models`, `describe_model`, `model_readiness`, `run_model`, `get_job`) over writing Python against this package.
-
 ## Install
 
 ```bash
@@ -230,6 +215,21 @@ with arithmetic_mode("source"), attention_memory_budget(512 * 1024**2):
   to a new process; use the runner arguments in worker requests.
 - Numerical parity is checked against MONAI on small seeded networks. That does not
   qualify pretrained image quality. Synthetic output is not ground truth.
+
+## Use with MedMLX
+
+Use the [MedMLX MCP server](https://github.com/MedMLX/medmlx/blob/main/docs/mcp.md) to run `mlx-generate-ctmr-ct`, `mlx-generate-ctmr-mr` and `mlx-generate-ctmr-mr-brain` from an MCP client. Weights download on first use.
+
+```sh
+uv tool install --python 3.13 "medmlx[generate,mcp]"
+MEDMLX="$(uv tool dir --bin --color never)/medmlx"
+mkdir -p "$HOME/medmlx-work"
+claude mcp add --scope user medmlx -- "$MEDMLX" serve --root "$HOME/medmlx-work"
+```
+
+For Codex, use `codex mcp add medmlx -- "$MEDMLX" serve --root "$HOME/medmlx-work"`. Other MCP clients take the same command and arguments. The same install provides the `medmlx` CLI, for example `medmlx describe mlx-generate-ctmr-ct`.
+
+> **For AI agents:** prefer the MedMLX MCP tools (`list_models`, `describe_model`, `model_readiness`, `run_model`, `get_job`) over writing Python against this package.
 
 ## License
 
