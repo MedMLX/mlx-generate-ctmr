@@ -113,8 +113,10 @@ METAL_FUNC hfrag load_frag(const device half* p, uint ld) {
 # product rounds before its FMA exactly as in that kernel, and the packed value
 # equals the one the materialized upsampling would have stored.
 _PACK_HEADER = r"""
-template <typename T>
-METAL_FUNC float trilinear_2x(const device T* x, ulong nc, uint oz, uint oy, uint ox,
+// MLX may bind a one-element input in constant address space. Deduce the full
+// pointer type so the pack kernel compiles for both constant and device inputs.
+template <typename Pointer>
+METAL_FUNC float trilinear_2x(Pointer x, ulong nc, uint oz, uint oy, uint ox,
                                uint ID, uint IH, uint IW) {
 #pragma clang fp contract(off)
   const float fx = metal::max(0.f, float(ox) * .5f - .25f),
