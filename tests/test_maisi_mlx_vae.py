@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import pytest
@@ -10,13 +11,16 @@ import torch
 from golden_fixtures import load_boundary, mlx_weights, seed_torch
 from medmlx_core.ops import as_fp32
 from monai.apps.generation.maisi.networks.autoencoderkl_maisi import AutoencoderKlMaisi
+from real_mask import real_ct_image
 
-from mlx_generate_ctmr._arrays import as_numpy
+from mlx_generate_ctmr._arrays import FloatArray, as_numpy
 from mlx_generate_ctmr.maisi_mlx_feasibility import VAE_ATOL, VAE_RTOL
 from mlx_generate_ctmr.vae import decode_vae_ncdhw, encode_vae_ncdhw
 
 if TYPE_CHECKING:
     from mlx_generate_ctmr._types import Mlx, VaeConstructor
+
+torch_from_numpy = cast(Callable[[FloatArray], torch.Tensor], vars(torch)["from_numpy"])
 
 
 def test_vae_decode_matches_torch_golden(mx: Mlx) -> None:
@@ -64,7 +68,7 @@ def test_vae_encode_decode_smoke_matches_pinned_torch(
     with torch.no_grad():
         for parameter in module.parameters():
             parameter.normal_(0.0, 0.02)
-    image = torch.randn(1, 1, image_size, image_size, image_size)
+    image = torch_from_numpy(real_ct_image(image_size))
     with torch.inference_mode():
         z_mu_t, z_sigma_t = module.encode(image)
         decoded_t = module.decode(z_mu_t)

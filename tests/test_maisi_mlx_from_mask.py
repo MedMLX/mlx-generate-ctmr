@@ -15,6 +15,7 @@ from monai.apps.generation.maisi.networks.diffusion_model_unet_maisi import (
     DiffusionModelUNetMaisi,
 )
 from monai.networks.schedulers.rectified_flow import RFlowScheduler
+from real_mask import real_liver_mask
 
 from mlx_generate_ctmr._arrays import HostArray, as_numpy
 from mlx_generate_ctmr.condition import binarize_labels_ncdhw
@@ -38,12 +39,8 @@ _SPACING_MM = (1.5, 1.5, 2.0)
 
 
 def _tiny_label() -> HostArray:
-    """Create a small categorical mask for from-mask tests."""
-    label = np.zeros((1, 1, 16, 16, 16), dtype=np.int16)
-    label[:, :, 2:14, 2:14, 2:14] = 200
-    label[:, :, 4:10, 4:10, 4:10] = 1
-    label[:, :, 6:8, 6:8, 6:8] = 26
-    return label
+    """Return paired HCC-TACE anatomy labels in NCDHW layout."""
+    return real_liver_mask()[None, None]
 
 
 def _torch_binarize(label: HostArray) -> torch.Tensor:
@@ -55,7 +52,7 @@ def _torch_binarize(label: HostArray) -> torch.Tensor:
 
 
 def _sample(label: HostArray, mx: Mlx) -> FromMaskArrays:
-    """Run the native from-mask graph on the recorded synthetic goldens."""
+    """Run the native from-mask graph with reduced deterministic weights."""
     cn_manifest, cn_arrays = load_boundary("controlnet")
     unet_manifest, unet_arrays = load_boundary("diffusion")
     vae_manifest, vae_arrays = load_boundary("vae")

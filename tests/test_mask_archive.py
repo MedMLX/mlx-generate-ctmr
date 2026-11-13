@@ -11,6 +11,7 @@ from _torch import from_numpy
 from monai.data.meta_tensor import MetaTensor
 from monai.transforms.croppad.array import ResizeWithPadOrCrop
 from monai.transforms.spatial.array import Spacing
+from real_mask import real_liver_mask
 
 from mlx_generate_ctmr.mask_archive import (
     MaskGeometry,
@@ -33,7 +34,7 @@ def test_geometry_matches_monai(
     spacing: tuple[float, float, float],
 ) -> None:
     """Compare archive mask geometry transforms with MONAI."""
-    labels = (np.arange(np.prod(shape)).reshape(shape) % 133).astype(np.int16)
+    labels = real_liver_mask()[tuple(slice(0, length) for length in shape)]
     affine = np.diag((1.1, 1.1, 1.6, 1.0))
     image = MetaTensor(from_numpy(labels[None]), affine=torch.as_tensor(affine))
     reference = ResizeWithPadOrCrop(target_shape)(Spacing(spacing, mode="nearest")(image))

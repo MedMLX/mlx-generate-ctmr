@@ -63,7 +63,12 @@ def boundary_arrays(directory: Path, boundary: str) -> dict[str, HostArray]:
     """Load a MAISI boundary and restore its recorded reference parameters."""
     manifest = cast(dict[str, object], json.loads((directory / f"{boundary}.json").read_text()))
     specs = cast(dict[str, dict[str, object]], manifest["arrays"])
-    with np.load(directory / f"{boundary}.npz", allow_pickle=False) as archive:
+    path = (
+        directory.parents[3] / "work/real-reference/maisi_controlnet.npz"
+        if boundary == "controlnet"
+        else directory / f"{boundary}.npz"
+    )
+    with np.load(path, allow_pickle=False) as archive:
         arrays = {name: cast(HostArray, np.array(archive[name])) for name in archive.files}
     source = {"vae": "vae", "controlnet": "controlnet", "diffusion": "unet"}.get(boundary)
     if source is not None:

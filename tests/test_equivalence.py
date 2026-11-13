@@ -36,7 +36,12 @@ CASES = (
 @pytest.mark.parametrize("kind", CASES)
 def test_models_match_monai(kind: str, metal: Mlx):
     """Compare native model fixtures with recorded MONAI outputs."""
-    with load_fixture(FIXTURES / f"{kind}.npz") as fixture:
+    directory = (
+        FIXTURES.parents[2] / "work/real-reference"
+        if kind in {"vae", "mask_encode", "controlnet", "from_mask"}
+        else FIXTURES
+    )
+    with load_fixture(directory / f"{kind}.npz") as fixture:
         metadata = json.loads(str(fixture["metadata"]))
         assert metadata["recorded_platform"] == "darwin-arm64"
         assert metadata["monai_version"] == "1.6.0" and metadata["precision"] == "fp32"

@@ -14,6 +14,8 @@ from _native_fixture import write_native
 from fixture_parameters import load_fixture
 from medmlx_core import maisi
 from medmlx_core.errors import InvalidInputError
+from real_mask import real_liver_mask
+from scipy.ndimage import binary_fill_holes
 
 from mlx_generate_ctmr import from_mask, maisi_mlx_weights, medmlx
 from mlx_generate_ctmr._arrays import FloatArray, HostArray
@@ -135,8 +137,9 @@ def tiny_ct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx) -> None:
     """Exercise a small seeded from-mask pipeline on Metal and reproduce it from the seed."""
-    label = np.full((16, 16, 16), 200, np.int16)
-    label[4:12, 4:12, 4:12] = 1
+    label = real_liver_mask()
+    # The tiny crop truncates the lesion, so retain it as part of its host liver.
+    label[label == 26] = 1
     affine = np.diag((1.5, 1.5, 1.5, 1.0))
     affine[:3, 3] = (-12.0, -12.0, 30.0)
     mask = tmp_path / "mask.nii.gz"
@@ -158,6 +161,10 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
     assert ct.header.get_xyzt_units() == ("mm", "unknown")
     assert np.isfinite(data).all() and data.min() >= -1000.0 and data.max() <= 1000.0
     written = nib.load(first["outputs"]["target_mask"])
-    np.testing.assert_array_equal(np.asanyarray(written.dataobj), label)
+    expected = label.copy()
+    for z in range(expected.shape[2]):
+        support = expected[:, :, z] != 0
+        expected[:, :, z][binary_fill_holes(support) & ~support] = 200
+    np.testing.assert_array_equal(np.asanyarray(written.dataobj), expected)
     repeat = np.asanyarray(nib.load(second["outputs"]["synthetic_image"]).dataobj)
     np.testing.assert_array_equal(data, repeat, err_msg="the same seed must reproduce the same CT")

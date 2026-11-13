@@ -1,0 +1,182 @@
+{
+  "source_revision": "5cb04e82fed71f2fe64a2617ab695be1f5a37fea",
+  "source": "HCC-TACE-Seg HCC_063 contrast CT, liver and tumor",
+  "cases": {
+    "accept": {
+      "liver": {
+        "is_outlier": false,
+        "median_value": 101.0,
+        "low_thresh": -21.596463547885904,
+        "high_thresh": 162.0
+      },
+      "spleen": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -43.133891656525165,
+        "high_thresh": 184.07500000000073
+      },
+      "pancreas": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -56.59382515620725,
+        "high_thresh": 149.50627399318438
+      },
+      "kidney": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -130.56375604853028,
+        "high_thresh": 267.28163511081016
+      },
+      "lung": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -1088.5583843889117,
+        "high_thresh": -366.9500000000007
+      },
+      "bone": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": 71.39901958080469,
+        "high_thresh": 1000.0
+      },
+      "brain": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -951.0,
+        "high_thresh": 369.5118535139189
+      }
+    },
+    "reject": {
+      "liver": {
+        "is_outlier": true,
+        "median_value": 601.0,
+        "low_thresh": -21.596463547885904,
+        "high_thresh": 162.0
+      },
+      "spleen": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -43.133891656525165,
+        "high_thresh": 184.07500000000073
+      },
+      "pancreas": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -56.59382515620725,
+        "high_thresh": 149.50627399318438
+      },
+      "kidney": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -130.56375604853028,
+        "high_thresh": 267.28163511081016
+      },
+      "lung": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -1088.5583843889117,
+        "high_thresh": -366.9500000000007
+      },
+      "bone": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": 71.39901958080469,
+        "high_thresh": 1000.0
+      },
+      "brain": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -951.0,
+        "high_thresh": 369.5118535139189
+      }
+    },
+    "boundary": {
+      "liver": {
+        "is_outlier": false,
+        "median_value": 162.0,
+        "low_thresh": -21.596463547885904,
+        "high_thresh": 162.0
+      },
+      "spleen": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -43.133891656525165,
+        "high_thresh": 184.07500000000073
+      },
+      "pancreas": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -56.59382515620725,
+        "high_thresh": 149.50627399318438
+      },
+      "kidney": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -130.56375604853028,
+        "high_thresh": 267.28163511081016
+      },
+      "lung": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -1088.5583843889117,
+        "high_thresh": -366.9500000000007
+      },
+      "bone": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": 71.39901958080469,
+        "high_thresh": 1000.0
+      },
+      "brain": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -951.0,
+        "high_thresh": 369.5118535139189
+      }
+    },
+    "nan": {
+      "liver": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -21.596463547885904,
+        "high_thresh": 162.0
+      },
+      "spleen": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -43.133891656525165,
+        "high_thresh": 184.07500000000073
+      },
+      "pancreas": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -56.59382515620725,
+        "high_thresh": 149.50627399318438
+      },
+      "kidney": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -130.56375604853028,
+        "high_thresh": 267.28163511081016
+      },
+      "lung": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -1088.5583843889117,
+        "high_thresh": -366.9500000000007
+      },
+      "bone": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": 71.39901958080469,
+        "high_thresh": 1000.0
+      },
+      "brain": {
+        "is_outlier": false,
+        "median_value": null,
+        "low_thresh": -951.0,
+        "high_thresh": 369.5118535139189
+      }
+    }
+  }
+}

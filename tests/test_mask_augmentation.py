@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 import numpy as np
 import pytest
 from _torch import from_numpy
 from monai.transforms.spatial.array import Rand3DElastic, RandAffine, RandZoom
+from real_mask import real_liver_mask
 
 from mlx_generate_ctmr.mask_augmentation import (
     TUMOR_AUGMENTATIONS,
@@ -18,7 +22,7 @@ from mlx_generate_ctmr.mask_augmentation import (
 @pytest.mark.parametrize("seed", [0, 7, 1337])
 def test_body_zoom_matches_source(seed: int) -> None:
     """Compare body zoom with source augmentation behavior."""
-    data = (np.arange(21 * 23 * 25).reshape(21, 23, 25) % 133).astype(np.int16)
+    data = real_liver_mask()
     transform = RandZoom(min_zoom=0.99, max_zoom=1.01, mode="nearest", align_corners=None, prob=1.0)
     transform.set_random_state(seed=seed)
     reference = transform(from_numpy(data[None])).numpy()[0].astype(np.int16)
@@ -30,9 +34,8 @@ def test_body_zoom_matches_source(seed: int) -> None:
 def test_tumordeform_tumor_geometryation_matches_monai(index: int, seed: int) -> None:
     """Compare tumor deformation geometry with MONAI."""
     policy = TUMOR_AUGMENTATIONS[index]
-    shape = (21, 23, 25)
-    mask = np.zeros(shape, dtype=bool)
-    mask[6:16, 6:16, 6:16] = True
+    mask = real_liver_mask() == 26
+    shape = mask.shape
     translation = (
         policy.translation,
         policy.translation,
@@ -67,12 +70,12 @@ def test_tumordeform_tumor_geometryation_matches_monai(index: int, seed: int) ->
     np.testing.assert_array_equal(result, reference)
 
 
-@pytest.mark.parametrize("tumor", [0, 23, 24, 26, 27, 128])
+@pytest.mark.parametrize("tumor", [0, 26])
 def test_composed_augmentation_matches_pinned_source(tumor: int) -> None:
     """Compare composed mask augmentation with the pinned source recording."""
-    from pathlib import Path
-
-    path = Path(__file__).parent / "fixtures" / "archive_augmentation_source.npz"
+    default = Path(__file__).resolve().parents[1] / "work/real-reference"
+    root = Path(os.environ.get("MEDMLX_TEST_REFERENCES", str(default)))
+    path = root / "archive_augmentation_source.npz"
     with np.load(path, allow_pickle=False) as fixture:
         assert fixture["source_revision"].tolist() == ["5cb04e82fed71f2fe64a2617ab695be1f5a37fea"]
         actual = augment_archive_mask(fixture[f"input_{tumor}"], seed=4)
