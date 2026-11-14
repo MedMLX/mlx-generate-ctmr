@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import NotRequired, Required, TypedDict
 
-from medmlx_core.outputs import Artifact
+from medmlx_core.outputs import RunResult as _RunResult
 
 
 class CodePin(TypedDict):
@@ -80,10 +80,7 @@ type JsonValue = (
 type JsonObject = dict[str, JsonValue]
 
 
-class RunResult[OutputPath: str | Path](TypedDict):
-    outputs: dict[str, OutputPath]
-    artifacts: dict[str, Artifact]
-    details: JsonObject
+type RunResult[OutputPath: str | Path] = _RunResult[JsonObject, dict[str, OutputPath]]
 
 
 class QcCheckPayload(TypedDict):
