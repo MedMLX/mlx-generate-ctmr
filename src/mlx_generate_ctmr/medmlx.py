@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, cast
+from typing import TYPE_CHECKING, Final, Literal, cast
 
 from mlx_generate_ctmr._arrays import HostArray, NumericArray
 
@@ -52,6 +52,7 @@ from medmlx_core.maisi import (
     normalize_maisi_anatomy_name,
     validate_maisi_geometry,
 )
+from medmlx_core.outputs import Artifact, OutputLabel, artifact
 from medmlx_core.runtime import import_mlx, mlx_default_device_name, probe_mlx_runtime
 
 from mlx_generate_ctmr._morphology import fill_label_envelope_holes
@@ -66,6 +67,7 @@ from mlx_generate_ctmr._records import (
 )
 from mlx_generate_ctmr.arithmetic_mode import (
     ARITHMETIC_MODES,
+    ArithmeticMode,
     active_arithmetic_mode,
     arithmetic_mode,
 )
@@ -186,6 +188,9 @@ MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
 }
 
 type _PathArg = str | PathLike[str]
+type ConfigurationName = Literal["ct", "mr", "mr-brain"]
+type GuidanceExecution = Literal["batched", "sequential"]
+type GenerationMode = Literal["from_mask", "paired", "image"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -228,19 +233,19 @@ def run(
     *,
     output_dir: _PathArg,
     weights_path: _PathArg | None = None,
-    configuration: str = "ct",
+    configuration: ConfigurationName = "ct",
     modality: str | int | None = None,
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
-    guidance_execution: str = "batched",
+    guidance_execution: GuidanceExecution = "batched",
     mask_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
     mask_weights_path: _PathArg | None = None,
     mask_label_dict_path: _PathArg | None = None,
     anatomy_size_conditions_path: _PathArg | None = None,
-    generation_mode: str | None = None,
+    generation_mode: GenerationMode | None = None,
     body_regions: Sequence[str] = (),
     mask_database_path: _PathArg | None = None,
     mask_directory: _PathArg | None = None,
@@ -255,7 +260,7 @@ def run(
     ct_qc_statistics_path: _PathArg | None = None,
     ct_qc_max_attempts: int = 2,
     attention_scratch_bytes: int | None = None,
-    arithmetic: str = "fast",
+    arithmetic: ArithmeticMode = "fast",
 ) -> RunResult[str]:
     """Run NV-Generate for one configuration and write NIfTI outputs.
 
@@ -342,9 +347,19 @@ def run(
             matrices, with exclusions described above.
         arithmetic: ``"fast"`` (default) or ``"source"``, described above.
 
-    Returns ``{"outputs": {role: absolute posix path}, "details": {...}}``. The
-    details record seeds, shapes, dtypes, timings, peak MLX memory and the upstream
-    and weight pins. Outputs are synthetic and need human review.
+    Returns ``{"outputs": {role: absolute posix path}, "artifacts": {role: ...},
+    "details": {...}}``. The details record seeds, shapes, dtypes, timings, peak
+    MLX memory and the upstream and weight pins. Outputs are synthetic and need
+    human review.
+
+    ``artifacts`` describes every output role. All NIfTI files are in
+    ``image_physical`` space on a generated or reoriented grid, so none sets
+    ``grid_of``. ``synthetic_image`` is a ``synthetic_image`` (CT in ``HU``; MR
+    has no units). The CT label maps (``target_mask``, ``prepared_mask``,
+    ``conditioning_mask``, ``generated_mask``) are ``label_map`` artifacts whose
+    labels are the nonzero MAISI values that file contains, named from the MAISI
+    label table. ``mask_qc``, ``conditioning_mask_qc``, ``stage_mask_qc`` and
+    ``ct_intensity_qc`` are ``report`` JSON receipts.
 
     Raises:
         InvalidInputError: If an argument is invalid or an output exists and
@@ -359,7 +374,7 @@ def run(
         type(attention_scratch_bytes) is not int or attention_scratch_bytes < 1
     ):
         raise InvalidInputError("attention_scratch_bytes must be a positive integer or None")
-    if arithmetic not in ARITHMETIC_MODES:
+    if cast(object, arithmetic) not in ARITHMETIC_MODES:
         raise InvalidInputError(f"arithmetic must be one of {ARITHMETIC_MODES}")
     mode = arithmetic
     if ct_intensity_qc is not None and not isinstance(cast(object, ct_intensity_qc), bool):
@@ -590,19 +605,19 @@ def _run_once(
     *,
     output_dir: _PathArg,
     weights_path: _PathArg,
-    configuration: str = "ct",
+    configuration: ConfigurationName = "ct",
     modality: str | int | None = None,
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
-    guidance_execution: str = "batched",
+    guidance_execution: GuidanceExecution = "batched",
     mask_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
     mask_weights_path: _PathArg | None = None,
     mask_label_dict_path: _PathArg | None = None,
     anatomy_size_conditions_path: _PathArg | None = None,
-    generation_mode: str | None = None,
+    generation_mode: GenerationMode | None = None,
     body_regions: Sequence[str] = (),
     mask_database_path: _PathArg | None = None,
     mask_directory: _PathArg | None = None,
@@ -752,7 +767,11 @@ def _run_once(
         "started_at": started_at.isoformat(timespec="seconds"),
         "elapsed_s": round(time.perf_counter() - started, 4),
     }
-    return {"outputs": _posix(stage["outputs"]), "details": details}
+    return {
+        "outputs": _posix(stage["outputs"]),
+        "artifacts": stage["artifacts"],
+        "details": details,
+    }
 
 
 def _check_ct_request(
@@ -968,6 +987,14 @@ def _run_from_mask(
             "prepared_mask": prepared,
             "mask_qc": output / _MASK_QC,
         },
+        "artifacts": {
+            "synthetic_image": artifact(
+                kind="synthetic_image", coordinate_space="image_physical", units="HU"
+            ),
+            "target_mask": _label_map_artifact(facts["labels"]),
+            "prepared_mask": _label_map_artifact(mask_facts["labels"]),
+            "mask_qc": _report_artifact(),
+        },
         "details": {
             "model_id": MODEL_ID,
             "seed": seed,
@@ -1083,6 +1110,13 @@ def _run_paired(
         "conditioning_mask": conditioning_mask,
         "mask_qc": mask_stage["outputs"]["mask_qc"],
     }
+    artifacts = {
+        **ct_stage["artifacts"],
+        "conditioning_mask_qc": _report_artifact(),
+        "generated_mask": mask_stage["artifacts"]["generated_mask"],
+        "conditioning_mask": mask_stage["artifacts"]["conditioning_mask"],
+        "mask_qc": mask_stage["artifacts"]["mask_qc"],
+    }
     details: JsonObject = dict(ct_stage["details"])
     for role, labels in (
         ("generated_mask", mask_stage["details"]["labels"]),
@@ -1115,7 +1149,7 @@ def _run_paired(
             "elapsed_s": round(time.perf_counter() - started, 4),
         }
     )
-    return {"outputs": _posix(outputs), "details": details}
+    return {"outputs": _posix(outputs), "artifacts": artifacts, "details": details}
 
 
 def _run_paired_mask_stage(
@@ -1212,6 +1246,11 @@ def _run_paired_mask_stage(
             "generated_mask": mask_path,
             "conditioning_mask": conditioning_path,
             "mask_qc": qc_path,
+        },
+        "artifacts": {
+            "generated_mask": _label_map_artifact(np.unique(host_labels).tolist()),
+            "conditioning_mask": _label_map_artifact(np.unique(processed_labels).tolist()),
+            "mask_qc": _report_artifact(),
         },
         "details": {
             "shape": list(target_shape),
@@ -1591,6 +1630,24 @@ def output_label_table(values: Sequence[int]) -> list[dict[str, int | str]]:
     return [{"name": maisi_label(value).name, "value": value} for value in values if value != 0]
 
 
+def _label_map_artifact(values: Sequence[int]) -> Artifact:
+    """Describe an int16 MAISI label NIfTI that holds the label ``values``.
+
+    The grid is generated or reoriented from the mask input, so no input argument
+    names its grid. Background 0 is not a named label.
+    """
+    return artifact(
+        kind="label_map",
+        coordinate_space="image_physical",
+        labels=cast("list[OutputLabel]", output_label_table(values)),
+    )
+
+
+def _report_artifact() -> Artifact:
+    """Describe a JSON QC receipt."""
+    return artifact(kind="report", coordinate_space="not_applicable")
+
+
 def _load_validated_image(image_path: Path) -> tuple[NiftiImage, HostArray, ImageFacts]:
     """Load the output NIfTI and reject non-finite, empty/constant, or all-air (every voxel <= -1000
     HU) data with RuntimeError.
@@ -1937,7 +1994,12 @@ def _run_archive_paired(
         }
     )
     outputs = {**ct["outputs"], "conditioning_mask": conditioning, "stage_mask_qc": qc}
-    return {"outputs": _posix(outputs), "details": details}
+    artifacts = {
+        **ct["artifacts"],
+        "conditioning_mask": _label_map_artifact(np.unique(labels).tolist()),
+        "stage_mask_qc": _report_artifact(),
+    }
+    return {"outputs": _posix(outputs), "artifacts": artifacts, "details": details}
 
 
 def _require_asset_file(path: _PathArg, *, label: str) -> Path:
@@ -2029,14 +2091,14 @@ def run_ct(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
-    guidance_execution: str = "batched",
+    guidance_execution: GuidanceExecution = "batched",
     mask_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
     mask_weights_path: _PathArg | None = None,
     mask_label_dict_path: _PathArg | None = None,
     anatomy_size_conditions_path: _PathArg | None = None,
-    generation_mode: str | None = None,
+    generation_mode: GenerationMode | None = None,
     body_regions: Sequence[str] = (),
     mask_database_path: _PathArg | None = None,
     mask_directory: _PathArg | None = None,
@@ -2051,7 +2113,7 @@ def run_ct(
     ct_qc_statistics_path: _PathArg | None = None,
     ct_qc_max_attempts: int = 2,
     attention_scratch_bytes: int | None = None,
-    arithmetic: str = "fast",
+    arithmetic: ArithmeticMode = "fast",
 ) -> RunResult[str]:
     """Generate ct images; omitted weights are downloaded automatically."""
     return run(
@@ -2096,7 +2158,7 @@ def run_mr(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
-    guidance_execution: str = "batched",
+    guidance_execution: GuidanceExecution = "batched",
     seed: int = 0,
     num_inference_steps: int | None = None,
     sliding_window_size: Sequence[int] | None = None,
@@ -2104,7 +2166,7 @@ def run_mr(
     autoencoder_tp_num_splits: int | None = None,
     overwrite: bool = False,
     attention_scratch_bytes: int | None = None,
-    arithmetic: str = "fast",
+    arithmetic: ArithmeticMode = "fast",
 ) -> RunResult[str]:
     """Generate mr images; omitted weights are downloaded automatically."""
     return run(
@@ -2135,7 +2197,7 @@ def run_mr_brain(
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
-    guidance_execution: str = "batched",
+    guidance_execution: GuidanceExecution = "batched",
     seed: int = 0,
     num_inference_steps: int | None = None,
     sliding_window_size: Sequence[int] | None = None,
@@ -2143,7 +2205,7 @@ def run_mr_brain(
     autoencoder_tp_num_splits: int | None = None,
     overwrite: bool = False,
     attention_scratch_bytes: int | None = None,
-    arithmetic: str = "fast",
+    arithmetic: ArithmeticMode = "fast",
 ) -> RunResult[str]:
     """Generate mr-brain images; omitted weights are downloaded automatically."""
     return run(

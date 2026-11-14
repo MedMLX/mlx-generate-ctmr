@@ -14,6 +14,7 @@ from _native_fixture import write_native
 from fixture_parameters import load_fixture
 from medmlx_core import maisi
 from medmlx_core.errors import InvalidInputError
+from medmlx_core.outputs import validate_outputs
 from real_mask import real_liver_mask
 from scipy.ndimage import binary_fill_holes
 
@@ -166,5 +167,17 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
         support = expected[:, :, z] != 0
         expected[:, :, z][binary_fill_holes(support) & ~support] = 200
     np.testing.assert_array_equal(np.asanyarray(written.dataobj), expected)
+    _, artifacts = validate_outputs(cast("dict[str, object]", first))
+    assert set(artifacts) == set(first["outputs"])
+    assert artifacts["synthetic_image"].get("units") == "HU"
+    assert artifacts["target_mask"]["kind"] == "label_map"
+    assert artifacts["target_mask"].get("labels") == medmlx.output_label_table(
+        [int(value) for value in np.unique(expected) if value != 0]
+    )
+    assert artifacts["mask_qc"]["kind"] == "report"
+    for item in artifacts.values():
+        expected_space = "not_applicable" if item["kind"] == "report" else "image_physical"
+        assert item["coordinate_space"] == expected_space
+        assert item.get("grid_of") is None
     repeat = np.asanyarray(nib.load(second["outputs"]["synthetic_image"]).dataobj)
     np.testing.assert_array_equal(data, repeat, err_msg="the same seed must reproduce the same CT")

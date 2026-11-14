@@ -19,6 +19,7 @@ from typing import cast
 
 import numpy as np
 from medmlx_core.errors import ModelExecutionError
+from medmlx_core.outputs import artifact
 
 from mlx_generate_ctmr._arrays import HostArray, RealArray
 from mlx_generate_ctmr._nifti import nib
@@ -227,7 +228,8 @@ def generate_with_ct_qc(
     later attempts use seeds derived from it (31-bit, from a SHA-256 of a fixed
     salt, ``seed`` and the attempt index). Receipts go to
     ``output/stages/ct_qc/attempt-N/ct_intensity_qc.json``.
-    The first accepted result is returned, with the QC record added to its details.
+    The first accepted result is returned, with the QC record added to its details
+    and the receipt added as a ``ct_intensity_qc`` output and ``report`` artifact.
 
     Raises:
         ValueError: If ``max_attempts`` is boolean or less than 1.
@@ -266,6 +268,9 @@ def generate_with_ct_qc(
             result["details"]["requested_seed"] = seed
             result["details"]["seed"] = seed
             result["outputs"]["ct_intensity_qc"] = str(receipt.resolve())
+            result["artifacts"]["ct_intensity_qc"] = artifact(
+                kind="report", coordinate_space="not_applicable"
+            )
             result["details"]["ct_intensity_qc"] = {
                 "verdict": "accept",
                 "attempts": attempts,

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 from medmlx_core.errors import AssetNotReadyError, InvalidInputError, ModelExecutionError
+from medmlx_core.outputs import artifact
 from medmlx_core.runtime import import_mlx
 
 from mlx_generate_ctmr._nifti import nib
@@ -240,7 +241,9 @@ def run_image(request: ImageRequest, *, weights_path: PathArg) -> RunResult[str]
     The saved affine is diagonal with the requested millimeter spacing and zero
     origin; no reference-image geometry is copied. The NIfTI header's spatial
     unit is millimeters. Returns
-    ``{"outputs": {"synthetic_image": path}, "details": {...}}``.
+    ``{"outputs": {"synthetic_image": path}, "artifacts": {...}, "details": {...}}``;
+    the artifact is a ``synthetic_image`` in ``image_physical`` space on a
+    generated grid (no input grid, no units: MR intensities are arbitrary).
 
     Raises:
         InvalidInputError: If ``output_dir`` is the weights folder.
@@ -335,6 +338,9 @@ def _execute_image(
         raise ModelExecutionError(f"NV-Generate-{config.name} MLX failed: {exc}") from exc
     return {
         "outputs": {"synthetic_image": destination.as_posix()},
+        "artifacts": {
+            "synthetic_image": artifact(kind="synthetic_image", coordinate_space="image_physical")
+        },
         "details": {
             "configuration": config.name.value,
             "generation_mode": "image",

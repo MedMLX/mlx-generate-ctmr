@@ -189,7 +189,9 @@ The CT and its labels share the prepared mask's grid.
 | `arithmetic` | `fast` (default) or `source`, which keeps the CUDA operation order |
 | `attention_scratch_bytes` | Optional byte budget for attention score matrices; not a total memory limit |
 
-`run` returns `{"outputs": {role: path}, "details": {...}}`, with run metadata in `details`.
+`run` returns `{"outputs": {role: path}, "artifacts": {role: ...}, "details": {...}}`.
+`artifacts` says what each output holds: images are `synthetic_image` (CT in HU), label maps list
+their MAISI label names, and QC receipts are reports. Run metadata is in `details`.
 
 | Error | Raised when |
 | :--- | :--- |

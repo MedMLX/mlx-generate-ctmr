@@ -15,6 +15,7 @@ from _mr_contracts import Metadata
 from _native_fixture import write_native
 from fixture_parameters import load_fixture
 from medmlx_core.errors import InvalidInputError
+from medmlx_core.outputs import validate_outputs
 from numerical import assert_mr_intensity_parity
 from safetensors.numpy import load_file, save_file
 
@@ -282,6 +283,10 @@ def test_seeded_public_runner_on_metal(
         seed=meta["seed"],
     )
     volume = nib.load(result["outputs"]["synthetic_image"])
+    _, artifacts = validate_outputs(cast("dict[str, object]", result))
+    assert set(artifacts) == {"synthetic_image"}
+    assert artifacts["synthetic_image"]["kind"] == "synthetic_image"
+    assert artifacts["synthetic_image"]["coordinate_space"] == "image_physical"
     stored = cast(NumericArray, np.asanyarray(volume.dataobj))
     assert_mr_intensity_parity(stored[None, None], payload["output.decoded"])
     np.testing.assert_allclose(volume.affine, np.diag((*spacing, 1)))

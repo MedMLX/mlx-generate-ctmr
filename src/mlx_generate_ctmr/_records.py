@@ -4,6 +4,8 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import NotRequired, Required, TypedDict
 
+from medmlx_core.outputs import Artifact
+
 
 class CodePin(TypedDict):
     path: str
@@ -80,6 +82,7 @@ type JsonObject = dict[str, JsonValue]
 
 class RunResult[OutputPath: str | Path](TypedDict):
     outputs: dict[str, OutputPath]
+    artifacts: dict[str, Artifact]
     details: JsonObject
 
 
