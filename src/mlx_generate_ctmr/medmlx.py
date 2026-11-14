@@ -151,7 +151,7 @@ CT_MODEL: Final[dict[str, object]] = {
     "id": "mlx-generate-ctmr-ct",
     "label": "NV-Generate CT",
     "task": "generation",
-    "run": "mlx_generate_ctmr.medmlx:run_ct",
+    "run": "mlx_generate_ctmr.medmlx:generate",
     "summary": (
         "Synthetic CT and its MAISI label map, from a supplied MAISI label mask or "
         "from requested anatomy with optional size controls."
@@ -165,7 +165,7 @@ MR_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr",
     "label": "NV-Generate MR",
     "task": "generation",
-    "run": "mlx_generate_ctmr.medmlx:run_mr",
+    "run": "mlx_generate_ctmr.medmlx:generate",
     "summary": (
         "Synthetic image-only MRI from NVIDIA's general MR model, without a label map. "
         "The default grid is a T1 brain field of view and generates head MRI; it accepts "
@@ -178,7 +178,7 @@ MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr-brain",
     "label": "NV-Generate MR-Brain",
     "task": "generation",
-    "run": "mlx_generate_ctmr.medmlx:run_mr_brain",
+    "run": "mlx_generate_ctmr.medmlx:generate",
     "summary": (
         "Synthetic image-only brain MRI (T1, T2, FLAIR, MRA or SWI, optionally "
         "skull-stripped), without a label map."
@@ -189,6 +189,14 @@ MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
 
 type _PathArg = str | PathLike[str]
 type ConfigurationName = Literal["ct", "mr", "mr-brain"]
+type ModelId = Literal["mlx-generate-ctmr-ct", "mlx-generate-ctmr-mr", "mlx-generate-ctmr-mr-brain"]
+
+# Each MedMLX model ID selects one NV-Generate configuration.
+CONFIGURATIONS: Final[dict[str, ConfigurationName]] = {
+    "mlx-generate-ctmr-ct": "ct",
+    "mlx-generate-ctmr-mr": "mr",
+    "mlx-generate-ctmr-mr-brain": "mr-brain",
+}
 type GuidanceExecution = Literal["batched", "sequential"]
 type GenerationMode = Literal["from_mask", "paired", "image"]
 
@@ -229,11 +237,11 @@ class SeedLineage:
         return {"root": self.root, "mask": self.mask, "ct": self.ct, "pet": self.pet}
 
 
-def run(
+def generate(
     *,
+    model: ModelId,
     output_dir: _PathArg,
     weights_path: _PathArg | None = None,
-    configuration: ConfigurationName = "ct",
     modality: str | int | None = None,
     output_size: Sequence[int] | None = None,
     spacing_mm: Sequence[float] | None = None,
@@ -260,13 +268,16 @@ def run(
     ct_qc_statistics_path: _PathArg | None = None,
     ct_qc_max_attempts: int = 2,
     attention_scratch_bytes: int | None = None,
-    arithmetic: ArithmeticMode = "fast",
+    precision: ArithmeticMode = "fast",
 ) -> RunResult[str]:
     """Run NV-Generate for one configuration and write NIfTI outputs.
 
-    Dispatches on ``configuration`` (``"ct"``, ``"mr"`` or ``"mr-brain"``) and, for
-    CT, on ``generation_mode``. A supplied CT mask selects ``from_mask`` by default;
-    otherwise CT defaults to ``paired``. MR produces an image without a label map.
+    ``model`` selects the configuration: ``mlx-generate-ctmr-ct``,
+    ``mlx-generate-ctmr-mr`` or ``mlx-generate-ctmr-mr-brain`` (MedMLX passes the
+    declared ID). CT dispatches further on ``generation_mode``; arguments marked CT
+    below are refused for the MR configurations. A supplied CT mask selects
+    ``from_mask`` by default; otherwise CT defaults to ``paired``. MR produces an
+    image without a label map.
 
     For CT, each generated image is checked against per-region median HU
     statistics (``ct_intensity_qc``, on by default). A rejected image is regenerated
@@ -280,10 +291,10 @@ def run(
     score matrices; weights, Q/K/V, outputs, allocator cache and backend workspace
     are excluded. See ``attention_memory_budget`` for the exact scope. The
     original token-threshold policy remains the default. Under
-    ``arithmetic="fast"`` the image networks' self-attention computes scores block
+    ``precision="fast"`` the image networks' self-attention computes scores block
     by block and needs no budget; mask-generation attention still uses it.
 
-    ``arithmetic`` selects the image UNet/ControlNet/VAE-decoder arithmetic (see
+    ``precision`` selects the image UNet/ControlNet/VAE-decoder arithmetic (see
     ``mlx_generate_ctmr.arithmetic_mode``). ``"fast"`` (default) uses native FP32
     operations, with M5 neural-accelerator kernels where hardware and macOS support
     them and ordinary MLX GPU operations otherwise. It accumulates in a different
@@ -295,13 +306,13 @@ def run(
 
     Args:
         output_dir: Directory for generated NIfTI files and associated records.
+        model: MedMLX model ID of the configuration, described above.
         weights_path: Optional selected native model folder. Omit to download the
             ``ct``, ``mr`` or ``mr-brain`` subfolder of ``MedMLX/mlx-generate-ctmr``;
             CT also downloads its paired-mask companion folder. Uses
             ``model.safetensors`` with ``vae.``/``unet.`` tensor prefixes
             (also ``controlnet.`` for CT). The UNet must include ``scale_factor``.
             Conversion receipts are not required.
-        configuration: ``ct``, ``mr``, or ``mr-brain``.
         modality: Supported modality name or index for the configuration; ``None``
             selects its default (T1 for MR).
         output_size: Requested three-axis voxel shape for CT paired or MR generation.
@@ -345,7 +356,7 @@ def run(
         ct_qc_max_attempts: Maximum positive number of CT generation attempts, default 2.
         attention_scratch_bytes: Optional positive byte budget for attention score
             matrices, with exclusions described above.
-        arithmetic: ``"fast"`` (default) or ``"source"``, described above.
+        precision: ``"fast"`` (default) or ``"source"``, described above.
 
     Returns ``{"outputs": {role: absolute posix path}, "artifacts": {role: ...},
     "details": {...}}``. The details record seeds, shapes, dtypes, timings, peak
@@ -354,7 +365,7 @@ def run(
 
     ``artifacts`` describes every output role. All NIfTI files are in
     ``image_physical`` space on a generated or reoriented grid, so none sets
-    ``grid_of``. ``synthetic_image`` is a ``synthetic_image`` (CT in ``HU``; MR
+    ``grid_of``. ``image`` is a ``synthetic_image`` (CT in ``HU``; MR
     has no units). The CT label maps (``target_mask``, ``prepared_mask``,
     ``conditioning_mask``, ``generated_mask``) are ``label_map`` artifacts whose
     labels are the nonzero MAISI values that file contains, named from the MAISI
@@ -370,13 +381,16 @@ def run(
         ModelExecutionError: If generation fails or every CT QC attempt is rejected.
     """
 
+    configuration = CONFIGURATIONS.get(cast(str, model))
+    if configuration is None:
+        raise InvalidInputError(f"model must be one of {', '.join(CONFIGURATIONS)}")
     if attention_scratch_bytes is not None and (
         type(attention_scratch_bytes) is not int or attention_scratch_bytes < 1
     ):
         raise InvalidInputError("attention_scratch_bytes must be a positive integer or None")
-    if cast(object, arithmetic) not in ARITHMETIC_MODES:
-        raise InvalidInputError(f"arithmetic must be one of {ARITHMETIC_MODES}")
-    mode = arithmetic
+    if cast(object, precision) not in ARITHMETIC_MODES:
+        raise InvalidInputError(f"precision must be one of {ARITHMETIC_MODES}")
+    mode = precision
     if ct_intensity_qc is not None and not isinstance(cast(object, ct_intensity_qc), bool):
         raise InvalidInputError("ct_intensity_qc must be a boolean")
     if (
@@ -478,14 +492,10 @@ def run(
             overwrite=overwrite,
         )
 
-    from medmlx_core.weights import weights_dir, weights_revision
+    from medmlx_core.weights import model_folder, weights_revision
 
-    if weights_path is None:
-        folder = weights_dir(f"mlx-generate-ctmr-{configuration}")
-        managed_root = folder.parent
-    else:
-        managed_root = None
-        folder = Path(weights_path).expanduser()
+    folder = model_folder(model, weights_path)
+    managed_root = folder.parent if weights_path is None else None
     weights_path = folder
     if configuration == "ct":
         # Managed downloads keep mask/ beside the selected ct/ folder; explicit
@@ -525,7 +535,7 @@ def run(
                     mask_directory = candidate
                     break
 
-    def generate(attempt_output: Path, attempt_seed: int) -> RunResult[str]:
+    def attempt(attempt_output: Path, attempt_seed: int) -> RunResult[str]:
         """One generation attempt under the chosen arithmetic mode and attention budget, annotated
         with model id and weights revision.
         """
@@ -567,13 +577,13 @@ def run(
             _release_mlx_cache()
         if attention_scratch_bytes is not None:
             result["details"]["attention_scratch_bytes"] = attention_scratch_bytes
-        result["details"]["arithmetic"] = mode
-        result["details"]["model_id"] = f"mlx-generate-ctmr-{configuration}"
+        result["details"]["precision"] = mode
+        result["details"]["model_id"] = model
         result["details"]["weights_revision"] = weights_revision(folder)
         return result
 
     if statistics is None:
-        result = generate(output, seed)
+        result = attempt(output, seed)
         if configuration == "ct":
             result["details"]["ct_intensity_qc"] = {
                 "verdict": "disabled",
@@ -583,7 +593,7 @@ def run(
     from mlx_generate_ctmr.ct_qc import generate_with_ct_qc
 
     return generate_with_ct_qc(
-        generate, output=output, seed=seed, statistics=statistics, max_attempts=ct_qc_max_attempts
+        attempt, output=output, seed=seed, statistics=statistics, max_attempts=ct_qc_max_attempts
     )
 
 
@@ -982,13 +992,13 @@ def _run_from_mask(
         raise ModelExecutionError(f"NV-Generate-CT MLX failed: {exc}") from exc
     return {
         "outputs": {
-            "synthetic_image": output / _SYNTHETIC_CT,
+            "image": output / _SYNTHETIC_CT,
             "target_mask": output / _SYNTHETIC_LABEL,
             "prepared_mask": prepared,
             "mask_qc": output / _MASK_QC,
         },
         "artifacts": {
-            "synthetic_image": artifact(
+            "image": artifact(
                 kind="synthetic_image", coordinate_space="image_physical", units="HU"
             ),
             "target_mask": _label_map_artifact(facts["labels"]),
@@ -1007,15 +1017,15 @@ def _run_from_mask(
                 "labels": mask_facts["labels"],
             },
             "output_kind_by_role": {
-                "synthetic_image": "synthetic_image",
+                "image": "synthetic_image",
                 "target_mask": "label_map",
             },
             "output_shape_by_role": {
-                "synthetic_image": facts["shape"],
+                "image": facts["shape"],
                 "target_mask": facts["shape"],
             },
             "output_dtype_by_role": {
-                "synthetic_image": facts["image_dtype"],
+                "image": facts["image_dtype"],
                 "target_mask": facts["label_dtype"],
             },
             "output_labels_by_role": {"target_mask": output_label_table(facts["labels"])},
@@ -1050,7 +1060,7 @@ def _run_from_mask(
             "variant": "rflow-ct",
             "source_ref": PINNED_NV_GENERATE_REVISION,
             "framework_source_ref": PINNED_MONAI_REVISION,
-            # Upstream checkpoint pins; run() records the folder's own revision.
+            # Upstream checkpoint pins; generate() records the folder's own revision.
             "source": source_pins("ct"),
             "weights_path": weights_dir.as_posix(),
             "requires_human_review": True,
@@ -2024,7 +2034,7 @@ def _required_argument(value: _PathArg | None, name: str, mode: str) -> _PathArg
 def _from_mask_outputs(output: Path) -> dict[str, Path]:
     """Return expected output paths for CT generation from a mask."""
     return {
-        "synthetic_image": output / _SYNTHETIC_CT,
+        "image": output / _SYNTHETIC_CT,
         "target_mask": output / _SYNTHETIC_LABEL,
         "prepared_mask": output / _PREPARED_MASK,
         "mask_qc": output / _MASK_QC,
@@ -2064,13 +2074,10 @@ __all__ = [
     "MR_MODEL",
     "SeedLineage",
     "derive_seed_lineage",
+    "generate",
     "options_payload",
     "output_label_table",
     "prepare_maisi_mask",
-    "run",
-    "run_ct",
-    "run_mr",
-    "run_mr_brain",
     "validate_output_pair",
 ]
 
@@ -2081,148 +2088,3 @@ def _bundle_asset(folder: Path, filename: str, subdirectory: str) -> Path | None
         if path.is_file():
             return path
     return None
-
-
-def run_ct(
-    *,
-    output_dir: _PathArg,
-    weights_path: _PathArg | None = None,
-    modality: str | int | None = None,
-    output_size: Sequence[int] | None = None,
-    spacing_mm: Sequence[float] | None = None,
-    guidance_scale: float | None = None,
-    guidance_execution: GuidanceExecution = "batched",
-    mask_path: _PathArg | None = None,
-    anatomy: Sequence[str] | None = None,
-    anatomy_size: Mapping[str, float] | None = None,
-    mask_weights_path: _PathArg | None = None,
-    mask_label_dict_path: _PathArg | None = None,
-    anatomy_size_conditions_path: _PathArg | None = None,
-    generation_mode: GenerationMode | None = None,
-    body_regions: Sequence[str] = (),
-    mask_database_path: _PathArg | None = None,
-    mask_directory: _PathArg | None = None,
-    seed: int = 0,
-    num_inference_steps: int | None = None,
-    mask_generation_num_inference_steps: int | None = None,
-    sliding_window_size: Sequence[int] | None = None,
-    sliding_window_overlap: float | None = None,
-    autoencoder_tp_num_splits: int | None = None,
-    overwrite: bool = False,
-    ct_intensity_qc: bool | None = None,
-    ct_qc_statistics_path: _PathArg | None = None,
-    ct_qc_max_attempts: int = 2,
-    attention_scratch_bytes: int | None = None,
-    arithmetic: ArithmeticMode = "fast",
-) -> RunResult[str]:
-    """Generate ct images; omitted weights are downloaded automatically."""
-    return run(
-        configuration="ct",
-        output_dir=output_dir,
-        weights_path=weights_path,
-        modality=modality,
-        output_size=output_size,
-        spacing_mm=spacing_mm,
-        guidance_scale=guidance_scale,
-        guidance_execution=guidance_execution,
-        mask_path=mask_path,
-        anatomy=anatomy,
-        anatomy_size=anatomy_size,
-        mask_weights_path=mask_weights_path,
-        mask_label_dict_path=mask_label_dict_path,
-        anatomy_size_conditions_path=anatomy_size_conditions_path,
-        generation_mode=generation_mode,
-        body_regions=body_regions,
-        mask_database_path=mask_database_path,
-        mask_directory=mask_directory,
-        seed=seed,
-        num_inference_steps=num_inference_steps,
-        mask_generation_num_inference_steps=mask_generation_num_inference_steps,
-        sliding_window_size=sliding_window_size,
-        sliding_window_overlap=sliding_window_overlap,
-        autoencoder_tp_num_splits=autoencoder_tp_num_splits,
-        overwrite=overwrite,
-        ct_intensity_qc=ct_intensity_qc,
-        ct_qc_statistics_path=ct_qc_statistics_path,
-        ct_qc_max_attempts=ct_qc_max_attempts,
-        attention_scratch_bytes=attention_scratch_bytes,
-        arithmetic=arithmetic,
-    )
-
-
-def run_mr(
-    *,
-    output_dir: _PathArg,
-    weights_path: _PathArg | None = None,
-    modality: str | int | None = None,
-    output_size: Sequence[int] | None = None,
-    spacing_mm: Sequence[float] | None = None,
-    guidance_scale: float | None = None,
-    guidance_execution: GuidanceExecution = "batched",
-    seed: int = 0,
-    num_inference_steps: int | None = None,
-    sliding_window_size: Sequence[int] | None = None,
-    sliding_window_overlap: float | None = None,
-    autoencoder_tp_num_splits: int | None = None,
-    overwrite: bool = False,
-    attention_scratch_bytes: int | None = None,
-    arithmetic: ArithmeticMode = "fast",
-) -> RunResult[str]:
-    """Generate mr images; omitted weights are downloaded automatically."""
-    return run(
-        configuration="mr",
-        output_dir=output_dir,
-        weights_path=weights_path,
-        modality=modality,
-        output_size=output_size,
-        spacing_mm=spacing_mm,
-        guidance_scale=guidance_scale,
-        guidance_execution=guidance_execution,
-        seed=seed,
-        num_inference_steps=num_inference_steps,
-        sliding_window_size=sliding_window_size,
-        sliding_window_overlap=sliding_window_overlap,
-        autoencoder_tp_num_splits=autoencoder_tp_num_splits,
-        overwrite=overwrite,
-        attention_scratch_bytes=attention_scratch_bytes,
-        arithmetic=arithmetic,
-    )
-
-
-def run_mr_brain(
-    *,
-    output_dir: _PathArg,
-    weights_path: _PathArg | None = None,
-    modality: str | int | None = None,
-    output_size: Sequence[int] | None = None,
-    spacing_mm: Sequence[float] | None = None,
-    guidance_scale: float | None = None,
-    guidance_execution: GuidanceExecution = "batched",
-    seed: int = 0,
-    num_inference_steps: int | None = None,
-    sliding_window_size: Sequence[int] | None = None,
-    sliding_window_overlap: float | None = None,
-    autoencoder_tp_num_splits: int | None = None,
-    overwrite: bool = False,
-    attention_scratch_bytes: int | None = None,
-    arithmetic: ArithmeticMode = "fast",
-) -> RunResult[str]:
-    """Generate mr-brain images; omitted weights are downloaded automatically."""
-    return run(
-        configuration="mr-brain",
-        output_dir=output_dir,
-        weights_path=weights_path,
-        modality=modality,
-        output_size=output_size,
-        spacing_mm=spacing_mm,
-        guidance_scale=guidance_scale,
-        guidance_execution=guidance_execution,
-        seed=seed,
-        num_inference_steps=num_inference_steps,
-        sliding_window_size=sliding_window_size,
-        sliding_window_overlap=sliding_window_overlap,
-        autoencoder_tp_num_splits=autoencoder_tp_num_splits,
-        overwrite=overwrite,
-        attention_scratch_bytes=attention_scratch_bytes,
-        arithmetic=arithmetic,
-    )

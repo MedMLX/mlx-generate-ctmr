@@ -42,10 +42,10 @@ uv pip install "mlx-generate-ctmr>=0.6.0"
 ## Run
 
 ```python
-from mlx_generate_ctmr.medmlx import run
+from mlx_generate_ctmr import generate
 
-result = run(
-    configuration="mr-brain",
+result = generate(
+    model="mlx-generate-ctmr-mr-brain",
     modality="mri_t1",
     output_dir="out",
     seed=0,
@@ -58,14 +58,13 @@ use; `medmlx setup mlx-generate-ctmr-mr-brain` downloads them ahead of time. For
 weights, pass one configuration folder as `weights_path`, as shown below. The CT
 selection also includes the mask network.
 
-| Model ID | `configuration` | Generates |
-| --- | --- | --- |
-| `mlx-generate-ctmr-ct` | `ct` (default) | CT from a MAISI label mask, or paired CT and labels |
-| `mlx-generate-ctmr-mr` | `mr` | Image-only MR; the default grid generates head MRI |
-| `mlx-generate-ctmr-mr-brain` | `mr-brain` | Image-only brain MR |
+| `model` | Generates |
+| --- | --- |
+| `mlx-generate-ctmr-ct` | CT from a MAISI label mask, or paired CT and labels |
+| `mlx-generate-ctmr-mr` | Image-only MR; the default grid generates head MRI |
+| `mlx-generate-ctmr-mr-brain` | Image-only brain MR |
 
-`run_ct`, `run_mr` and `run_mr_brain` fix the configuration; `run` takes it as an
-argument. Generation needs Apple Silicon with Metal and has no CPU fallback.
+Generation needs Apple Silicon with Metal and has no CPU fallback.
 
 ### Local weights
 
@@ -76,7 +75,7 @@ For an explicit local folder, download the native MR-Brain bundle and pass
 from pathlib import Path
 
 from huggingface_hub import snapshot_download
-from mlx_generate_ctmr.medmlx import run
+from mlx_generate_ctmr import generate
 
 weights_root = Path(snapshot_download(
     "MedMLX/mlx-generate-ctmr",
@@ -85,8 +84,8 @@ weights_root = Path(snapshot_download(
     local_dir="ctmr-weights",
 ))
 
-result = run(
-    configuration="mr-brain",
+result = generate(
+    model="mlx-generate-ctmr-mr-brain",
     modality="mri_t1",
     weights_path=weights_root / "mr-brain",
     output_dir="out",
@@ -169,7 +168,7 @@ Mask generation takes 1000 DDPM steps by default
 
 | Role | File |
 | --- | --- |
-| `synthetic_image` | `synthetic_ct.nii.gz`, float32 HU in [-1000, 1000] |
+| `image` | `synthetic_ct.nii.gz`, float32 HU in [-1000, 1000] |
 | `target_mask` | `synthetic_ct_label.nii.gz`, the conditioning labels |
 | `prepared_mask` | `input_mask_ras.nii.gz`, the conditioning mask in the closest canonical RAS |
 | `mask_qc` | `mask_qc.json`, the structural mask QC record |
@@ -186,10 +185,10 @@ The CT and its labels share the prepared mask's grid.
 | `num_inference_steps` | 1 to 1000; default 30 |
 | `sliding_window_size`, `sliding_window_overlap`, `autoencoder_tp_num_splits` | VAE decode windows in latent voxels (multiples of 16), overlap, and split count (1, 2, 4, 8 or 16) |
 | `overwrite` | `False` by default, which refuses to replace existing outputs |
-| `arithmetic` | `fast` (default) or `source`, which keeps the CUDA operation order |
+| `precision` | `fast` (default) or `source`, which keeps the CUDA operation order |
 | `attention_scratch_bytes` | Optional byte budget for attention score matrices; not a total memory limit |
 
-`run` returns `{"outputs": {role: path}, "artifacts": {role: ...}, "details": {...}}`.
+`generate` returns `{"outputs": {role: path}, "artifacts": {role: ...}, "details": {...}}`.
 `artifacts` says what each output holds: images are `synthetic_image` (CT in HU), label maps list
 their MAISI label names, and QC receipts are reports. Run metadata is in `details`.
 

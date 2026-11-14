@@ -222,7 +222,7 @@ def generate_with_ct_qc(
     """Generate until a result passes the HU check, saving each completed QC decision.
 
     ``generate(directory, seed)`` runs one attempt and must return a result whose
-    outputs include ``synthetic_image`` (HU NIfTI) and ``prepared_mask`` (label
+    outputs include ``image`` (HU NIfTI) and ``prepared_mask`` (label
     NIfTI on the same grid). Array shapes are checked, but this helper does not
     compare their affines or check CT finiteness. The first attempt uses ``seed``;
     later attempts use seeds derived from it (31-bit, from a SHA-256 of a fixed
@@ -252,7 +252,7 @@ def generate_with_ct_qc(
         )
         directory = attempt_directory(output, index)
         result = generate(directory, attempt_seed)
-        image = nib.load(result["outputs"]["synthetic_image"])
+        image = nib.load(result["outputs"]["image"])
         label_path = result["outputs"]["prepared_mask"]
         labels = nib.load(label_path)
         decision = adjudicate_ct_intensity(

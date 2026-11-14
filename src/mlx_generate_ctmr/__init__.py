@@ -12,12 +12,14 @@ from medmlx_core.maisi import NvGenerateAnatomySize
 from mlx_generate_ctmr.arithmetic_mode import arithmetic_mode
 from mlx_generate_ctmr.attention import spatial_attention_ncdhw
 from mlx_generate_ctmr.attention_budget import attention_memory_budget
+from mlx_generate_ctmr.medmlx import generate
 from mlx_generate_ctmr.residual import residual_block_ncdhw
 
 __all__ = [
     "NvGenerateAnatomySize",
     "arithmetic_mode",
     "attention_memory_budget",
+    "generate",
     "residual_block_ncdhw",
     "spatial_attention_ncdhw",
 ]

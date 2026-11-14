@@ -243,7 +243,8 @@ def test_seeded_mr_unet_and_pipeline_parity(
 
 
 @pytest.mark.parametrize(
-    ("configuration", "runner"), [("mr", "run_mr"), ("mr-brain", "run_mr_brain")]
+    ("configuration", "runner"),
+    [("mr", "mlx-generate-ctmr-mr"), ("mr-brain", "mlx-generate-ctmr-mr-brain")],
 )
 @pytest.mark.parametrize("guidance_execution", ["batched", "sequential"])
 def test_seeded_public_runner_on_metal(
@@ -273,7 +274,8 @@ def test_seeded_public_runner_on_metal(
 
     monkeypatch.setattr(image, "init_latent_ncdhw", fixed_latent)
     spacing = cast(RealArray, payload["input.spacing_mm"])
-    result = cast("Callable[..., medmlx.RunResult[str]]", getattr(medmlx, runner))(
+    result = cast("Callable[..., medmlx.RunResult[str]]", medmlx.generate)(
+        model=runner,
         weights_path=directory,
         output_dir=tmp_path / "out",
         output_size=(32, 32, 32),
@@ -282,11 +284,11 @@ def test_seeded_public_runner_on_metal(
         guidance_execution=guidance_execution,
         seed=meta["seed"],
     )
-    volume = nib.load(result["outputs"]["synthetic_image"])
+    volume = nib.load(result["outputs"]["image"])
     _, artifacts = validate_outputs(cast("dict[str, object]", result))
-    assert set(artifacts) == {"synthetic_image"}
-    assert artifacts["synthetic_image"]["kind"] == "synthetic_image"
-    assert artifacts["synthetic_image"]["coordinate_space"] == "image_physical"
+    assert set(artifacts) == {"image"}
+    assert artifacts["image"]["kind"] == "synthetic_image"
+    assert artifacts["image"]["coordinate_space"] == "image_physical"
     stored = cast(NumericArray, np.asanyarray(volume.dataobj))
     assert_mr_intensity_parity(stored[None, None], payload["output.decoded"])
     np.testing.assert_allclose(volume.affine, np.diag((*spacing, 1)))

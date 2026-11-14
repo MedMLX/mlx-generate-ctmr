@@ -32,14 +32,22 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "darwin-arm64"
 @pytest.mark.parametrize(
     ("runner", "controls", "existing"),
     [
-        ("run_ct", {"mask_path": "absent.nii.gz"}, None),
-        ("run_ct", {"anatomy": ["liver"], "num_inference_steps": 0}, None),
-        ("run_mr", {"modality": "ct"}, None),
-        ("run_mr_brain", {"overwrite": "false"}, None),
-        ("run_mr", {"guidance_execution": "unknown"}, None),
-        ("run_ct", {"guidance_execution": "sequential"}, None),
-        ("run_ct", {"anatomy": ["liver"], "ct_qc_statistics_path": "absent.json"}, None),
-        ("run_ct", {"mask_path": "mask.nii.gz"}, "stages/ct_qc/attempt-2/synthetic_ct.nii.gz"),
+        ("mlx-generate-ctmr-ct", {"mask_path": "absent.nii.gz"}, None),
+        ("mlx-generate-ctmr-ct", {"anatomy": ["liver"], "num_inference_steps": 0}, None),
+        ("mlx-generate-ctmr-mr", {"modality": "ct"}, None),
+        ("mlx-generate-ctmr-mr-brain", {"overwrite": "false"}, None),
+        ("mlx-generate-ctmr-mr", {"guidance_execution": "unknown"}, None),
+        ("mlx-generate-ctmr-ct", {"guidance_execution": "sequential"}, None),
+        (
+            "mlx-generate-ctmr-ct",
+            {"anatomy": ["liver"], "ct_qc_statistics_path": "absent.json"},
+            None,
+        ),
+        (
+            "mlx-generate-ctmr-ct",
+            {"mask_path": "mask.nii.gz"},
+            "stages/ct_qc/attempt-2/synthetic_ct.nii.gz",
+        ),
     ],
     ids=[
         "path", "range", "choice", "boolean", "guidance-mode", "ct-guidance",
@@ -71,7 +79,7 @@ def test_invalid_arguments_fail_before_downloading_weights(
         for key, value in controls.items()
     }
     with pytest.raises(InvalidInputError):
-        cast("Callable[..., object]", getattr(medmlx, runner))(output_dir=output, **arguments)
+        cast("Callable[..., object]", medmlx.generate)(model=runner, output_dir=output, **arguments)
 
 
 def _tiny_catalog(
@@ -146,7 +154,8 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
     mask = tmp_path / "mask.nii.gz"
     nib.save(nib.Nifti1Image(label, affine), mask)
     first, second = (
-        medmlx.run_ct(
+        medmlx.generate(
+            model="mlx-generate-ctmr-ct",
             ct_intensity_qc=False,
             output_dir=tmp_path / name,
             weights_path=tiny_ct,
@@ -155,7 +164,7 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
         )
         for name in ("a", "b")
     )
-    ct = nib.load(first["outputs"]["synthetic_image"])
+    ct = nib.load(first["outputs"]["image"])
     data = cast(FloatArray, np.asanyarray(ct.dataobj))
     assert ct.shape == (16, 16, 16) and data.dtype == np.float32
     np.testing.assert_array_equal(ct.affine, affine)
@@ -169,7 +178,7 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
     np.testing.assert_array_equal(np.asanyarray(written.dataobj), expected)
     _, artifacts = validate_outputs(cast("dict[str, object]", first))
     assert set(artifacts) == set(first["outputs"])
-    assert artifacts["synthetic_image"].get("units") == "HU"
+    assert artifacts["image"].get("units") == "HU"
     assert artifacts["target_mask"]["kind"] == "label_map"
     assert artifacts["target_mask"].get("labels") == medmlx.output_label_table(
         [int(value) for value in np.unique(expected) if value != 0]
@@ -179,5 +188,5 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
         expected_space = "not_applicable" if item["kind"] == "report" else "image_physical"
         assert item["coordinate_space"] == expected_space
         assert item.get("grid_of") is None
-    repeat = np.asanyarray(nib.load(second["outputs"]["synthetic_image"]).dataobj)
+    repeat = np.asanyarray(nib.load(second["outputs"]["image"]).dataobj)
     np.testing.assert_array_equal(data, repeat, err_msg="the same seed must reproduce the same CT")

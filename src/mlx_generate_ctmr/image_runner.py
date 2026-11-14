@@ -216,7 +216,7 @@ def check_image_request(
     if output.exists() and not output.is_dir():
         raise InvalidInputError(f"output_dir is not a directory: {output}")
     destination = output / f"synthetic_{configuration.replace('-', '_')}.nii.gz"
-    refuse_existing(output, {"synthetic_image": destination}, overwrite=overwrite)
+    refuse_existing(output, {"image": destination}, overwrite=overwrite)
     return ImageRequest(
         config=config,
         size=size,
@@ -241,7 +241,7 @@ def run_image(request: ImageRequest, *, weights_path: PathArg) -> RunResult[str]
     The saved affine is diagonal with the requested millimeter spacing and zero
     origin; no reference-image geometry is copied. The NIfTI header's spatial
     unit is millimeters. Returns
-    ``{"outputs": {"synthetic_image": path}, "artifacts": {...}, "details": {...}}``;
+    ``{"outputs": {"image": path}, "artifacts": {...}, "details": {...}}``;
     the artifact is a ``synthetic_image`` in ``image_physical`` space on a
     generated grid (no input grid, no units: MR intensities are arbitrary).
 
@@ -337,9 +337,9 @@ def _execute_image(
     except (OSError, RuntimeError, ValueError) as exc:
         raise ModelExecutionError(f"NV-Generate-{config.name} MLX failed: {exc}") from exc
     return {
-        "outputs": {"synthetic_image": destination.as_posix()},
+        "outputs": {"image": destination.as_posix()},
         "artifacts": {
-            "synthetic_image": artifact(kind="synthetic_image", coordinate_space="image_physical")
+            "image": artifact(kind="synthetic_image", coordinate_space="image_physical")
         },
         "details": {
             "configuration": config.name.value,
