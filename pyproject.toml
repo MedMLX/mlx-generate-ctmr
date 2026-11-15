@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mlx-generate-ctmr"
-version = "0.6.0"
+version = "0.7.0"
 description = "Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and native MLX"
 readme = "README.md"
 classifiers = [
