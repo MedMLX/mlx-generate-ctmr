@@ -42,9 +42,9 @@ uv pip install "mlx-generate-ctmr>=0.6.0"
 ## Run
 
 ```python
-from mlx_generate_ctmr import generate
+from mlx_generate_ctmr import run
 
-result = generate(
+result = run(
     model="mlx-generate-ctmr-mr-brain",
     modality="mri_t1",
     output_dir="out",
@@ -75,7 +75,7 @@ For an explicit local folder, download the native MR-Brain bundle and pass
 from pathlib import Path
 
 from huggingface_hub import snapshot_download
-from mlx_generate_ctmr import generate
+from mlx_generate_ctmr import run
 
 weights_root = Path(snapshot_download(
     "MedMLX/mlx-generate-ctmr",
@@ -84,7 +84,7 @@ weights_root = Path(snapshot_download(
     local_dir="ctmr-weights",
 ))
 
-result = generate(
+result = run(
     model="mlx-generate-ctmr-mr-brain",
     modality="mri_t1",
     weights_path=weights_root / "mr-brain",
@@ -188,7 +188,7 @@ The CT and its labels share the prepared mask's grid.
 | `precision` | `fast` (default) or `source`, which keeps the CUDA operation order |
 | `attention_scratch_bytes` | Optional byte budget for attention score matrices; not a total memory limit |
 
-`generate` returns `{"outputs": {role: path}, "artifacts": {role: ...}, "details": {...}}`.
+`run` returns `{"outputs": {role: path}, "artifacts": {role: ...}, "details": {...}}`.
 `artifacts` says what each output holds: images are `synthetic_image` (CT in HU), label maps list
 their MAISI label names, and QC receipts are reports. Run metadata is in `details`.
 

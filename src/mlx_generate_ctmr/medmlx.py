@@ -151,7 +151,7 @@ CT_MODEL: Final[dict[str, object]] = {
     "id": "mlx-generate-ctmr-ct",
     "label": "NV-Generate CT",
     "task": "generation",
-    "run": "mlx_generate_ctmr.medmlx:generate",
+    "run": "mlx_generate_ctmr.medmlx:run",
     "summary": (
         "Synthetic CT and its MAISI label map, from a supplied MAISI label mask or "
         "from requested anatomy with optional size controls."
@@ -165,7 +165,7 @@ MR_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr",
     "label": "NV-Generate MR",
     "task": "generation",
-    "run": "mlx_generate_ctmr.medmlx:generate",
+    "run": "mlx_generate_ctmr.medmlx:run",
     "summary": (
         "Synthetic image-only MRI from NVIDIA's general MR model, without a label map. "
         "The default grid is a T1 brain field of view and generates head MRI; it accepts "
@@ -178,7 +178,7 @@ MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr-brain",
     "label": "NV-Generate MR-Brain",
     "task": "generation",
-    "run": "mlx_generate_ctmr.medmlx:generate",
+    "run": "mlx_generate_ctmr.medmlx:run",
     "summary": (
         "Synthetic image-only brain MRI (T1, T2, FLAIR, MRA or SWI, optionally "
         "skull-stripped), without a label map."
@@ -237,7 +237,7 @@ class SeedLineage:
         return {"root": self.root, "mask": self.mask, "ct": self.ct, "pet": self.pet}
 
 
-def generate(
+def run(
     *,
     model: ModelId,
     output_dir: _PathArg,
@@ -1060,7 +1060,7 @@ def _run_from_mask(
             "variant": "rflow-ct",
             "source_ref": PINNED_NV_GENERATE_REVISION,
             "framework_source_ref": PINNED_MONAI_REVISION,
-            # Upstream checkpoint pins; generate() records the folder's own revision.
+            # Upstream checkpoint pins; run() records the folder's own revision.
             "source": source_pins("ct"),
             "weights_path": weights_dir.as_posix(),
             "requires_human_review": True,
@@ -2074,10 +2074,10 @@ __all__ = [
     "MR_MODEL",
     "SeedLineage",
     "derive_seed_lineage",
-    "generate",
     "options_payload",
     "output_label_table",
     "prepare_maisi_mask",
+    "run",
     "validate_output_pair",
 ]
 

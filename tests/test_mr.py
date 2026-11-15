@@ -274,7 +274,7 @@ def test_seeded_public_runner_on_metal(
 
     monkeypatch.setattr(image, "init_latent_ncdhw", fixed_latent)
     spacing = cast(RealArray, payload["input.spacing_mm"])
-    result = cast("Callable[..., medmlx.RunResult[str]]", medmlx.generate)(
+    result = cast("Callable[..., medmlx.RunResult[str]]", medmlx.run)(
         model=runner,
         weights_path=directory,
         output_dir=tmp_path / "out",

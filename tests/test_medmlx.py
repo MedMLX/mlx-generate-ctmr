@@ -79,7 +79,7 @@ def test_invalid_arguments_fail_before_downloading_weights(
         for key, value in controls.items()
     }
     with pytest.raises(InvalidInputError):
-        cast("Callable[..., object]", medmlx.generate)(model=runner, output_dir=output, **arguments)
+        cast("Callable[..., object]", medmlx.run)(model=runner, output_dir=output, **arguments)
 
 
 def _tiny_catalog(
@@ -154,7 +154,7 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
     mask = tmp_path / "mask.nii.gz"
     nib.save(nib.Nifti1Image(label, affine), mask)
     first, second = (
-        medmlx.generate(
+        medmlx.run(
             model="mlx-generate-ctmr-ct",
             ct_intensity_qc=False,
             output_dir=tmp_path / name,
