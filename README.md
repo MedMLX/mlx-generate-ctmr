@@ -79,7 +79,7 @@ from mlx_generate_ctmr import run
 
 weights_root = Path(snapshot_download(
     "MedMLX/mlx-generate-ctmr",
-    revision="63018cdac46394b3c12619bc9fd1cbe096c23b20",
+    revision="080ba618be71f268927962bd911384942072fcb0",
     allow_patterns=["mr-brain/model.safetensors", "mr-brain/conversion.json"],
     local_dir="ctmr-weights",
 ))
@@ -94,11 +94,11 @@ result = run(
 print(result["outputs"])
 ```
 
-The [model repository](https://huggingface.co/MedMLX/mlx-generate-ctmr/tree/63018cdac46394b3c12619bc9fd1cbe096c23b20) has one folder per use:
+The [model repository](https://huggingface.co/MedMLX/mlx-generate-ctmr/tree/080ba618be71f268927962bd911384942072fcb0) has one folder per use:
 
 | Folder | Pass as |
 | --- | --- |
-| `ct/` | `weights_path` for CT |
+| `ct/` | `weights_path` for CT; also holds the learned paired-CT `configs/` and `datasets/` files |
 | `mask/` | `mask_weights_path` for learned paired CT |
 | `mr/` | `weights_path` for general MR, under NVIDIA's noncommercial terms |
 | `mr-brain/` | `weights_path` for MR-Brain |
@@ -149,9 +149,10 @@ MRA output is of low quality.
   folder or passed explicitly. Unrequested slots, tumors included, come from the
   database row the upstream code selects; request every tumor slot to control it.
 - **Paired, archive mask:** without sizes, `mask_database_path` and
-  `mask_directory` point at the pinned candidate-mask database and an extracted
-  mask archive, and `body_regions` filters the candidates. Selected masks go through
-  the upstream augmentation routes.
+  `mask_directory` point at `datasets/candidate_masks_flexible_size_and_spacing_4000.json`
+  and the extracted `datasets/all_masks_flexible_size_and_spacing_4000.zip` from
+  `nvidia/NV-Generate-CT`, which the weights do not include, and `body_regions`
+  filters the candidates. Selected masks go through the upstream augmentation routes.
 
 Paired grids are 256×256×256 (the default) or 256×256×128, at 1.5 mm by default.
 Mask generation takes 1000 DDPM steps by default
