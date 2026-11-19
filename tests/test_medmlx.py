@@ -144,6 +144,23 @@ def tiny_ct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     return directory
 
 
+def test_rejected_mask_shape_leaves_no_outputs(tiny_ct: Path, tmp_path: Path) -> None:
+    """A valid MAISI grid that generation does not support writes nothing that blocks a rerun."""
+    label = np.tile(real_liver_mask(), (1, 1, 8))
+    mask = tmp_path / "mask.nii.gz"
+    nib.save(nib.Nifti1Image(label, np.diag((1.5, 1.5, 1.5, 1.0))), mask)
+    output = tmp_path / "out"
+    with pytest.raises(InvalidInputError, match="not production-proven"):
+        medmlx.run(
+            model="mlx-generate-ctmr-ct",
+            ct_intensity_qc=False,
+            output_dir=output,
+            weights_path=tiny_ct,
+            mask_path=mask,
+        )
+    assert not output.exists() or not any(path.is_file() for path in output.rglob("*"))
+
+
 def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx) -> None:
     """Exercise a small seeded from-mask pipeline on Metal and reproduce it from the seed."""
     label = real_liver_mask()

@@ -918,10 +918,9 @@ def _run_from_mask(
         if options.sliding_window_overlap is None
         else options.sliding_window_overlap
     )
-    output.mkdir(parents=True, exist_ok=True)
     prepared = output / _PREPARED_MASK
     try:
-        mask_facts = prepare_maisi_mask(mask_path, prepared)
+        canonical_mask, mask_facts = _read_maisi_mask(mask_path)
         try:
             require_supported_production_shape(mask_facts["shape"])
         except ValueError as exc:
@@ -930,6 +929,10 @@ def _run_from_mask(
         if mask_from_model:
             raise ModelExecutionError(f"NV-Generate-CT MLX failed: {exc}") from exc
         raise
+    # Write only an accepted mask: a rejected one must leave no output that
+    # blocks a corrected rerun into the same directory.
+    output.mkdir(parents=True, exist_ok=True)
+    nib.save(canonical_mask, str(prepared))
     started = time.perf_counter()
     try:
         label, spacing_mm, affine = load_mask_ncdhw(prepared)
@@ -1539,6 +1542,17 @@ def prepare_maisi_mask(source: Path, destination: Path) -> MaskFacts:
             outside 0..132 plus 200, or lack body label 200.
     """
 
+    canonical, facts = _read_maisi_mask(source)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    nib.save(canonical, str(destination))
+    return facts
+
+
+def _read_maisi_mask(source: Path) -> tuple[NiftiImage, MaskFacts]:
+    """Validate a MAISI mask as ``prepare_maisi_mask`` does and return its canonical copy.
+
+    Nothing is written, so a caller can apply further checks before saving.
+    """
     try:
         image = nib.load(str(source))
     except (OSError, ValueError, ImageFileError) as exc:
@@ -1585,11 +1599,9 @@ def prepare_maisi_mask(source: Path, destination: Path) -> MaskFacts:
         )
     if floating_labels:
         data = data.astype(np.uint8)
-    destination.parent.mkdir(parents=True, exist_ok=True)
     header = canonical.header.copy()
     header.set_data_dtype(data.dtype)
-    nib.save(nib.Nifti1Image(data, canonical.affine, header), str(destination))
-    return {
+    return nib.Nifti1Image(data, canonical.affine, header), {
         "shape": list(shape),
         "spacing": list(spacing),
         "labels": list(labels),
