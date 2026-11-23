@@ -5,14 +5,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
+    from medmlx_core.typing import MlxRuntime
+
     from mlx_generate_ctmr._arrays import Float64Array, RealArray
     from mlx_generate_ctmr._types import (
         Array,
-        ArrayFactory,
-        Dtype,
         HostArray,
         IntArray,
-        Mlx,
         RflowConstructor,
         VaeConstructor,
     )
@@ -87,9 +86,7 @@ def output_intensities(decoded: HostArray, *, configuration: str = "ct") -> IntA
     return scaled.astype(np.int16)
 
 
-def image_spacing_tensor[Tensor, Dtype](
-    spacing_mm: Sequence[float] | RealArray, *, mx: ArrayFactory[Tensor, Dtype]
-) -> Tensor:
+def image_spacing_tensor(spacing_mm: Sequence[float] | RealArray, *, mx: MlxRuntime) -> Array:
     """Return ``spacing_mm * 100`` rounded through FP16, as a ``(1, 3)`` float32 array.
 
     The upstream image-only path casts the scaled spacing to half precision before
@@ -123,7 +120,7 @@ def guided_velocity(
     spacing: Array,
     weights: Mapping[str, Array],
     constructor: RflowConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     guidance_scale: float,
     guidance_execution: str = "batched",
 ) -> Array:
@@ -179,7 +176,7 @@ def _prepare_latent(
     output_size: Sequence[int],
     *,
     constructor: RflowConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     seed: int | None,
     latent: Array | None,
 ) -> Array:
@@ -209,7 +206,7 @@ def sample_image_ncdhw(
     vae_weights: Mapping[str, Array],
     unet_constructor: RflowConstructor,
     vae_constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     scale_factor: float,
     configuration: str = "ct",
     modality: str | int | None = None,
@@ -256,7 +253,7 @@ def sample_image_latent_ncdhw(
     *,
     unet_weights: Mapping[str, Array],
     unet_constructor: RflowConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     scale_factor: float,
     configuration: str = "ct",
     modality: str | int | None = None,
@@ -276,7 +273,7 @@ def sample_image_latent_ncdhw(
         output_size, constructor=unet_constructor, mx=mx, seed=seed, latent=latent
     )
     classes = modality_class_labels(mx=mx, configuration=configuration, modality=modality)
-    spacing = image_spacing_tensor(spacing_mm, mx=cast("ArrayFactory[Array, Dtype]", mx))
+    spacing = image_spacing_tensor(spacing_mm, mx=mx)
     timesteps, _ = set_timesteps_rflow(
         num_inference_steps=num_inference_steps,
         input_img_size_numel=math.prod(hidden.shape[2:]),
@@ -311,7 +308,7 @@ def decode_image_latent_ncdhw(
     *,
     vae_weights: Mapping[str, Array],
     vae_constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     roi: Sequence[int] = IMAGE_ROI,
     overlap: float = IMAGE_OVERLAP,
 ) -> ImageArrays:

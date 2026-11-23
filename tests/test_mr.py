@@ -29,7 +29,9 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import UNET_ATOL, UNET_RTOL, VAE_AT
 from mlx_generate_ctmr.maisi_mlx_weights import classify_torch_layout, load_catalog
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ArrayConstructor, ArrayFactory, Dtype, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 FIXTURES = Path(__file__).parent / "fixtures" / "darwin-arm64"
 CONFIGURATIONS = ("mr", "mr-brain")
@@ -97,7 +99,9 @@ def native_fixture(payload: dict[str, NumericArray]) -> tuple[Catalog, Networks]
 
 
 @pytest.mark.parametrize("configuration", CONFIGURATIONS)
-def test_fixture_inventory_and_native_weights(configuration: str, tmp_path: Path, metal: Mlx):
+def test_fixture_inventory_and_native_weights(
+    configuration: str, tmp_path: Path, metal: MlxRuntime
+):
     """Round-trip recorded tensors through the native checkpoint layout and loader."""
     payload, _ = recorded(configuration)
     catalog, raw = native_fixture(payload)
@@ -112,7 +116,7 @@ def test_fixture_inventory_and_native_weights(configuration: str, tmp_path: Path
             network=network,
             configuration=configuration,
             catalog=catalog,
-            mx=cast("ArrayFactory[Array, Dtype]", metal),
+            mx=metal,
         )
         assert factor == (1.25 if network == "unet" else None)
         assert loaded.keys() == raw[network].keys()
@@ -123,7 +127,7 @@ def test_fixture_inventory_and_native_weights(configuration: str, tmp_path: Path
 @pytest.mark.parametrize(
     "problem", ["missing", "unexpected", "shape", "dtype", "nonfinite", "scale", "missing-scale"]
 )
-def test_strict_loading(problem: str, tmp_path: Path, metal: Mlx):
+def test_strict_loading(problem: str, tmp_path: Path, metal: MlxRuntime):
     """Reject malformed native checkpoints at the weight boundary."""
     catalog, raw = native_fixture(recorded("mr")[0])
     write_native(tmp_path, raw, configuration="mr")
@@ -151,13 +155,13 @@ def test_strict_loading(problem: str, tmp_path: Path, metal: Mlx):
             network="unet",
             catalog=catalog,
             configuration="mr",
-            mx=cast("ArrayFactory[Array, Dtype]", metal),
+            mx=metal,
         )
 
 
 @pytest.mark.parametrize("configuration", CONFIGURATIONS)
 def test_conditions_and_intensity_mapping_match_source(
-    configuration: str, metal: Mlx, monkeypatch: pytest.MonkeyPatch
+    configuration: str, metal: MlxRuntime, monkeypatch: pytest.MonkeyPatch
 ):
     """Compare MR modality, spacing, schedule and output intensities with the recordings."""
     payload, meta = recorded(configuration)
@@ -168,9 +172,7 @@ def test_conditions_and_intensity_mapping_match_source(
     np.testing.assert_array_equal(as_numpy(classes), payload["output.classes"])
     for source, key in (("spacing_mm", "spacing"), ("spacing_probe", "spacing_probe")):
         millimeters = cast(RealArray, payload[f"input.{source}"])
-        spacing = image.image_spacing_tensor(
-            millimeters, mx=cast("ArrayFactory[Array, Dtype]", metal)
-        )
+        spacing = image.image_spacing_tensor(millimeters, mx=metal)
         np.testing.assert_array_equal(as_numpy(spacing), payload[f"output.{key}"])
     timesteps, _ = rflow.set_timesteps_rflow(num_inference_steps=30, input_img_size_numel=8**3)
     np.testing.assert_array_equal(timesteps, payload["output.timesteps"])
@@ -181,13 +183,13 @@ def test_conditions_and_intensity_mapping_match_source(
 @pytest.mark.parametrize("configuration", CONFIGURATIONS)
 @pytest.mark.parametrize("guidance_execution", ["batched", "sequential"])
 def test_seeded_mr_unet_and_pipeline_parity(
-    configuration: str, guidance_execution: str, metal: Mlx, monkeypatch: pytest.MonkeyPatch
+    configuration: str, guidance_execution: str, metal: MlxRuntime, monkeypatch: pytest.MonkeyPatch
 ):
     """Compare a seeded MR UNet and pipeline with the reference."""
     payload, meta = recorded(configuration)
     allow_recorded_modality(monkeypatch, configuration, meta["modality"])
     assert meta["monai_version"] == "1.6.0" and meta["precision"] == "fp32"
-    array = cast("ArrayConstructor", metal.array)
+    array = metal.array
     params = {
         network: {
             name.removeprefix(f"weight.{network}."): array(value)
@@ -248,8 +250,12 @@ def test_seeded_mr_unet_and_pipeline_parity(
 )
 @pytest.mark.parametrize("guidance_execution", ["batched", "sequential"])
 def test_seeded_public_runner_on_metal(
-    configuration: str, runner: str, guidance_execution: str,
-    metal: Mlx, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    configuration: str,
+    runner: str,
+    guidance_execution: str,
+    metal: MlxRuntime,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Run the registered MR runner on Metal from the recorded latent and match the source."""
     payload, meta = recorded(configuration)
@@ -267,10 +273,10 @@ def test_seeded_public_runner_on_metal(
     monkeypatch.setattr(image_runner, "PRODUCTION_VAE_CONSTRUCTOR", meta["constructor"]["vae"])
     latent = payload["input.latent"]
 
-    def fixed_latent(shape: Sequence[int], *, seed: int, mx: Mlx) -> Array:
+    def fixed_latent(shape: Sequence[int], *, seed: int, mx: MlxRuntime) -> Array:
         """Supply the recorded initial latent for the native run."""
         assert seed == meta["seed"] and tuple(shape) == latent.shape
-        return cast("ArrayConstructor", mx.array)(latent)
+        return mx.array(latent)
 
     monkeypatch.setattr(image, "init_latent_ncdhw", fixed_latent)
     spacing = cast(RealArray, payload["input.spacing_mm"])

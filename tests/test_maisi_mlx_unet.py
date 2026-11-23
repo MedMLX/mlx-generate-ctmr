@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import numpy as np
 import torch
@@ -18,17 +18,21 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import UNET_ATOL, UNET_RTOL
 from mlx_generate_ctmr.unet import denoise_unet_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ArrayConstructor, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 
-def _unet_inputs(arrays: dict[str, NumericArray], mx: Mlx) -> tuple[Array, Array, Array, Array]:
+def _unet_inputs(
+    arrays: dict[str, NumericArray], mx: MlxRuntime
+) -> tuple[Array, Array, Array, Array]:
     """Return native x, timesteps, class labels and spacing from the diffusion golden."""
-    labels = cast("ArrayConstructor", mx.array)(arrays["class_labels"], dtype=mx.int32)
+    labels = mx.array(arrays["class_labels"], dtype=mx.int32)
     x, t, spacing = (as_fp32(arrays[key], mx) for key in ("x", "timesteps", "spacing"))
     return x, t, labels, spacing
 
 
-def test_unet_denoise_matches_torch_golden(mx: Mlx) -> None:
+def test_unet_denoise_matches_torch_golden(mx: MlxRuntime) -> None:
     """Compare native UNet denoising with recorded Torch output."""
     manifest, arrays = load_boundary("diffusion")
     t_emb, y = denoise_unet_ncdhw(
@@ -42,7 +46,7 @@ def test_unet_denoise_matches_torch_golden(mx: Mlx) -> None:
     np.testing.assert_allclose(as_numpy(y), arrays["y"], rtol=UNET_RTOL, atol=UNET_ATOL)
 
 
-def test_unet_controlnet_residuals_match_pinned_torch(mx: Mlx) -> None:
+def test_unet_controlnet_residuals_match_pinned_torch(mx: MlxRuntime) -> None:
     """Compare a UNet with a ControlNet mid residual with the source."""
     manifest, arrays = load_boundary("diffusion")
     constructor = manifest["constructor"]

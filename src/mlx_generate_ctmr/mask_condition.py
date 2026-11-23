@@ -10,7 +10,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, HostArray, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, HostArray
 
 import numpy as np
 from medmlx_core.layout import require_ncdhw
@@ -201,7 +203,7 @@ def select_canonical_mask_labels_ncdhw(
     labels: Array,
     *,
     anatomy: Sequence[str],
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Keep requested IDs and fold other positive anatomy into body ID 200.
 

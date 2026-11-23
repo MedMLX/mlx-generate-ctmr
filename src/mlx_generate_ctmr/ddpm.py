@@ -15,7 +15,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -81,7 +83,7 @@ def ddpm_step(
     sample: Array,
     schedule: DdpmSchedule,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     noise: Array | None = None,
 ) -> tuple[Array, Array]:
     """One epsilon-prediction, fixed-small-variance, no-clip DDPM reverse step.
@@ -147,7 +149,7 @@ def init_latent_ncdhw(
     shape: tuple[int, int, int, int, int],
     *,
     seed: int,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Seeded fp32 ``mx.random.normal`` NCDHW image latent."""
 
@@ -164,7 +166,7 @@ def sample_ddpm(
     predict_eps: Callable[[Array, int], Array],
     schedule: DdpmSchedule | None = None,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     step_noises: list[Array] | None = None,
 ) -> Array:
     """Run the full 999..0 ``ddpm-ct`` reverse loop, evaluating after every step.

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
@@ -25,16 +25,16 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import (
 from mlx_generate_ctmr.unet import denoise_unet_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import ArrayConstructor, Mlx
+    from medmlx_core.typing import MlxRuntime
 
 
-def test_controlnet_residuals_match_torch_golden(mx: Mlx) -> None:
+def test_controlnet_residuals_match_torch_golden(mx: MlxRuntime) -> None:
     """Compare ControlNet residuals with recorded Torch outputs."""
     manifest, arrays = load_boundary("controlnet")
     down, mid = controlnet.controlnet_residuals_ncdhw(
         as_fp32(arrays["x"], mx),
         as_fp32(arrays["timesteps"], mx),
-        cast("ArrayConstructor", mx.array)(arrays["class_labels"], dtype=mx.int32),
+        mx.array(arrays["class_labels"], dtype=mx.int32),
         as_fp32(arrays["controlnet_cond"], mx),
         mlx_weights(arrays, mx),
         constructor=manifest["constructor"],
@@ -49,7 +49,7 @@ def test_controlnet_residuals_match_torch_golden(mx: Mlx) -> None:
 
 
 @pytest.mark.parametrize("residual_scale", [1.0, 100.0])
-def test_conditioned_unet_matches_pinned_torch(mx: Mlx, residual_scale: float) -> None:
+def test_conditioned_unet_matches_pinned_torch(mx: MlxRuntime, residual_scale: float) -> None:
     """Compare a UNet conditioned on recorded ControlNet residuals with the source."""
     unet_manifest, unet_arrays = load_boundary("diffusion")
     _cn_manifest, cn_arrays = load_boundary("controlnet")
@@ -69,7 +69,7 @@ def test_conditioned_unet_matches_pinned_torch(mx: Mlx, residual_scale: float) -
     _t_emb, y = denoise_unet_ncdhw(
         as_fp32(unet_arrays["x"], mx),
         as_fp32(unet_arrays["timesteps"], mx),
-        cast("ArrayConstructor", mx.array)(unet_arrays["class_labels"], dtype=mx.int32),
+        mx.array(unet_arrays["class_labels"], dtype=mx.int32),
         as_fp32(unet_arrays["spacing"], mx),
         mlx_weights(unet_arrays, mx),
         constructor=unet_manifest["constructor"],

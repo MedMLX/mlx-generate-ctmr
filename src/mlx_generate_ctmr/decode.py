@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, IndexedUpdates, Mlx, VaeArithmetic, VaeConstructor
+    from medmlx_core.typing import IndexedUpdates, MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, VaeArithmetic, VaeConstructor
 
 import math
 from collections.abc import Callable, Mapping, Sequence
@@ -88,7 +90,7 @@ def dense_patch_slices(
 def gaussian_importance_ncdhw(
     roi: Sequence[int],
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     sigma_scale: float = DEFAULT_SIGMA_SCALE,
 ) -> Array:
     """1-D Gaussians, outer product, floor ``1e-3``. Shape ``[1, 1, D, H, W]``."""
@@ -116,7 +118,7 @@ def sliding_window_ncdhw(
     latent: Array,
     predict: Callable[[Array], Array],
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     roi: Sequence[int] = DEFAULT_ROI_SIZE,
     overlap: float = DEFAULT_OVERLAP,
     sigma_scale: float = DEFAULT_SIGMA_SCALE,
@@ -189,7 +191,7 @@ def sliding_window_decode_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     roi: Sequence[int] = DEFAULT_ROI_SIZE,
     overlap: float = DEFAULT_OVERLAP,
     sigma_scale: float = DEFAULT_SIGMA_SCALE,
@@ -245,7 +247,7 @@ def sliding_window_decode_ncdhw(
     )
 
 
-def to_hu_ncdhw(image: Array, label: Array, mx: Mlx) -> Array:
+def to_hu_ncdhw(image: Array, label: Array, mx: MlxRuntime) -> Array:
     """Map decoded intensities to float32 Hounsfield units.
 
     ``image`` is ``(N, 1, D, H, W)`` in the decoder's normalized range; it is
@@ -259,7 +261,7 @@ def to_hu_ncdhw(image: Array, label: Array, mx: Mlx) -> Array:
     return mx.where(label == 0, mx.array(-1000.0, dtype=mx.float32), hu)
 
 
-def _maybe_scale_latent(latent: Array, scale_factor: float | None, mx: Mlx) -> Array:
+def _maybe_scale_latent(latent: Array, scale_factor: float | None, mx: MlxRuntime) -> Array:
     # If the caller omits the scale, keep the latent as-is. Do not invent the
     # mask-AE scale factor 1.0055984258651733 here.
     """Apply the optional inverse latent scale before decoding."""
@@ -275,7 +277,7 @@ def _maybe_scale_latent(latent: Array, scale_factor: float | None, mx: Mlx) -> A
 
 
 def _pad_latent_to_roi(
-    latent: Array, roi: tuple[int, int, int], mx: Mlx
+    latent: Array, roi: tuple[int, int, int], mx: MlxRuntime
 ) -> tuple[Array, tuple[tuple[int, int], tuple[int, int], tuple[int, int]]]:
     """Zero-pad the spatial axes of an NCDHW latent up to the ROI window.
 
@@ -317,7 +319,7 @@ def _crop_decoded_pads(
     return decoded[:, :, slices[0], slices[1], slices[2]]
 
 
-def _nearest_resize_ncdhw(array: Array, scale: int, mx: Mlx) -> Array:
+def _nearest_resize_ncdhw(array: Array, scale: int, mx: MlxRuntime) -> Array:
     """Resize NCDHW spatial axes by nearest-neighbor indexing."""
     output = array
     for axis in (2, 3, 4):

@@ -2,17 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import (
-        Array,
-        ArrayConstructor,
-        HostArray,
-        MaskUnetConstructor,
-        Mlx,
-        ResidualArithmetic,
-    )
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, HostArray, MaskUnetConstructor, ResidualArithmetic
 
 from collections.abc import Mapping, Sequence
 
@@ -64,7 +59,7 @@ PRODUCTION_MASK_UNET_CONSTRUCTOR: MaskUnetConstructor = {
 def anatomy_size_context(
     anatomy_size: HostArray | Array,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     cross_attention_dim: int = MASK_CONDITION_DIM,
 ) -> Array:
     """Convert anatomy context to float32 with trailing ``cross_attention_dim``.
@@ -74,7 +69,7 @@ def anatomy_size_context(
     10 for the production constructor. Values are not range-checked here.
     """
 
-    context = cast("ArrayConstructor", mx.array)(anatomy_size, dtype=mx.float32)
+    context = mx.array(anatomy_size, dtype=mx.float32)
     if int(context.ndim) == 1:
         if int(context.shape[0]) != cross_attention_dim:
             raise ValueError(
@@ -104,7 +99,7 @@ def denoise_mask_unet_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: MaskUnetConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> tuple[Array, Array]:
     """Run the paired-mask UNet once; returns ``(t_emb, eps)``.
 
@@ -251,7 +246,7 @@ def _apply_down_blocks(
     eps: float,
     cross_attention_dim: int,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> tuple[Array, list[Array]]:
     """Run the encoder half of the paired-mask UNet on NCDHW data.
 
@@ -307,7 +302,7 @@ def _apply_mid_block(
     eps: float,
     cross_attention_dim: int,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Resblock, cross-attention transformer, resblock at the lowest resolution."""
     hidden = residual_block_ncdhw(
@@ -356,7 +351,7 @@ def _apply_up_blocks(
     eps: float,
     cross_attention_dim: int,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Run the decoder half of the paired-mask UNet, consuming `skips` in reverse.
 
@@ -416,7 +411,7 @@ def _apply_up_blocks(
     return hidden
 
 
-def _downsample_conv_ncdhw(hidden: Array, weights: Mapping[str, Array], *, mx: Mlx) -> Array:
+def _downsample_conv_ncdhw(hidden: Array, weights: Mapping[str, Array], *, mx: MlxRuntime) -> Array:
     """Apply the mask UNet downsampling convolution."""
     return _arithmetic().conv3d_ncdhw(
         hidden,
@@ -428,7 +423,9 @@ def _downsample_conv_ncdhw(hidden: Array, weights: Mapping[str, Array], *, mx: M
     )
 
 
-def _upsample_postconv_ncdhw(hidden: Array, weights: Mapping[str, Array], *, mx: Mlx) -> Array:
+def _upsample_postconv_ncdhw(
+    hidden: Array, weights: Mapping[str, Array], *, mx: MlxRuntime
+) -> Array:
     """Nearest-neighbor 2x upsample followed by the `postconv` convolution (NCDHW)."""
     weight = required_weight(weights, "postconv.conv.weight")
     bias = required_weight(weights, "postconv.conv.bias")

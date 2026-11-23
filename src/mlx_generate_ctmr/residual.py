@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx, ResidualArithmetic
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, ResidualArithmetic
 
 from collections.abc import Mapping
 
@@ -36,7 +38,7 @@ def residual_block_ncdhw(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
     up: bool = False,
     down: bool = False,
     arithmetic: ResidualArithmetic = ops,

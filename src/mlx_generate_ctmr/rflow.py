@@ -6,7 +6,9 @@ from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 import numpy as np
 
@@ -125,7 +127,7 @@ def init_latent_ncdhw(
     shape: Sequence[int],
     *,
     seed: int,
-    mx: Mlx,
+    mx: MlxRuntime,
     noise_factor: float = 1.0,
 ) -> Array:
     """Return a seeded standard-normal float32 latent of NCDHW ``shape``.
@@ -146,7 +148,7 @@ def sample_rflow(
     velocity_fn: Callable[[Array, float], Array],
     timesteps: FloatArray,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_train_timesteps: int = _TRAIN_STEPS,
     guidance_scale: float = 0.0,
 ) -> Array:

@@ -10,7 +10,9 @@ from mlx_generate_ctmr._arrays import HostArray
 from mlx_generate_ctmr._records import Catalog
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import ArrayFactory
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 import numpy as np
 from medmlx_core.errors import InvalidInputError
@@ -35,14 +37,14 @@ def network_file(directory: Path) -> Path:
     return directory / "model.safetensors"
 
 
-def load_network[Tensor, Dtype](
+def load_network(
     path: Path,
     *,
     network: str,
-    mx: ArrayFactory[Tensor, Dtype],
+    mx: MlxRuntime,
     catalog: Mapping[str, object] | None = None,
     configuration: str = "ct",
-) -> tuple[dict[str, Tensor], float | None]:
+) -> tuple[dict[str, Array], float | None]:
     """Load one native image network (``"vae"``, ``"unet"`` or ``"controlnet"``).
 
     Returns ``(weights, scale_factor)``. ``weights`` maps tensor names to float32
@@ -78,13 +80,13 @@ def require_configuration(directory: Path, *, configuration: str = "ct") -> None
     get_configuration(configuration)
 
 
-def load_mask_network[Tensor, Dtype](
+def load_mask_network(
     path: Path,
     *,
     network: str,
-    mx: ArrayFactory[Tensor, Dtype],
+    mx: MlxRuntime,
     catalog: Mapping[str, object] | None = None,
-) -> tuple[dict[str, Tensor], float | None]:
+) -> tuple[dict[str, Array], float | None]:
     """Load one native paired-mask network (``"vae"`` or ``"unet"``).
 
     Same contract as ``load_network``, using the mask catalog; the mask
@@ -99,13 +101,13 @@ def load_mask_network[Tensor, Dtype](
     )
 
 
-def _load_with_catalog[Tensor, Dtype](
+def _load_with_catalog(
     path: Path,
     *,
     network: str,
-    mx: ArrayFactory[Tensor, Dtype],
+    mx: MlxRuntime,
     catalog: Catalog,
-) -> tuple[dict[str, Tensor], float | None]:
+) -> tuple[dict[str, Array], float | None]:
     """Load native tensors. Conv weights are returned in Torch [O,I,K] layout."""
 
     networks = catalog["networks"]
@@ -114,7 +116,7 @@ def _load_with_catalog[Tensor, Dtype](
     specs = {str(item["name"]): item for item in networks[network]["tensors"]}
     if path.suffix != ".safetensors":
         raise InvalidInputError(f"{path.name} must be a safetensors file")
-    weights: dict[str, Tensor] = {}
+    weights: dict[str, Array] = {}
     scale_factor: float | None = None
     prefix = network + "." if path.name == "model.safetensors" else ""
     # pread avoids keeping pages from the entire mapped checkpoint resident

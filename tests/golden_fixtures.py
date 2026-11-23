@@ -16,11 +16,11 @@ from mlx_generate_ctmr.maisi_mlx_common import source_pins
 
 if TYPE_CHECKING:
     import torch
+    from medmlx_core.typing import MlxRuntime
 
     from mlx_generate_ctmr._types import (
         Array,
         ControlnetConstructor,
-        Mlx,
         RflowConstructor,
         VaeConstructor,
     )
@@ -62,7 +62,7 @@ def seed_torch(seed: int) -> None:
     pytest.importorskip("torch").manual_seed(seed)
 
 
-def mlx_weights(arrays: Mapping[str, HostArray], mx: Mlx) -> dict[str, Array]:
+def mlx_weights(arrays: Mapping[str, HostArray], mx: MlxRuntime) -> dict[str, Array]:
     """Convert recorded ``weight.*`` arrays to native float32 arrays."""
     from medmlx_core.ops import as_fp32
 

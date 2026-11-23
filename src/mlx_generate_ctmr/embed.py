@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, MlpArithmetic, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, MlpArithmetic
 
 import math
 
@@ -16,7 +18,7 @@ def sinusoidal_timestep_embedding(
     timesteps: Array,
     embedding_dim: int,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     max_period: int = 10000,
 ) -> Array:
     """Sinusoidal timestep embedding, ``(N,)`` timesteps to ``(N, embedding_dim)``.
@@ -39,7 +41,7 @@ def sinusoidal_timestep_embedding(
     return embedding
 
 
-def embed_class(indices: Array, weight: Array, mx: Mlx) -> Array:
+def embed_class(indices: Array, weight: Array, mx: MlxRuntime) -> Array:
     """``nn.Embedding`` gather: ``weight[indices]`` with layout ``[num, dim]``."""
 
     if int(indices.ndim) != 1:
@@ -53,7 +55,7 @@ def silu_mlp(
     bias1: Array,
     weight2: Array,
     bias2: Array,
-    mx: Mlx,
+    mx: MlxRuntime,
     *,
     arithmetic: MlpArithmetic = ops,
 ) -> Array:
@@ -69,19 +71,19 @@ def add_class_to_time(time_emb: Array, class_emb: Array) -> Array:
     return time_emb + class_emb
 
 
-def concat_spacing(emb: Array, spacing_emb: Array, mx: Mlx) -> Array:
+def concat_spacing(emb: Array, spacing_emb: Array, mx: MlxRuntime) -> Array:
     """UNet-only ``concat(emb, spacing_layer(spacing))`` on the last axis."""
 
     return mx.concatenate([emb, spacing_emb], axis=-1)
 
 
-def concat_top_region_index(emb: Array, region_emb: Array, mx: Mlx) -> Array:
+def concat_top_region_index(emb: Array, region_emb: Array, mx: MlxRuntime) -> Array:
     """``ddpm-ct`` UNet ``concat(emb, top_region_index_layer(top_index))``."""
 
     return mx.concatenate([emb, region_emb], axis=-1)
 
 
-def concat_bottom_region_index(emb: Array, region_emb: Array, mx: Mlx) -> Array:
+def concat_bottom_region_index(emb: Array, region_emb: Array, mx: MlxRuntime) -> Array:
     """``ddpm-ct`` UNet ``concat(emb, bottom_region_index_layer(bottom_index))``."""
 
     return mx.concatenate([emb, region_emb], axis=-1)

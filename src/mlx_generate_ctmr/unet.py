@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx, RflowConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, RflowConstructor
 
 from collections.abc import Mapping, Sequence
 
@@ -47,7 +49,7 @@ def denoise_unet_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: RflowConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     down_block_additional_residuals: Sequence[Array] | None = None,
     mid_block_additional_residual: Array | None = None,
     top_region_index: Array | None = None,
@@ -196,7 +198,7 @@ def _condition_embedding(
     weights: Mapping[str, Array],
     *,
     constructor: RflowConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> tuple[Array, Array]:
     """Build the UNet conditioning vector from the timestep and optional side inputs.
 
@@ -283,7 +285,7 @@ def apply_down_blocks(
     groups: int,
     eps: float,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
     down_block_additional_residuals: Sequence[Array] | None,
     resblock_updown: bool = True,
 ) -> tuple[Array, list[Array]]:
@@ -365,7 +367,7 @@ def apply_mid_block(
     groups: int,
     eps: float,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Run the conditioned middle residual-attention-residual blocks in NCDHW order."""
     arithmetic = unet_arithmetic()
@@ -412,7 +414,7 @@ def _apply_up_blocks(
     groups: int,
     eps: float,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
     resblock_updown: bool = True,
 ) -> Array:
     """Run the decoder half of the UNet, consuming `skips` (from the down path) in reverse.

@@ -15,7 +15,9 @@ from mlx_generate_ctmr import ddpm, mask_ddpm
 from mlx_generate_ctmr._arrays import HostArray, as_numpy
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ArrayConstructor, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 
 def _monai(steps: int = 1000) -> DDPMScheduler:
@@ -55,7 +57,7 @@ def test_schedules_match_pinned_monai() -> None:
 
 @pytest.mark.parametrize("timestep", [0, 1, 501, 999])
 def test_ddpm_steps_match_monai_with_fixed_noise(
-    mx: Mlx, timestep: int, monkeypatch: pytest.MonkeyPatch
+    mx: MlxRuntime, timestep: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Compare one image and one mask DDPM step with MONAI using fixed noise."""
     sample, epsilon, noise = np.random.default_rng(991).normal(size=(3, 1, 4, 2, 2, 2))
@@ -75,7 +77,7 @@ def test_ddpm_steps_match_monai_with_fixed_noise(
 
 
 def test_ddpm_full_trajectory_matches_monai_with_fixed_noise(
-    mx: Mlx, monkeypatch: pytest.MonkeyPatch
+    mx: MlxRuntime, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Run the complete image 999..0 loop against MONAI's scheduler step-by-step."""
     rng = np.random.default_rng(1234)
@@ -87,7 +89,7 @@ def test_ddpm_full_trajectory_matches_monai_with_fixed_noise(
     torch_sample = from_numpy(sample)
     for timestep in range(999, -1, -1):
         torch_sample, _ = scheduler.step(torch_sample * from_numpy(weight), timestep, torch_sample)
-    array = cast("ArrayConstructor", mx.array)
+    array = mx.array
     mlx_weight = array(weight)
 
     def predict_eps(current: Array, _timestep: int) -> Array:
@@ -106,7 +108,7 @@ def test_ddpm_full_trajectory_matches_monai_with_fixed_noise(
 
 @pytest.mark.parametrize("steps", [1, 7, 30, 999])
 def test_sparse_mask_ddpm_loop_matches_monai(
-    mx: Mlx, steps: int, monkeypatch: pytest.MonkeyPatch
+    mx: MlxRuntime, steps: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Compare a reduced-step mask DDPM trajectory with MONAI."""
     rng = np.random.default_rng(42)

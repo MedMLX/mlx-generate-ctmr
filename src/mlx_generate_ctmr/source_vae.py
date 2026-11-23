@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 import math
 
@@ -22,7 +24,7 @@ from mlx_generate_ctmr.source_fp32 import (
 )
 
 
-def _reduce(groups: Array, *, variance: bool, mx: Mlx) -> Array:
+def _reduce(groups: Array, *, variance: bool, mx: MlxRuntime) -> Array:
     """Per-row mean (or variance when `variance`) of a (rows, columns) float32 array.
 
     Two Metal kernels (per-block partials, then a final combine) follow the
@@ -72,7 +74,7 @@ def group_norm_ncdhw(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Apply source-ordered group normalization to a channels-first 5D array.
 
@@ -92,7 +94,7 @@ def group_norm_ncdhw(
     )
 
 
-def upsample_trilinear_ncdhw(array: Array, *, mx: Mlx, scale: int = 2) -> Array:
+def upsample_trilinear_ncdhw(array: Array, *, mx: MlxRuntime, scale: int = 2) -> Array:
     """Upsample channels-first 5D data by exactly two on each spatial axis.
 
     Uses the source's half-pixel trilinear coordinates and explicit nested FMA rounding;

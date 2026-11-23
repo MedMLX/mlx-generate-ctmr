@@ -10,12 +10,12 @@ import numpy as np
 from mlx_generate_ctmr._arrays import NumericArray, as_numpy
 
 if TYPE_CHECKING:
+    from medmlx_core.typing import MlxRuntime
+
     from mlx_generate_ctmr._types import (
         Array,
-        ArrayConstructor,
         ControlnetConstructor,
         MaskUnetConstructor,
-        Mlx,
         RflowConstructor,
         VaeConstructor,
     )
@@ -32,10 +32,10 @@ def run_case(
     inputs: Mapping[str, NumericArray],
     weights: Mapping[str, NumericArray],
     config: dict[str, object],
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> dict[str, NumericArray]:
     """Exercise native model and scheduler APIs on Metal."""
-    array = cast("ArrayConstructor", mx.array)
+    array = mx.array
     arrays = {key: array(value) for key, value in inputs.items()}
     state = {key: array(value) for key, value in weights.items()}
     if kind in {"rflow", "mask_ddpm"}:
@@ -49,10 +49,10 @@ def run_case(
     else:
         raise ValueError(kind)
     for value in output.values():
-        if isinstance(value, mx.array):
+        if not isinstance(value, np.ndarray):
             mx.eval(value)
     return {
-        key: as_numpy(value) if isinstance(value, mx.array) else cast(NumericArray, value)
+        key: value if isinstance(value, np.ndarray) else as_numpy(value)
         for key, value in output.items()
     }
 
@@ -63,7 +63,7 @@ def _networks(
     arrays: dict[str, Array],
     state: dict[str, Array],
     config: dict[str, object],
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> dict[str, Array]:
     """Exercise the requested native network against recorded inputs."""
     from mlx_generate_ctmr import controlnet, decode, mask_decode, mask_unet, mask_vae, unet, vae
@@ -134,7 +134,9 @@ def _networks(
     return output
 
 
-def _schedules(kind: str, arrays: dict[str, Array], mx: Mlx) -> dict[str, Array | NumericArray]:
+def _schedules(
+    kind: str, arrays: dict[str, Array], mx: MlxRuntime
+) -> dict[str, Array | NumericArray]:
     """Exercise the requested diffusion scheduler against recorded inputs."""
     from mlx_generate_ctmr import mask_ddpm as ddpm
     from mlx_generate_ctmr import rflow as scheduler
@@ -168,7 +170,7 @@ def _schedules(kind: str, arrays: dict[str, Array], mx: Mlx) -> dict[str, Array 
     return output
 
 
-def _arithmetic(arrays: dict[str, Array], mx: Mlx) -> dict[str, Array]:
+def _arithmetic(arrays: dict[str, Array], mx: MlxRuntime) -> dict[str, Array]:
     """Exercise source-ordered native arithmetic against recorded inputs."""
     from mlx_generate_ctmr import source_fp32 as fp32
     from mlx_generate_ctmr import source_vae
@@ -199,7 +201,7 @@ def _from_mask(
     arrays: dict[str, Array],
     state: dict[str, Array],
     config: dict[str, object],
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> dict[str, Array | NumericArray]:
     """Exercise the native CT from-mask path against recorded inputs."""
     from mlx_generate_ctmr import from_mask

@@ -15,10 +15,12 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import VAE_ATOL, VAE_RTOL
 from mlx_generate_ctmr.mask_vae import decode_mask_vae_ncdhw, encode_mask_vae_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import VaeConstructor
 
 
-def test_mask_vae_encode_decode_matches_pinned_torch(mx: Mlx) -> None:
+def test_mask_vae_encode_decode_matches_pinned_torch(mx: MlxRuntime) -> None:
     """Compare mask VAE encoding and decoding with the source."""
     constructor: VaeConstructor = {
         "spatial_dims": 3,

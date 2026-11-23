@@ -8,7 +8,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, HostArray, Mlx, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, HostArray, VaeConstructor
 
 import numpy as np
 from medmlx_core.layout import require_ncdhw
@@ -84,7 +86,7 @@ def sliding_window_decode_mask_logits_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor = PRODUCTION_MASK_VAE_CONSTRUCTOR,
-    mx: Mlx,
+    mx: MlxRuntime,
     roi: Sequence[int] = DEFAULT_ROI_SIZE,
     overlap: float = DEFAULT_OVERLAP,
     sigma_scale: float = DEFAULT_SIGMA_SCALE,
@@ -119,7 +121,7 @@ def decode_mask_logits_to_labels_ncdhw(
     logits: Array,
     *,
     label_id_map: Sequence[int] | HostArray,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Turn mask logits ``(N, 125, D, H, W)`` into canonical label ids ``(N, 1, D, H, W)`` int32.
 
@@ -151,7 +153,7 @@ def decode_mask_latent_to_labels_ncdhw(
     *,
     label_id_map: Sequence[int] | HostArray,
     constructor: VaeConstructor = PRODUCTION_MASK_VAE_CONSTRUCTOR,
-    mx: Mlx,
+    mx: MlxRuntime,
     roi: Sequence[int] = DEFAULT_ROI_SIZE,
     overlap: float = DEFAULT_OVERLAP,
     sigma_scale: float = DEFAULT_SIGMA_SCALE,

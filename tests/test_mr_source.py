@@ -20,7 +20,7 @@ from mlx_generate_ctmr.maisi_mlx_from_mask import PRODUCTION_UNET_CONSTRUCTOR
 from mlx_generate_ctmr.mr import mr_timesteps, sample_mr_latent_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx
+    from medmlx_core.typing import MlxRuntime
 
 
 def _scheduler(steps: int, numel: int) -> RFlowScheduler:
@@ -56,7 +56,7 @@ def test_mr_schedule_matches_source_fp16_on_every_public_output_grid(
     )
 
 
-def test_mr_cfg_trajectory_matches_pinned_monai_forward_and_scheduler(mx: Mlx) -> None:
+def test_mr_cfg_trajectory_matches_pinned_monai_forward_and_scheduler(mx: MlxRuntime) -> None:
     """Compare the guided MR trajectory with the MONAI source."""
     constructor = PRODUCTION_UNET_CONSTRUCTOR.copy()
     constructor.update(

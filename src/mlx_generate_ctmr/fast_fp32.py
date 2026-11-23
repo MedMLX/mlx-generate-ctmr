@@ -33,7 +33,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 import math
 import weakref
@@ -72,7 +74,7 @@ from mlx_generate_ctmr.source_vae import (
 _packed: dict[tuple[int, bool], tuple[weakref.ref[Array], Array]] = {}
 
 
-def _pack(weight: Array, *, upsample: bool, mx: Mlx) -> Array:
+def _pack(weight: Array, *, upsample: bool, mx: MlxRuntime) -> Array:
     """Cache packed convolution weights for the selected upsampling mode."""
     key = (id(weight), upsample)
     hit = _packed.get(key)
@@ -90,7 +92,7 @@ def drop_packed_weights(weights: Iterable[Array]) -> None:
         del _packed[key]
 
 
-def _use_nax(array: Array, weight: Array, mx: Mlx) -> bool:
+def _use_nax(array: Array, weight: Array, mx: MlxRuntime) -> bool:
     """Choose the accelerator convolution path when its constraints are met."""
     return (
         array.dtype == mx.float32
@@ -106,7 +108,7 @@ def group_norm_ncdhw(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
     apply_silu: bool = False,
 ) -> Array:
     """Group norm with FP32 statistics and an optional fused SiLU."""
@@ -118,7 +120,9 @@ def group_norm_ncdhw(
     return silu(hidden, mx) if apply_silu else hidden
 
 
-def pointwise_conv_ncdhw(array: Array, weight: Array, bias: Array | None, *, mx: Mlx) -> Array:
+def pointwise_conv_ncdhw(
+    array: Array, weight: Array, bias: Array | None, *, mx: MlxRuntime
+) -> Array:
     """1x1x1 convolution as an FP32 ``(O, C) @ (B, C, DHW)`` matmul without layout copies."""
     batch, channels = int(array.shape[0]), int(array.shape[1])
     spatial = tuple(int(n) for n in array.shape[2:])
@@ -136,7 +140,7 @@ def conv3d_ncdhw(
     bias: Array | None,
     *,
     padding: int,
-    mx: Mlx,
+    mx: MlxRuntime,
     stride: int = 1,
 ) -> Array:
     """NCDHW convolution with a Torch ``(O, C, K, K, K)`` weight; see the module notes."""
@@ -154,7 +158,7 @@ def conv3d_ncdhw(
     return ops.conv3d_ncdhw(array, weight, bias, padding=padding, stride=stride, mx=mx)
 
 
-def _bias(weight: Array, bias: Array | None, mx: Mlx) -> Array:
+def _bias(weight: Array, bias: Array | None, mx: MlxRuntime) -> Array:
     """Return the bias or a zero bias for the output channels."""
     return mx.zeros((int(weight.shape[0]),), dtype=mx.float32) if bias is None else bias
 
@@ -168,7 +172,7 @@ def norm_conv3d_ncdhw(
     num_groups: int,
     eps: float,
     apply_silu: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
     upsample: bool = False,
     residual: Array | None = None,
 ) -> Array:
@@ -218,7 +222,7 @@ def residual_block_ncdhw(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
     up: bool = False,
     down: bool = False,
 ) -> Array:
@@ -301,7 +305,7 @@ def vae_resblock_ncdhw(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Fused ``MaisiResBlock``: GN-SiLU-conv twice, with the skip in conv2's accumulator.
 
@@ -336,7 +340,7 @@ def vae_resblock_ncdhw(
     return output
 
 
-def trilinear_conv3d_ncdhw(array: Array, weight: Array, bias: Array, *, mx: Mlx) -> Array:
+def trilinear_conv3d_ncdhw(array: Array, weight: Array, bias: Array, *, mx: MlxRuntime) -> Array:
     """Padding-1 3x3x3 convolution of the source VAE's trilinear 2x upsampling of ``array``.
 
     On the NAX path the upsampling is computed while packing the convolution
@@ -356,7 +360,7 @@ def self_attention_tokens(
     heads: int,
     scale: float,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
     prefix: str = "attn",
     qkv_bias: bool = True,
 ) -> Array:
@@ -396,11 +400,11 @@ def self_attention_tokens(
     return merged
 
 
-def attention(query: Array, key: Array, value: Array, *, scale: float, mx: Mlx) -> Array:
+def attention(query: Array, key: Array, value: Array, *, scale: float, mx: MlxRuntime) -> Array:
     """MLX fused attention on ``(B, H, L, D)`` heads (the ``AttentionArithmetic`` surface)."""
     return mx.fast.scaled_dot_product_attention(query, key, value, scale=scale)
 
 
-def attention_projection(array: Array, weight: Array, bias: Array, mx: Mlx) -> Array:
+def attention_projection(array: Array, weight: Array, bias: Array, mx: MlxRuntime) -> Array:
     """Attention output projection; the same FP32 matmul as ``linear``."""
     return linear(array, weight, bias, mx)

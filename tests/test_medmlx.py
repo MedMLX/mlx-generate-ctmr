@@ -24,7 +24,7 @@ from mlx_generate_ctmr._nifti import nib
 from mlx_generate_ctmr._records import Catalog, TensorSpec
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx
+    from medmlx_core.typing import MlxRuntime
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "darwin-arm64"
 
@@ -161,7 +161,7 @@ def test_rejected_mask_shape_leaves_no_outputs(tiny_ct: Path, tmp_path: Path) ->
     assert not output.exists() or not any(path.is_file() for path in output.rglob("*"))
 
 
-def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx) -> None:
+def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: MlxRuntime) -> None:
     """Exercise a small seeded from-mask pipeline on Metal and reproduce it from the seed."""
     label = real_liver_mask()
     # The tiny crop truncates the lesion, so retain it as part of its host liver.

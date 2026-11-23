@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx, RflowConstructor, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, RflowConstructor, VaeConstructor
 
 import math
 from collections.abc import Mapping, Sequence
@@ -41,7 +43,7 @@ def mr_timesteps(*, latent_numel: int, num_inference_steps: int = 30) -> NDArray
     return timesteps
 
 
-def mr_spacing_tensor_ncdhw(spacing_mm: Sequence[float], *, mx: Mlx) -> Array:
+def mr_spacing_tensor_ncdhw(spacing_mm: Sequence[float], *, mx: MlxRuntime) -> Array:
     """Return ``spacing_mm * 100`` rounded through FP16 as a ``(1, 3)`` float32 array.
 
     Mirrors the source's control ingest: scale on the host, round to half
@@ -66,7 +68,7 @@ def sample_mr_latent_ncdhw(
     modality_code: int,
     spacing_mm: Sequence[float],
     guidance_scale: float,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_inference_steps: int = 30,
     constructor: RflowConstructor = PRODUCTION_UNET_CONSTRUCTOR,
 ) -> Array:
@@ -124,7 +126,7 @@ def decode_mr_ncdhw(
     weights: Mapping[str, Array],
     *,
     scale_factor: float,
-    mx: Mlx,
+    mx: MlxRuntime,
     constructor: VaeConstructor = PRODUCTION_VAE_CONSTRUCTOR,
 ) -> Array:
     """Decode an MR latent ``(1, 4, D, H, W)`` to ``(1, 1, 4D, 4H, 4W)`` float32.

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx
+    from medmlx_core.typing import MlxRuntime
 
 
 import subprocess
@@ -15,7 +15,7 @@ import pytest
 
 
 @pytest.fixture(scope="session")
-def metal() -> Mlx:
+def metal() -> MlxRuntime:
     # Isolate native crashes while keeping host-only tests independently runnable.
     """Require a working native Metal device for marked tests."""
     try:
@@ -48,10 +48,10 @@ def metal() -> Mlx:
     import mlx.core as mx
 
     mx.set_default_device(mx.gpu)
-    return cast("Mlx", mx)
+    return cast("MlxRuntime", mx)
 
 
 @pytest.fixture
-def mx(metal: Mlx) -> Mlx:
+def mx(metal: MlxRuntime) -> MlxRuntime:
     """Alias the admitted Metal runtime for numerical tests."""
     return metal
