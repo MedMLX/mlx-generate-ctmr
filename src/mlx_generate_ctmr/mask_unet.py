@@ -229,12 +229,12 @@ def denoise_mask_unet_ncdhw(
 
 
 def _arithmetic() -> ResidualArithmetic:
-    """``fast_fp32`` under the default fast mode; the generic ``medmlx_core.ops`` under source.
+    """Return ``fast_fp32`` by default, or the generic ``medmlx_core.ops`` under ``source-fp32``.
 
-    The source mode keeps this network on the generic ops it was ported with;
+    ``source-fp32`` keeps this network on the generic ops it was ported with;
     unlike the image UNet it has no CUDA-ordered arithmetic.
     """
-    return fast_fp32 if active_arithmetic_mode() == "fast" else ops
+    return fast_fp32 if active_arithmetic_mode() == "fast-fp32" else ops
 
 
 def _apply_down_blocks(

@@ -179,7 +179,7 @@ def spatial_transformer_ncdhw(
     The result has the shape of ``x``. Q/K/V projections have no bias and a single
     transformer layer is expected (``transformer_blocks.0.*`` weights). Uses plain
     ``medmlx_core`` ops rather than the CUDA-matched kernels; under the default
-    fast ``arithmetic_mode`` the group norm, pointwise projections and
+    ``fast-fp32`` ``arithmetic_mode`` the group norm, pointwise projections and
     self-attention use ``fast_fp32`` instead, and cross-attention to a single
     context token reduces to its projected value.
 
@@ -207,7 +207,7 @@ def spatial_transformer_ncdhw(
     channels = int(x.shape[1])
     heads, scale = _heads_and_scale(channels, num_head_channels)
 
-    fast = active_arithmetic_mode() == "fast"
+    fast = active_arithmetic_mode() == "fast-fp32"
     arithmetic = fast_fp32 if fast else ops
     hidden = arithmetic.group_norm_ncdhw(
         x,

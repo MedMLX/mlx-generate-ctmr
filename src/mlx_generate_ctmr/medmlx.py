@@ -158,7 +158,7 @@ CT_MODEL: Final[dict[str, object]] = {
     ),
     # The names output_label_table writes for the label maps.
     "labels": {str(item.value): item.name for item in MAISI_LABELS if item.value != 0},
-    # README: fast CT from-mask at 256³; convert the recorded GiB to decimal GB.
+    # README: fast-fp32 CT from-mask at 256³; convert the recorded GiB to decimal GB.
     "peak_memory_gb": 10.3 * 1024**3 / 1e9,
 }
 MR_MODEL: Final[dict[str, str | float]] = {
@@ -183,7 +183,7 @@ MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
         "Synthetic image-only brain MRI (T1, T2, FLAIR, MRA or SWI, optionally "
         "skull-stripped), without a label map."
     ),
-    # README: fast guided MR-Brain at 256x256x128; GiB to decimal GB.
+    # README: fast-fp32 guided MR-Brain at 256x256x128; GiB to decimal GB.
     "peak_memory_gb": 9.5 * 1024**3 / 1e9,
 }
 
@@ -247,7 +247,7 @@ def run(
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
     guidance_execution: GuidanceExecution = "batched",
-    mask_path: _PathArg | None = None,
+    label_map_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
     mask_weights_path: _PathArg | None = None,
@@ -268,7 +268,7 @@ def run(
     ct_qc_statistics_path: _PathArg | None = None,
     ct_qc_max_attempts: int = 2,
     attention_scratch_bytes: int | None = None,
-    precision: ArithmeticMode = "fast",
+    precision: ArithmeticMode = "fast-fp32",
 ) -> RunResult[str]:
     """Run NV-Generate for one configuration and write NIfTI outputs.
 
@@ -291,16 +291,16 @@ def run(
     score matrices; weights, Q/K/V, outputs, allocator cache and backend workspace
     are excluded. See ``attention_memory_budget`` for the exact scope. The
     original token-threshold policy remains the default. Under
-    ``precision="fast"`` the image networks' self-attention computes scores block
+    ``precision="fast-fp32"`` the image networks' self-attention computes scores block
     by block and needs no budget; mask-generation attention still uses it.
 
     ``precision`` selects the image UNet/ControlNet/VAE-decoder arithmetic (see
-    ``mlx_generate_ctmr.arithmetic_mode``). ``"fast"`` (default) uses native FP32
+    ``mlx_generate_ctmr.arithmetic_mode``). ``"fast-fp32"`` (default) uses native FP32
     operations, with M5 neural-accelerator kernels where hardware and macOS support
     them and ordinary MLX GPU operations otherwise. It accumulates in a different
     reduction order and decodes without ``autoencoder_tp_num_splits`` splits, which
     only bound memory; the paired-mask UNet and mask VAE use the same kernels.
-    ``"source"`` keeps the CUDA operation order the seeded references and the
+    ``"source-fp32"`` keeps the CUDA operation order the seeded references and the
     retained pretrained MR-Brain comparison used, and the mask UNet's generic
     MLX ops.
 
@@ -321,7 +321,7 @@ def run(
             CT from-mask takes spacing from the mask and rejects this argument.
         guidance_scale: MR classifier-free guidance scale; rejected for CT.
         guidance_execution: ``"batched"`` (default) or lower-memory ``"sequential"`` for MR.
-        mask_path: CT from-mask input NIfTI (``.nii`` or ``.nii.gz``) with MAISI
+        label_map_path: CT from-mask input NIfTI (``.nii`` or ``.nii.gz``) with MAISI
             labels 0..132 and required body-envelope label 200.
         anatomy: Canonical MAISI names to retain in CT paired output; required for
             paired mode and rejected for from-mask and MR.
@@ -356,7 +356,7 @@ def run(
         ct_qc_max_attempts: Maximum positive number of CT generation attempts, default 2.
         attention_scratch_bytes: Optional positive byte budget for attention score
             matrices, with exclusions described above.
-        precision: ``"fast"`` (default) or ``"source"``, described above.
+        precision: ``"fast-fp32"`` (default) or ``"source-fp32"``, described above.
 
     Returns ``{"outputs": {role: absolute posix path}, "artifacts": {role: ...},
     "details": {...}}``. The details record seeds, shapes, dtypes, timings, peak
@@ -431,7 +431,7 @@ def run(
         options, resolved_mask = _check_ct_request(
             guidance_scale=guidance_scale,
             guidance_execution=guidance_execution,
-            mask_path=mask_path,
+            label_map_path=label_map_path,
             anatomy=anatomy,
             anatomy_size=anatomy_size,
             generation_mode=generation_mode,
@@ -461,7 +461,7 @@ def run(
         if any(
             value is not None
             for value in (
-                mask_path,
+                label_map_path,
                 anatomy,
                 anatomy_size,
                 mask_weights_path,
@@ -556,7 +556,7 @@ def run(
                     spacing_mm=spacing_mm,
                     guidance_scale=guidance_scale,
                     guidance_execution=guidance_execution,
-                    mask_path=mask_path,
+                    label_map_path=label_map_path,
                     anatomy=anatomy,
                     anatomy_size=anatomy_size,
                     mask_weights_path=mask_weights_path,
@@ -621,7 +621,7 @@ def _run_once(
     spacing_mm: Sequence[float] | None = None,
     guidance_scale: float | None = None,
     guidance_execution: GuidanceExecution = "batched",
-    mask_path: _PathArg | None = None,
+    label_map_path: _PathArg | None = None,
     anatomy: Sequence[str] | None = None,
     anatomy_size: Mapping[str, float] | None = None,
     mask_weights_path: _PathArg | None = None,
@@ -648,7 +648,7 @@ def _run_once(
     and UNet tensors in ``model.safetensors``. The output is
     int16 MR intensity on a diagonal RAS affine, without an upper intensity clip.
 
-    ``from_mask`` (the default when ``mask_path`` is given) renders a CT from a 3D
+    ``from_mask`` (the default when ``label_map_path`` is given) renders a CT from a 3D
     MAISI label NIfTI with labels 0..132 plus body label 200, at 256x256x128 or
     256x256x256. The mask is reoriented to its closest canonical RAS grid
     (``input_mask_ras.nii.gz``), and the CT and label map are written on that grid:
@@ -700,7 +700,7 @@ def _run_once(
     options, resolved_mask = _check_ct_request(
         guidance_scale=guidance_scale,
         guidance_execution=guidance_execution,
-        mask_path=mask_path,
+        label_map_path=label_map_path,
         anatomy=anatomy,
         anatomy_size=anatomy_size,
         generation_mode=generation_mode,
@@ -788,7 +788,7 @@ def _check_ct_request(
     *,
     guidance_scale: float | None,
     guidance_execution: str,
-    mask_path: _PathArg | None,
+    label_map_path: _PathArg | None,
     anatomy: Sequence[str] | None,
     anatomy_size: Mapping[str, float] | None,
     generation_mode: str | None,
@@ -814,7 +814,7 @@ def _check_ct_request(
         raise InvalidInputError("CT ControlNet inference does not use classifier-free guidance")
     if guidance_execution != "batched":
         raise InvalidInputError("sequential guidance_execution only applies to MR configurations")
-    mode = generation_mode or ("from_mask" if mask_path is not None else "paired")
+    mode = generation_mode or ("from_mask" if label_map_path is not None else "paired")
     options = parse_options(
         generation_mode=mode,
         anatomy=() if anatomy is None else anatomy,
@@ -828,16 +828,16 @@ def _check_ct_request(
     )
     options = _with_mask_geometry(options, body_regions, output_size, spacing_mm)
     if options.generation_mode == "paired":
-        if mask_path is not None:
-            raise InvalidInputError("paired generation does not accept mask_path")
+        if label_map_path is not None:
+            raise InvalidInputError("paired generation does not accept label_map_path")
         return options, None
-    if mask_path is None:
-        raise InvalidInputError("generation_mode='from_mask' requires mask_path")
-    resolved_mask = Path(mask_path).expanduser().resolve()
+    if label_map_path is None:
+        raise InvalidInputError("generation_mode='from_mask' requires label_map_path")
+    resolved_mask = Path(label_map_path).expanduser().resolve()
     if not resolved_mask.is_file():
         raise InvalidInputError(f"Missing MAISI mask: {resolved_mask}")
     if not (resolved_mask.name.endswith(".nii") or resolved_mask.name.endswith(".nii.gz")):
-        raise InvalidInputError("MAISI mask_path must be a .nii or .nii.gz NIfTI file")
+        raise InvalidInputError("MAISI label_map_path must be a .nii or .nii.gz NIfTI file")
     return options, resolved_mask
 
 
@@ -1056,7 +1056,7 @@ def _run_from_mask(
                 # Fast arithmetic runs every UNet and ControlNet self-attention through the
                 # flash kernel, which the supported grids always fit (FP32, 32-wide heads,
                 # token counts divisible by 32). Source arithmetic does not use it.
-                "flash_attention": active_arithmetic_mode() == "fast",
+                "flash_attention": active_arithmetic_mode() == "fast-fp32",
                 "cfg_execution": "disabled",
             },
             "implementation": "NVIDIA-Medtech/NV-Generate-CTMR",

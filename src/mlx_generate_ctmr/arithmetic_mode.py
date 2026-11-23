@@ -1,10 +1,10 @@
 """Request-scoped choice between fast and source-ordered FP32 arithmetic, without importing MLX.
 
-``"fast"`` (the default) runs the image UNet, ControlNet and VAE decoder on
+``"fast-fp32"`` (the default) runs the image UNet, ControlNet and VAE decoder on
 ``fast_fp32``: implicit-GEMM convolutions on M5 neural accelerators when available
 (ordinary MLX GPU convolutions otherwise), fused group norm/SiLU/residual epilogues
 and flash attention, all accumulating in FP32
-but not in the CUDA operation order. ``"source"`` keeps the CUDA-matched
+but not in the CUDA operation order. ``"source-fp32"`` keeps the CUDA-matched
 ``source_fp32``/``source_vae`` kernels that the seeded MONAI references and the
 retained pretrained MR-Brain CUDA comparison were recorded against.
 """
@@ -21,11 +21,11 @@ from mlx_generate_ctmr import fast_fp32, source_fp32, source_vae
 if TYPE_CHECKING:
     from mlx_generate_ctmr._types import UnetArithmetic, VaeArithmetic
 
-type ArithmeticMode = Literal["fast", "source"]
+type ArithmeticMode = Literal["fast-fp32", "source-fp32"]
 
-ARITHMETIC_MODES: Final[tuple[ArithmeticMode, ...]] = ("fast", "source")
+ARITHMETIC_MODES: Final[tuple[ArithmeticMode, ...]] = ("fast-fp32", "source-fp32")
 
-_mode: ContextVar[ArithmeticMode] = ContextVar("mlx_generate_ctmr_arithmetic", default="fast")
+_mode: ContextVar[ArithmeticMode] = ContextVar("mlx_generate_ctmr_arithmetic", default="fast-fp32")
 
 
 @contextmanager
@@ -52,9 +52,9 @@ def active_arithmetic_mode() -> ArithmeticMode:
 
 def unet_arithmetic() -> UnetArithmetic:
     """Image UNet/ControlNet arithmetic module for the active mode."""
-    return source_fp32 if _mode.get() == "source" else fast_fp32
+    return source_fp32 if _mode.get() == "source-fp32" else fast_fp32
 
 
 def vae_arithmetic() -> VaeArithmetic:
     """Image VAE decoder arithmetic module for the active mode."""
-    return source_vae if _mode.get() == "source" else fast_fp32
+    return source_vae if _mode.get() == "source-fp32" else fast_fp32

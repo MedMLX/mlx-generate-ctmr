@@ -32,7 +32,7 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "darwin-arm64"
 @pytest.mark.parametrize(
     ("runner", "controls", "existing"),
     [
-        ("mlx-generate-ctmr-ct", {"mask_path": "absent.nii.gz"}, None),
+        ("mlx-generate-ctmr-ct", {"label_map_path": "absent.nii.gz"}, None),
         ("mlx-generate-ctmr-ct", {"anatomy": ["liver"], "num_inference_steps": 0}, None),
         ("mlx-generate-ctmr-mr", {"modality": "ct"}, None),
         ("mlx-generate-ctmr-mr-brain", {"overwrite": "false"}, None),
@@ -45,7 +45,7 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "darwin-arm64"
         ),
         (
             "mlx-generate-ctmr-ct",
-            {"mask_path": "mask.nii.gz"},
+            {"label_map_path": "mask.nii.gz"},
             "stages/ct_qc/attempt-2/synthetic_ct.nii.gz",
         ),
     ],
@@ -156,7 +156,7 @@ def test_rejected_mask_shape_leaves_no_outputs(tiny_ct: Path, tmp_path: Path) ->
             ct_intensity_qc=False,
             output_dir=output,
             weights_path=tiny_ct,
-            mask_path=mask,
+            label_map_path=mask,
         )
     assert not output.exists() or not any(path.is_file() for path in output.rglob("*"))
 
@@ -176,7 +176,7 @@ def test_from_mask_end_to_end_on_metal(tiny_ct: Path, tmp_path: Path, metal: Mlx
             ct_intensity_qc=False,
             output_dir=tmp_path / name,
             weights_path=tiny_ct,
-            mask_path=mask,
+            label_map_path=mask,
             seed=3,
         )
         for name in ("a", "b")

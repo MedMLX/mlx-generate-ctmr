@@ -134,7 +134,7 @@ def decode_mr_ncdhw(
     one window, as in the source's dynamic inference. Like the other image
     decoders and ``sample_mr_latent_ncdhw``, it uses the active
     ``arithmetic_mode``: ``fast_fp32`` by default, or the CUDA-matched
-    ``source_vae`` under ``arithmetic_mode("source")``.
+    ``source_vae`` under ``arithmetic_mode("source-fp32")``.
 
     Raises:
         InvalidInputError: If the latent contains non-finite values.

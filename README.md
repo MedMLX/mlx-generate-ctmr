@@ -136,9 +136,9 @@ MRA output is of low quality.
 
 ### CT
 
-`generation_mode` is `from_mask` when `mask_path` is given and `paired` otherwise.
+`generation_mode` is `from_mask` when `label_map_path` is given and `paired` otherwise.
 
-- **From a mask:** `mask_path` is a MAISI label NIfTI with labels 0 to 132 and the
+- **From a mask:** `label_map_path` is a MAISI label NIfTI with labels 0 to 132 and the
   required body label 200, 256×256×128 or 256×256×256, with equal X and Y spacing.
 - **Paired, learned mask:** `anatomy` lists the MAISI anatomy to keep, and
   `anatomy_size` gives size controls such as `{"pancreas": 0.3}` (0 to 1, or -1;
@@ -186,7 +186,7 @@ The CT and its labels share the prepared mask's grid.
 | `num_inference_steps` | 1 to 1000; default 30 |
 | `sliding_window_size`, `sliding_window_overlap`, `autoencoder_tp_num_splits` | VAE decode windows in latent voxels (multiples of 16), overlap, and split count (1, 2, 4, 8 or 16) |
 | `overwrite` | `False` by default, which refuses to replace existing outputs |
-| `precision` | `fast` (default) or `source`, which keeps the CUDA operation order |
+| `precision` | `fast-fp32` (default) or `source-fp32`, which keeps the CUDA operation order |
 | `attention_scratch_bytes` | Optional byte budget for attention score matrices; not a total memory limit |
 
 `run` returns `{"outputs": {role: path}, "artifacts": {role: ...}, "details": {...}}`.
@@ -219,7 +219,7 @@ weights = Path("mlx-generate-ctmr/mr/model.safetensors")
 vae, _ = load_network(weights, network="vae", mx=mx, configuration="mr")
 unet, scale_factor = load_network(weights, network="unet", mx=mx, configuration="mr")
 
-with arithmetic_mode("source"), attention_memory_budget(512 * 1024**2):
+with arithmetic_mode("source-fp32"), attention_memory_budget(512 * 1024**2):
     result = sample_image_ncdhw(
         (128, 128, 128), (1.0, 1.0, 1.0),  # output voxels (D, H, W) and spacing in mm
         unet_weights=unet, vae_weights=vae,
