@@ -27,8 +27,7 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 | `mlx-generate-ctmr-mr-brain` | 806 MB | 9.5 GiB | 256×256×128 MR-Brain, guided batch 2 |
 | `mlx-generate-ctmr-mr` | 806 MB | 9.5 GiB | 128×256×256 general MR |
 
-Requires Apple Silicon with Metal. The
-[technical notes](https://github.com/MedMLX/mlx-generate-ctmr/blob/main/docs/technical.md)
+The [technical notes](https://github.com/MedMLX/mlx-generate-ctmr/blob/main/docs/technical.md)
 give the arithmetic and settings of these measurements.
 
 ## Install
@@ -64,12 +63,9 @@ selection also includes the mask network.
 | `mlx-generate-ctmr-mr` | Image-only MR; the default grid generates head MRI |
 | `mlx-generate-ctmr-mr-brain` | Image-only brain MR |
 
-Generation needs Apple Silicon with Metal and has no CPU fallback.
-
 ### Local weights
 
-For an explicit local folder, download the native MR-Brain bundle and pass
-`weights_path`. No checkpoint conversion is needed:
+To use a local folder, download the MR-Brain bundle and pass `weights_path`:
 
 ```python
 from pathlib import Path
@@ -238,8 +234,6 @@ print(result.image.shape, result.affine)  # (1, 1, 128, 128, 128) int16 image
   keys, shapes, finite float32 values and the UNet scale factor.
 - The two context managers apply to a complete call in the current thread or task, not
   to a new process; use the runner arguments in worker requests.
-- Numerical parity is checked against MONAI on small seeded networks. That does not
-  qualify pretrained image quality. Synthetic output is not ground truth.
 
 ## Use with MedMLX
 
