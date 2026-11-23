@@ -311,7 +311,7 @@ def _ct_velocity(
 
     def velocity(state: Array, timestep: float) -> Array:
         """Predict one CT diffusion velocity for the current timestep."""
-        t = cast("ArrayConstructor", mx.array)([float(timestep)], dtype=mx.float32)
+        t = mx.array([float(timestep)], dtype=mx.float32)
         down, mid = controlnet_residuals_ncdhw(
             state,
             t,

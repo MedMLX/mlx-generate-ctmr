@@ -1225,7 +1225,7 @@ def _run_paired_mask_stage(
             processed_labels, affine = resample_mask_geometry(
                 processed_labels, affine, target=options.geometry
             )
-        processed_mlx = cast("ArrayConstructor", mx.array)(
+        processed_mlx = mx.array(
             processed_labels[None, None], dtype=mx.int32
         )
         selected = select_canonical_mask_labels_ncdhw(

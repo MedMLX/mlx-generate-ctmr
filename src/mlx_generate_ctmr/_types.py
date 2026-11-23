@@ -14,8 +14,6 @@ if TYPE_CHECKING:
     type Array = mx.array
     type Dtype = mx.Dtype
     type HostArray = np.ndarray[tuple[int, ...], np.dtype[np.generic]]
-    type FloatArray = np.ndarray[tuple[int, ...], np.dtype[np.float32]]
-    type BoolArray = np.ndarray[tuple[int, ...], np.dtype[np.bool_]]
     type IntArray = np.ndarray[tuple[int, ...], np.dtype[np.int16]]
     type ArrayValue = bool | int | float | complex | list[ArrayValue] | tuple[ArrayValue, ...]
 
@@ -83,9 +81,6 @@ if TYPE_CHECKING:
     class Random(Protocol):
         normal = staticmethod(mx.random.normal)
         seed = staticmethod(mx.random.seed)
-
-    class Metal(Protocol):
-        is_available = staticmethod(mx.metal.is_available)
 
     class Mlx(CoreMlxRuntime, Protocol):
         """Native MLX operations used by the generation runtime."""

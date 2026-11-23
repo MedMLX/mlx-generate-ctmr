@@ -31,12 +31,12 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from mlx_generate_ctmr._nax_conv import NAX_MMA_HEADER, nax_available
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ArrayConstructor, MetalKernel, Mlx
+    from mlx_generate_ctmr._types import Array, MetalKernel, Mlx
 
 _SIMDGROUPS = 4
 _BLOCK = 32  # query rows per threadgroup and keys per staged block
@@ -351,7 +351,7 @@ def flash_attention(q: Array, k: Array, v: Array, *, heads: int, scale: float, m
             output_dtypes=[mx.float32],
         )[0]
     return _kernel(mx)(
-        inputs=[q, k, v, cast("ArrayConstructor", mx.array)([scale], dtype=mx.float32)],
+        inputs=[q, k, v, mx.array([scale], dtype=mx.float32)],
         template=[("L", length), ("LK", int(k.shape[1])), ("H", heads), ("NSG", _SIMDGROUPS)],
         grid=(32 * _SIMDGROUPS * (length // _BLOCK), batch * heads, 1),
         threadgroup=(32 * _SIMDGROUPS, 1, 1),
