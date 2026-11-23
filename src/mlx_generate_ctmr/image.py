@@ -24,11 +24,11 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
 from mlx_generate_ctmr.condition import SPACING_SCALE, modality_class_labels
 from mlx_generate_ctmr.configurations import Configuration, ModelConfiguration, get_configuration
 from mlx_generate_ctmr.decode import Z_SCALE, sliding_window_decode_ncdhw
 from mlx_generate_ctmr.from_mask import require_scale_factor
+from mlx_generate_ctmr.precision import vae_arithmetic
 from mlx_generate_ctmr.rflow import init_latent_ncdhw, sample_rflow, set_timesteps_rflow
 from mlx_generate_ctmr.unet import denoise_unet_ncdhw
 

@@ -12,11 +12,11 @@ from collections.abc import Mapping
 from medmlx_core.layout import require_ncdhw
 
 from mlx_generate_ctmr import source_fp32
-from mlx_generate_ctmr.arithmetic_mode import unet_arithmetic
 from mlx_generate_ctmr.embed import (
     add_class_to_time,
     embed_class,
 )
+from mlx_generate_ctmr.precision import unet_arithmetic
 from mlx_generate_ctmr.unet import (
     apply_down_blocks,
     apply_mid_block,
@@ -206,7 +206,7 @@ def _cond_embed(
 
     def silu(array: Array, mx: Mlx) -> Array:
         # MONAI's Swish here rounds the sigmoid separately from Torch SiLU's division.
-        """Apply the selected arithmetic mode's SiLU activation."""
+        """Apply ``arithmetic``'s SiLU activation."""
         if arithmetic is source_fp32:
             return source_fp32.swish(array, mx)
         return arithmetic.silu(array, mx)

@@ -21,40 +21,40 @@ from mlx_generate_ctmr import fast_fp32, source_fp32, source_vae
 if TYPE_CHECKING:
     from mlx_generate_ctmr._types import UnetArithmetic, VaeArithmetic
 
-type ArithmeticMode = Literal["fast-fp32", "source-fp32"]
+type Precision = Literal["fast-fp32", "source-fp32"]
 
-ARITHMETIC_MODES: Final[tuple[ArithmeticMode, ...]] = ("fast-fp32", "source-fp32")
+PRECISIONS: Final[tuple[Precision, ...]] = ("fast-fp32", "source-fp32")
 
-_mode: ContextVar[ArithmeticMode] = ContextVar("mlx_generate_ctmr_arithmetic", default="fast-fp32")
+_precision: ContextVar[Precision] = ContextVar("mlx_generate_ctmr_precision", default="fast-fp32")
 
 
 @contextmanager
-def arithmetic_mode(mode: ArithmeticMode) -> Generator[None]:
-    """Select the image-network arithmetic for calls made inside the block.
+def precision_mode(precision: Precision) -> Generator[None]:
+    """Select the image-network precision for calls made inside the block.
 
-    Nested calls restore the previous mode, including on exceptions. Like
+    Nested calls restore the previous precision, including on exceptions. Like
     ``attention_memory_budget`` the setting is isolated between threads/tasks
     and does not propagate into newly spawned processes.
     """
-    if mode not in ARITHMETIC_MODES:
-        raise ValueError(f"arithmetic must be one of {ARITHMETIC_MODES}; got {mode!r}")
-    token = _mode.set(mode)
+    if precision not in PRECISIONS:
+        raise ValueError(f"precision must be one of {PRECISIONS}; got {precision!r}")
+    token = _precision.set(precision)
     try:
         yield
     finally:
-        _mode.reset(token)
+        _precision.reset(token)
 
 
-def active_arithmetic_mode() -> ArithmeticMode:
-    """Return the mode selected by the innermost ``arithmetic_mode`` block."""
-    return _mode.get()
+def active_precision() -> Precision:
+    """Return the precision selected by the innermost ``precision_mode`` block."""
+    return _precision.get()
 
 
 def unet_arithmetic() -> UnetArithmetic:
-    """Image UNet/ControlNet arithmetic module for the active mode."""
-    return source_fp32 if _mode.get() == "source-fp32" else fast_fp32
+    """Image UNet/ControlNet arithmetic module for the active precision."""
+    return source_fp32 if _precision.get() == "source-fp32" else fast_fp32
 
 
 def vae_arithmetic() -> VaeArithmetic:
-    """Image VAE decoder arithmetic module for the active mode."""
-    return source_vae if _mode.get() == "source-fp32" else fast_fp32
+    """Image VAE decoder arithmetic module for the active precision."""
+    return source_vae if _precision.get() == "source-fp32" else fast_fp32

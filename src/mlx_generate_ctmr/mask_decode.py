@@ -14,7 +14,6 @@ import numpy as np
 from medmlx_core.layout import require_ncdhw
 from medmlx_core.maisi import MAISI_LABELS
 
-from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
 from mlx_generate_ctmr.decode import (
     DEFAULT_MODE,
     DEFAULT_OVERLAP,
@@ -26,6 +25,7 @@ from mlx_generate_ctmr.mask_vae import (
     MASK_LOGIT_CHANNELS,
     PRODUCTION_MASK_VAE_CONSTRUCTOR,
 )
+from mlx_generate_ctmr.precision import vae_arithmetic
 
 BODY_LABEL = 200
 _VALID_CANONICAL_LABELS = frozenset(item.value for item in MAISI_LABELS)

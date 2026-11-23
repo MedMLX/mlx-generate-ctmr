@@ -15,12 +15,12 @@ from medmlx_core.errors import InvalidInputError
 from medmlx_core.layout import require_ncdhw
 from numpy.typing import NDArray
 
-from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
 from mlx_generate_ctmr.decode import sliding_window_decode_ncdhw
 from mlx_generate_ctmr.maisi_mlx_from_mask import (
     PRODUCTION_UNET_CONSTRUCTOR,
     PRODUCTION_VAE_CONSTRUCTOR,
 )
+from mlx_generate_ctmr.precision import vae_arithmetic
 from mlx_generate_ctmr.rflow import set_timesteps_rflow, step_rflow
 from mlx_generate_ctmr.unet import denoise_unet_ncdhw
 
@@ -133,8 +133,8 @@ def decode_mr_ncdhw(
     latent-voxel Gaussian windows with 0.4 overlap when the latent is larger than
     one window, as in the source's dynamic inference. Like the other image
     decoders and ``sample_mr_latent_ncdhw``, it uses the active
-    ``arithmetic_mode``: ``fast_fp32`` by default, or the CUDA-matched
-    ``source_vae`` under ``arithmetic_mode("source-fp32")``.
+    ``precision``: ``fast_fp32`` by default, or the CUDA-matched
+    ``source_vae`` under ``precision_mode("source-fp32")``.
 
     Raises:
         InvalidInputError: If the latent contains non-finite values.

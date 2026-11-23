@@ -21,9 +21,9 @@ from medmlx_core.layout import require_ncdhw
 from medmlx_core.ops import concat_channels_ncdhw
 
 from mlx_generate_ctmr import fast_fp32
-from mlx_generate_ctmr.arithmetic_mode import active_arithmetic_mode
 from mlx_generate_ctmr.attention import spatial_transformer_ncdhw
 from mlx_generate_ctmr.embed import sinusoidal_timestep_embedding
+from mlx_generate_ctmr.precision import active_precision
 from mlx_generate_ctmr.residual import residual_block_ncdhw
 from mlx_generate_ctmr.unet_common import (
     apply_silu_mlp,
@@ -234,7 +234,7 @@ def _arithmetic() -> ResidualArithmetic:
     ``source-fp32`` keeps this network on the generic ops it was ported with;
     unlike the image UNet it has no CUDA-ordered arithmetic.
     """
-    return fast_fp32 if active_arithmetic_mode() == "fast-fp32" else ops
+    return fast_fp32 if active_precision() == "fast-fp32" else ops
 
 
 def _apply_down_blocks(

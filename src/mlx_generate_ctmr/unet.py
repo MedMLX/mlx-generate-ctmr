@@ -15,7 +15,6 @@ from medmlx_core.ops import (
 )
 
 from mlx_generate_ctmr import fast_fp32
-from mlx_generate_ctmr.arithmetic_mode import unet_arithmetic
 from mlx_generate_ctmr.attention import spatial_attention_ncdhw
 from mlx_generate_ctmr.embed import (
     add_class_to_time,
@@ -24,6 +23,7 @@ from mlx_generate_ctmr.embed import (
     concat_top_region_index,
     embed_class,
 )
+from mlx_generate_ctmr.precision import unet_arithmetic
 from mlx_generate_ctmr.residual import residual_block_ncdhw
 from mlx_generate_ctmr.unet_common import (
     apply_silu_mlp,

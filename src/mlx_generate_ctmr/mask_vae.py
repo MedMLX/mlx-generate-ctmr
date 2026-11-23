@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 from collections.abc import Mapping
 
-from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
+from mlx_generate_ctmr.precision import vae_arithmetic
 from mlx_generate_ctmr.vae import (
     decode_vae_ncdhw,
     encode_vae_ncdhw,

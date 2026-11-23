@@ -65,12 +65,6 @@ from mlx_generate_ctmr._records import (
     PairFacts,
     RunResult,
 )
-from mlx_generate_ctmr.arithmetic_mode import (
-    ARITHMETIC_MODES,
-    ArithmeticMode,
-    active_arithmetic_mode,
-    arithmetic_mode,
-)
 from mlx_generate_ctmr.attention_budget import attention_memory_budget
 from mlx_generate_ctmr.configurations import Configuration, get_configuration
 from mlx_generate_ctmr.decode import DEFAULT_OVERLAP, DEFAULT_ROI_SIZE
@@ -110,6 +104,12 @@ from mlx_generate_ctmr.mask_postprocess import postprocess_mask
 from mlx_generate_ctmr.mask_qc import validate_write_and_require_maisi_mask
 from mlx_generate_ctmr.mask_unet import PRODUCTION_MASK_UNET_CONSTRUCTOR
 from mlx_generate_ctmr.mask_vae import PRODUCTION_MASK_VAE_CONSTRUCTOR
+from mlx_generate_ctmr.precision import (
+    PRECISIONS,
+    Precision,
+    active_precision,
+    precision_mode,
+)
 from mlx_generate_ctmr.weights import (
     load_mask_network,
     load_network,
@@ -268,7 +268,7 @@ def run(
     ct_qc_statistics_path: _PathArg | None = None,
     ct_qc_max_attempts: int = 2,
     attention_scratch_bytes: int | None = None,
-    precision: ArithmeticMode = "fast-fp32",
+    precision: Precision = "fast-fp32",
 ) -> RunResult[str]:
     """Run NV-Generate for one configuration and write NIfTI outputs.
 
@@ -295,7 +295,7 @@ def run(
     by block and needs no budget; mask-generation attention still uses it.
 
     ``precision`` selects the image UNet/ControlNet/VAE-decoder arithmetic (see
-    ``mlx_generate_ctmr.arithmetic_mode``). ``"fast-fp32"`` (default) uses native FP32
+    ``mlx_generate_ctmr.precision``). ``"fast-fp32"`` (default) uses native FP32
     operations, with M5 neural-accelerator kernels where hardware and macOS support
     them and ordinary MLX GPU operations otherwise. It accumulates in a different
     reduction order and decodes without ``autoencoder_tp_num_splits`` splits, which
@@ -388,9 +388,8 @@ def run(
         type(attention_scratch_bytes) is not int or attention_scratch_bytes < 1
     ):
         raise InvalidInputError("attention_scratch_bytes must be a positive integer or None")
-    if cast(object, precision) not in ARITHMETIC_MODES:
-        raise InvalidInputError(f"precision must be one of {ARITHMETIC_MODES}")
-    mode = precision
+    if cast(object, precision) not in PRECISIONS:
+        raise InvalidInputError(f"precision must be one of {PRECISIONS}")
     if ct_intensity_qc is not None and not isinstance(cast(object, ct_intensity_qc), bool):
         raise InvalidInputError("ct_intensity_qc must be a boolean")
     if (
@@ -536,7 +535,7 @@ def run(
                     break
 
     def attempt(attempt_output: Path, attempt_seed: int) -> RunResult[str]:
-        """One generation attempt under the chosen arithmetic mode and attention budget, annotated
+        """One generation attempt under the chosen precision and attention budget, annotated
         with model id and weights revision.
         """
         context = (
@@ -545,7 +544,7 @@ def run(
             else nullcontext()
         )
         try:
-            with context, arithmetic_mode(mode):
+            with context, precision_mode(precision):
                 result = _run_once(
                     output_dir=attempt_output,
                     seed=attempt_seed,
@@ -577,7 +576,7 @@ def run(
             _release_mlx_cache()
         if attention_scratch_bytes is not None:
             result["details"]["attention_scratch_bytes"] = attention_scratch_bytes
-        result["details"]["precision"] = mode
+        result["details"]["precision"] = precision
         result["details"]["model_id"] = model
         result["details"]["weights_revision"] = weights_revision(folder)
         return result
@@ -1056,7 +1055,7 @@ def _run_from_mask(
                 # Fast arithmetic runs every UNet and ControlNet self-attention through the
                 # flash kernel, which the supported grids always fit (FP32, 32-wide heads,
                 # token counts divisible by 32). Source arithmetic does not use it.
-                "flash_attention": active_arithmetic_mode() == "fast-fp32",
+                "flash_attention": active_precision() == "fast-fp32",
                 "cfg_execution": "disabled",
             },
             "implementation": "NVIDIA-Medtech/NV-Generate-CTMR",

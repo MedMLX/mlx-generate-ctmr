@@ -24,8 +24,8 @@ from medmlx_core.layout import (
 from medmlx_core.ops import linear
 
 from mlx_generate_ctmr import fast_fp32
-from mlx_generate_ctmr.arithmetic_mode import active_arithmetic_mode, unet_arithmetic
 from mlx_generate_ctmr.attention_budget import query_chunk_size
+from mlx_generate_ctmr.precision import active_precision, unet_arithmetic
 
 # Attention here is dense: it builds a (tokens x tokens) score matrix per head.
 # Inputs above 32**3 tokens are refused before allocating, and queries are
@@ -109,7 +109,7 @@ def spatial_attention_ncdhw(
     ``attn.to_k.*``, ``attn.to_v.*``, and ``attn.out_proj.*`` when ``include_fc``).
     ``num_head_channels`` is the channel count per head (``C`` must be divisible by it).
     GroupNorm and the linear/attention products use ``arithmetic``, by default
-    the active ``arithmetic_mode``'s: the CUDA-matched Metal kernels in
+    the active ``precision``'s: the CUDA-matched Metal kernels in
     ``source_fp32``, or ``fast_fp32``'s native group norm and FP32 flash
     attention, which needs no query chunking.
 
@@ -179,7 +179,7 @@ def spatial_transformer_ncdhw(
     The result has the shape of ``x``. Q/K/V projections have no bias and a single
     transformer layer is expected (``transformer_blocks.0.*`` weights). Uses plain
     ``medmlx_core`` ops rather than the CUDA-matched kernels; under the default
-    ``fast-fp32`` ``arithmetic_mode`` the group norm, pointwise projections and
+    ``fast-fp32`` ``precision`` the group norm, pointwise projections and
     self-attention use ``fast_fp32`` instead, and cross-attention to a single
     context token reduces to its projected value.
 
@@ -207,7 +207,7 @@ def spatial_transformer_ncdhw(
     channels = int(x.shape[1])
     heads, scale = _heads_and_scale(channels, num_head_channels)
 
-    fast = active_arithmetic_mode() == "fast-fp32"
+    fast = active_precision() == "fast-fp32"
     arithmetic = fast_fp32 if fast else ops
     hidden = arithmetic.group_norm_ncdhw(
         x,

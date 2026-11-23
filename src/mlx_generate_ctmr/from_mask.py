@@ -31,7 +31,6 @@ from medmlx_core.maisi import MAISI_LABELS
 from medmlx_core.ops import as_fp32
 
 from mlx_generate_ctmr import fast_fp32
-from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
 from mlx_generate_ctmr.condition import (
     binarize_labels_ncdhw,
     modality_class_labels,
@@ -49,6 +48,7 @@ from mlx_generate_ctmr.decode import (
     to_hu_ncdhw,
 )
 from mlx_generate_ctmr.maisi_mlx_weights import MASK_AUTOENCODER_SCALE_FACTOR
+from mlx_generate_ctmr.precision import vae_arithmetic
 from mlx_generate_ctmr.rflow import (
     init_latent_ncdhw,
     sample_rflow,
