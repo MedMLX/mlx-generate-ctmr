@@ -22,10 +22,10 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import RESIDUAL_ATOL, RESIDUAL_RTOL
 from mlx_generate_ctmr.residual import residual_block_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx
+    from medmlx_core.typing import MlxRuntime
 
 
-def test_sinusoidal_timestep_embedding_matches_pinned_torch(mx: Mlx) -> None:
+def test_sinusoidal_timestep_embedding_matches_pinned_torch(mx: MlxRuntime) -> None:
     """Compare timestep embeddings with the source and zero-pad odd dimensions."""
     steps = np.array([0.0, 64.5, 500.0, 1000.0], dtype=np.float32)
     expected = get_timestep_embedding(from_numpy(steps), 64).numpy()
@@ -37,7 +37,7 @@ def test_sinusoidal_timestep_embedding_matches_pinned_torch(mx: Mlx) -> None:
     np.testing.assert_array_equal(odd[:, -1], 0.0)
 
 
-def test_trilinear_upsample_matches_torch_align_corners_false(mx: Mlx) -> None:
+def test_trilinear_upsample_matches_torch_align_corners_false(mx: MlxRuntime) -> None:
     """Compare trilinear upsampling with Torch align-corners-false behavior."""
     values = np.linspace(-1.0, 1.0, 8, dtype=np.float32).reshape(1, 1, 2, 2, 2)
     expected = torch_f.interpolate(
@@ -51,7 +51,7 @@ def test_trilinear_upsample_matches_torch_align_corners_false(mx: Mlx) -> None:
     ("up", "down", "in_channels", "out_channels"), [(False, True, 8, 16), (True, False, 8, 8)]
 )
 def test_residual_skip_up_down_match_pinned_torch(
-    mx: Mlx, up: bool, down: bool, in_channels: int, out_channels: int
+    mx: MlxRuntime, up: bool, down: bool, in_channels: int, out_channels: int
 ) -> None:
     """Compare residual skip and resampling paths with the source."""
     module = DiffusionUNetResnetBlock(

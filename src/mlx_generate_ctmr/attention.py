@@ -5,13 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import (
-        Activations,
-        Array,
-        AttentionArithmetic,
-        Mlx,
-        UnetArithmetic,
-    )
+    from medmlx_core.typing import MlxRuntime, NeuralRuntime
+
+    from mlx_generate_ctmr._types import Array, AttentionArithmetic, UnetArithmetic
 
 from collections.abc import Callable, Mapping
 
@@ -24,8 +20,8 @@ from medmlx_core.layout import (
 from medmlx_core.ops import linear
 
 from mlx_generate_ctmr import fast_fp32
-from mlx_generate_ctmr.arithmetic_mode import active_arithmetic_mode, unet_arithmetic
 from mlx_generate_ctmr.attention_budget import query_chunk_size
+from mlx_generate_ctmr.precision import active_precision, unet_arithmetic
 
 # Attention here is dense: it builds a (tokens x tokens) score matrix per head.
 # Inputs above 32**3 tokens are refused before allocating, and queries are
@@ -97,7 +93,7 @@ def spatial_attention_ncdhw(
     eps: float,
     num_head_channels: int,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: UnetArithmetic | None = None,
 ) -> Array:
     """Residual self-attention over all spatial positions of an NCDHW tensor.
@@ -109,7 +105,7 @@ def spatial_attention_ncdhw(
     ``attn.to_k.*``, ``attn.to_v.*``, and ``attn.out_proj.*`` when ``include_fc``).
     ``num_head_channels`` is the channel count per head (``C`` must be divisible by it).
     GroupNorm and the linear/attention products use ``arithmetic``, by default
-    the active ``arithmetic_mode``'s: the CUDA-matched Metal kernels in
+    the active ``precision``'s: the CUDA-matched Metal kernels in
     ``source_fp32``, or ``fast_fp32``'s native group norm and FP32 flash
     attention, which needs no query chunking.
 
@@ -170,7 +166,7 @@ def spatial_transformer_ncdhw(
     num_head_channels: int,
     cross_attention_dim: int,
     include_fc: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Mask-UNet spatial transformer block: self-attention, cross-attention, GEGLU.
 
@@ -179,7 +175,7 @@ def spatial_transformer_ncdhw(
     The result has the shape of ``x``. Q/K/V projections have no bias and a single
     transformer layer is expected (``transformer_blocks.0.*`` weights). Uses plain
     ``medmlx_core`` ops rather than the CUDA-matched kernels; under the default
-    ``fast-fp32`` ``arithmetic_mode`` the group norm, pointwise projections and
+    ``fast-fp32`` ``precision`` the group norm, pointwise projections and
     self-attention use ``fast_fp32`` instead, and cross-attention to a single
     context token reduces to its projected value.
 
@@ -207,7 +203,7 @@ def spatial_transformer_ncdhw(
     channels = int(x.shape[1])
     heads, scale = _heads_and_scale(channels, num_head_channels)
 
-    fast = active_arithmetic_mode() == "fast-fp32"
+    fast = active_precision() == "fast-fp32"
     arithmetic = fast_fp32 if fast else ops
     hidden = arithmetic.group_norm_ncdhw(
         x,
@@ -329,13 +325,13 @@ def geglu(
     weight2: Array,
     bias2: Array,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """GEGLU MLP used by the mask-UNet transformer feed-forward block."""
 
     from importlib import import_module
 
-    activations = cast("Activations", import_module("mlx.nn"))
+    activations = cast("NeuralRuntime", import_module("mlx.nn"))
     projected = linear(array, weight1, bias1, mx)
     channels = int(projected.shape[-1])
     if channels % 2 != 0:
@@ -357,7 +353,7 @@ def _attention_tokens(
     qkv_bias: bool,
     include_fc: bool,
     allow_query_chunking: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: AttentionArithmetic | None = None,
 ) -> Array:
     """Project query, key, and value tokens and combine their attention outputs."""
@@ -424,7 +420,7 @@ def _bias(weights: Mapping[str, Array], prefix: str, *, qkv_bias: bool) -> Array
     return weights[key]
 
 
-def _layer_norm(array: Array, weight: Array, bias: Array, *, mx: Mlx) -> Array:
+def _layer_norm(array: Array, weight: Array, bias: Array, *, mx: MlxRuntime) -> Array:
     # Pinned transformer LayerNorm uses Torch's default, independent of GroupNorm.
     """Apply the source transformer layer norm with epsilon 1e-5."""
     return mx.fast.layer_norm(array, eps=1e-5, weight=weight, bias=bias)
@@ -437,7 +433,7 @@ def _scaled_dot_product_attention(
     *,
     scale: float,
     allow_query_chunking: bool,
-    mx: Mlx,
+    mx: MlxRuntime,
     attention_op: Callable[..., Array] | None = None,
 ) -> Array:
     # An explicit request budget also covers cross-attention; the legacy flag
@@ -476,7 +472,7 @@ def _query_chunked_scaled_dot_product_attention(
     value: Array,
     *,
     scale: float,
-    mx: Mlx,
+    mx: MlxRuntime,
     attention_op: Callable[..., Array] | None = None,
     chunk_size: int = _QUERY_CHUNK_TOKENS,
 ) -> Array:
@@ -497,19 +493,19 @@ def _query_chunked_scaled_dot_product_attention(
     return mx.concatenate(outputs, axis=2)
 
 
-def _sdpa(query: Array, key: Array, value: Array, *, scale: float, mx: Mlx) -> Array:
+def _sdpa(query: Array, key: Array, value: Array, *, scale: float, mx: MlxRuntime) -> Array:
     """Dispatch scaled dot-product attention to the native runtime."""
     return mx.fast.scaled_dot_product_attention(query, key, value, scale=scale)
 
 
-def _heads(projected: Array, heads: int, mx: Mlx) -> Array:
+def _heads(projected: Array, heads: int, mx: MlxRuntime) -> Array:
     """Reshape projected tokens into batch, head, token, and head-channel axes."""
     batch, tokens, channels = (int(dim) for dim in projected.shape)
     dim_head = channels // heads
     return mx.transpose(mx.reshape(projected, (batch, tokens, heads, dim_head)), (0, 2, 1, 3))
 
 
-def _merge_heads(heads: Array, mx: Mlx) -> Array:
+def _merge_heads(heads: Array, mx: MlxRuntime) -> Array:
     """Combine attention heads into the final token-channel axis."""
     batch, n_heads, tokens, dim_head = (int(dim) for dim in heads.shape)
     return mx.reshape(mx.transpose(heads, (0, 2, 1, 3)), (batch, tokens, n_heads * dim_head))

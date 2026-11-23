@@ -13,7 +13,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, MetalKernel, Mlx
+    from medmlx_core.typing import MetalKernel, MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 import math
 from functools import cache
@@ -32,7 +34,7 @@ from mlx_generate_ctmr._source_fp32_kernels import KERNELS
 
 
 @cache
-def source_kernel(name: str, mx: Mlx) -> MetalKernel:
+def source_kernel(name: str, mx: MlxRuntime) -> MetalKernel:
     """Create and cache a named Metal kernel from the packaged source definitions."""
     inputs, outputs, header, source = KERNELS[name]
     return mx.fast.metal_kernel(
@@ -45,7 +47,7 @@ def source_kernel(name: str, mx: Mlx) -> MetalKernel:
 
 
 @cache
-def _tables(mx: Mlx) -> tuple[Array, Array]:
+def _tables(mx: MlxRuntime) -> tuple[Array, Array]:
     """Load the packaged constants used by source-ordered FP32 operations."""
     with np.load(Path(__file__).with_name("source_fp32_tables.npz"), allow_pickle=False) as data:
         rsqrt = np.cumsum(data["rsqrt"], dtype=np.uint32).view(np.float32)
@@ -61,7 +63,7 @@ def _apply(
     name: str,
     inputs: list[Array],
     shape: tuple[int, ...],
-    mx: Mlx,
+    mx: MlxRuntime,
     *,
     template: list[tuple[str, int | bool]] | None = None,
     threads: int = 256,
@@ -80,7 +82,7 @@ def _apply(
     )[0]
 
 
-def _bias(weight: Array, bias: Array | None, mx: Mlx) -> Array:
+def _bias(weight: Array, bias: Array | None, mx: MlxRuntime) -> Array:
     """Return the supplied bias or zeros for the output channels."""
     return mx.zeros((int(weight.shape[0]),), dtype=mx.float32) if bias is None else bias
 
@@ -91,7 +93,7 @@ def conv3d_ncdhw(
     bias: Array | None,
     *,
     padding: int,
-    mx: Mlx,
+    mx: MlxRuntime,
     stride: int = 1,
 ) -> Array:
     """cuDNN FP32 channel/kernel order, including padding and the final bias add."""
@@ -120,7 +122,7 @@ def group_norm_ncdhw(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """CUDA Welford reduction, reciprocal square root, and affine rounding."""
     require_ncdhw(array, name="source group_norm input")
@@ -145,7 +147,7 @@ def group_norm_ncdhw(
     )
 
 
-def _exp(array: Array, mx: Mlx, *, as_silu: bool = False) -> Array:
+def _exp(array: Array, mx: MlxRuntime, *, as_silu: bool = False) -> Array:
     """Apply the source-ordered FP32 exponential operation."""
     return _apply(
         "math_kernel",
@@ -156,12 +158,12 @@ def _exp(array: Array, mx: Mlx, *, as_silu: bool = False) -> Array:
     )
 
 
-def silu(array: Array, mx: Mlx) -> Array:
+def silu(array: Array, mx: MlxRuntime) -> Array:
     """Torch SiLU divides x by 1+exp(-x)."""
     return _exp(array, mx, as_silu=True)
 
 
-def swish(array: Array, mx: Mlx) -> Array:
+def swish(array: Array, mx: MlxRuntime) -> Array:
     """MONAI Swish multiplies x by the separately rounded sigmoid."""
     return _apply(
         "math_swish",
@@ -172,7 +174,7 @@ def swish(array: Array, mx: Mlx) -> Array:
     )
 
 
-def linear(array: Array, weight: Array, bias: Array | None, mx: Mlx) -> Array:
+def linear(array: Array, weight: Array, bias: Array | None, mx: MlxRuntime) -> Array:
     """Image embeddings and strided QKV products with source reduction order."""
     rows = int(array.size) // int(array.shape[-1])
     cin, cout = int(weight.shape[1]), int(weight.shape[0])
@@ -198,7 +200,7 @@ def linear(array: Array, weight: Array, bias: Array | None, mx: Mlx) -> Array:
     return _apply("ops_linear", inputs, shape, mx, template=[("ROWS", rows)])
 
 
-def attention_projection(array: Array, weight: Array, bias: Array, mx: Mlx) -> Array:
+def attention_projection(array: Array, weight: Array, bias: Array, mx: MlxRuntime) -> Array:
     """Contiguous attention output uses a different GEMM from the strided QKV."""
     rows = int(array.size) // int(array.shape[-1])
     name = "ops_projection"
@@ -219,7 +221,7 @@ def sinusoidal_timestep_embedding(
     timesteps: Array,
     embedding_dim: int,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     max_period: int = 10000,
 ) -> Array:
     """Source exp/sin/cos on the image scheduler's bounded 0..1000 domain."""
@@ -245,7 +247,7 @@ def sinusoidal_timestep_embedding(
     return mx.pad(result, [(0, 0), (0, 1)]) if embedding_dim % 2 else result
 
 
-def attention(query: Array, key: Array, value: Array, *, scale: float, mx: Mlx) -> Array:
+def attention(query: Array, key: Array, value: Array, *, scale: float, mx: MlxRuntime) -> Array:
     """Separate source QK, scaling, softmax and probability/value products."""
     scores = (query @ mx.swapaxes(key, -1, -2)) * scale
     columns = int(scores.shape[-1])

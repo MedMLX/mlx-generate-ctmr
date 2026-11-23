@@ -19,7 +19,7 @@ from mlx_generate_ctmr._records import Catalog, TensorSpec
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from mlx_generate_ctmr._types import Array, ArrayFactory, Dtype, Mlx
+    from medmlx_core.typing import MlxRuntime
 
 
 def synthetic_catalog(
@@ -75,7 +75,7 @@ def synthetic_catalog(
 @pytest.mark.parametrize("contract", [image_contract, mask_contract], ids=["image", "mask"])
 @pytest.mark.parametrize("consolidated", [True, False], ids=["consolidated", "single-network"])
 def test_native_weight_layouts(
-    contract: WeightContract, consolidated: bool, tmp_path: Path, metal: Mlx
+    contract: WeightContract, consolidated: bool, tmp_path: Path, metal: MlxRuntime
 ) -> None:
     """Validate native checkpoint layouts and restored source tensor values."""
     catalog, raw = synthetic_catalog(contract)
@@ -99,7 +99,7 @@ def test_native_weight_layouts(
         loaded, scale = loader(
             path,
             network=network,
-            mx=cast("ArrayFactory[Array, Dtype]", metal),
+            mx=metal,
             catalog=catalog,
         )
         assert scale == (1.25 if network == "unet" else None)

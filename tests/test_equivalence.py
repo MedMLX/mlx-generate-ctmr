@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx
+    from medmlx_core.typing import MlxRuntime
 
 import json
 from pathlib import Path
@@ -34,7 +34,7 @@ CASES = (
 
 
 @pytest.mark.parametrize("kind", CASES)
-def test_models_match_monai(kind: str, metal: Mlx):
+def test_models_match_monai(kind: str, metal: MlxRuntime):
     """Compare native model fixtures with recorded MONAI outputs."""
     directory = (
         FIXTURES.parents[2] / "work/real-reference"

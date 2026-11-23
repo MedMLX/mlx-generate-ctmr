@@ -17,7 +17,9 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import UNET_ATOL, UNET_RTOL
 from mlx_generate_ctmr.rflow import sample_rflow, set_timesteps_rflow, step_rflow
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 
 def test_rflow_schedule_rounds_to_pinned_fp16_table() -> None:
@@ -37,7 +39,7 @@ def test_rflow_schedule_rounds_to_pinned_fp16_table() -> None:
     np.testing.assert_array_equal(next_timesteps, arrays["next_timesteps"].astype(np.float32))
 
 
-def test_rflow_step_matches_torch_golden(mx: Mlx) -> None:
+def test_rflow_step_matches_torch_golden(mx: MlxRuntime) -> None:
     """Compare a rectified-flow step with recorded Torch values."""
     manifest, arrays = load_boundary("scheduler")
     z_next, z_origin, dt = step_rflow(
@@ -52,7 +54,7 @@ def test_rflow_step_matches_torch_golden(mx: Mlx) -> None:
         np.testing.assert_allclose(as_numpy(actual), arrays[key], rtol=UNET_RTOL, atol=UNET_ATOL)
 
 
-def test_rflow_sample_matches_live_torch(mx: Mlx) -> None:
+def test_rflow_sample_matches_live_torch(mx: MlxRuntime) -> None:
     """Compare a seeded rectified-flow sample with live Torch."""
     manifest, arrays = load_boundary("scheduler")
     timesteps, next_t = set_timesteps_rflow(

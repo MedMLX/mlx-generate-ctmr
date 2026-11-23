@@ -20,13 +20,15 @@ from mlx_generate_ctmr.decode import (
 from mlx_generate_ctmr.maisi_mlx_feasibility import VAE_ATOL, VAE_RTOL
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 _LATENT = 8
 _ROI = (6, 6, 6)
 
 
-def _nearest_x4(latent: Array, mx: Mlx) -> Array:
+def _nearest_x4(latent: Array, mx: MlxRuntime) -> Array:
     """Produce a simple nearest-neighbor 4x decoded window."""
     image = mx.mean(latent, axis=1, keepdims=True)
     for axis in (2, 3, 4):
@@ -34,7 +36,7 @@ def _nearest_x4(latent: Array, mx: Mlx) -> Array:
     return image
 
 
-def _ramp_latent(mx: Mlx) -> Array:
+def _ramp_latent(mx: MlxRuntime) -> Array:
     """Build a deterministic native latent ramp."""
     axes = [np.arange(_LATENT, dtype=np.float32) * scale for scale in (1.0, 0.1, 0.01)]
     ramp = axes[0][:, None, None] + axes[1][None, :, None] + axes[2][None, None, :]
@@ -56,7 +58,7 @@ class _TorchDecoder(torch.nn.Module):
 
 
 @pytest.mark.parametrize("window_dependent", [False, True])
-def test_window_blending_matches_pinned_monai(mx: Mlx, window_dependent: bool) -> None:
+def test_window_blending_matches_pinned_monai(mx: MlxRuntime, window_dependent: bool) -> None:
     """Compare overlapping Gaussian blending with MONAI's SlidingWindowInferer."""
     latent = _ramp_latent(mx)
 

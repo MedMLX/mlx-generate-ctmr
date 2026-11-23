@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, HostArray, MaskUnetConstructor, Mlx, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, HostArray, MaskUnetConstructor, VaeConstructor
 
 import random
 from collections.abc import Callable, Mapping, Sequence
@@ -137,7 +139,7 @@ def build_mask_ddpm_schedule(
     )
 
 
-def seed_mask_generation(seed: int, *, mx: Mlx) -> None:
+def seed_mask_generation(seed: int, *, mx: MlxRuntime) -> None:
     """Seed Python, NumPy, and MLX so paired-mask host/device helpers stay aligned."""
 
     random.seed(int(seed))
@@ -149,7 +151,7 @@ def initialize_mask_noise_latents_ncdhw(
     shape: Sequence[int],
     *,
     seed: int,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Seeded fp32 ``mx.random.normal`` NCDHW mask latent."""
 
@@ -167,7 +169,7 @@ def ddpm_step(
     sample: Array,
     schedule: MaskDdpmSchedule,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     noise: Array | None = None,
 ) -> tuple[Array, Array]:
     """One epsilon-prediction, fixed-small-variance, no-clip DDPM reverse step.
@@ -232,7 +234,7 @@ def sample_ddpm(
     predict_eps: Callable[[Array, int], Array],
     schedule: MaskDdpmSchedule,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     step_noises: Sequence[Array] | None = None,
 ) -> Array:
     """Run the schedule's selected DDPM steps, evaluating after each step.
@@ -271,7 +273,7 @@ def sample_mask_latent_ncdhw(
     anatomy_size: HostArray,
     unet_weights: Mapping[str, Array],
     constructor: MaskUnetConstructor = PRODUCTION_MASK_UNET_CONSTRUCTOR,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_inference_steps: int = PRODUCTION_MASK_NUM_INFERENCE_STEPS,
     input_noise: Array | None = None,
     latent_shape: Sequence[int] = PRODUCTION_MASK_LATENT_SHAPE,
@@ -335,7 +337,7 @@ def sample_mask_labels_ncdhw(
     scale_factor: float,
     constructor: MaskUnetConstructor = PRODUCTION_MASK_UNET_CONSTRUCTOR,
     vae_constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_inference_steps: int = PRODUCTION_MASK_NUM_INFERENCE_STEPS,
     input_noise: Array | None = None,
     latent_shape: Sequence[int] = PRODUCTION_MASK_LATENT_SHAPE,

@@ -5,7 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ArrayValue, ClassFactory, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, ArrayValue
 
 from collections.abc import Sequence
 
@@ -17,7 +19,7 @@ BITS = 8
 SPACING_SCALE = 100.0
 
 
-def binarize_labels_ncdhw(label: Array, *, mx: Mlx, bits: int = BITS) -> Array:
+def binarize_labels_ncdhw(label: Array, *, mx: MlxRuntime, bits: int = BITS) -> Array:
     """Pack integer labels into the 8-channel ControlNet condition.
 
     ``label`` is ``(N, 1, D, H, W)`` with integer ids (0..132 and body 200).
@@ -43,7 +45,7 @@ def binarize_labels_ncdhw(label: Array, *, mx: Mlx, bits: int = BITS) -> Array:
     return mx.transpose(packed, (0, 4, 1, 2, 3)).astype(mx.float32)
 
 
-def spacing_tensor_ncdhw(spacing_mm: Sequence[float], *, mx: Mlx) -> Array:
+def spacing_tensor_ncdhw(spacing_mm: Sequence[float], *, mx: MlxRuntime) -> Array:
     """Return ``spacing_mm * 100`` as a ``(1, 3)`` float32 array.
 
     ``spacing_mm`` is the voxel size in mm, in the label array's axis order. No
@@ -62,13 +64,13 @@ def spacing_tensor_ncdhw(spacing_mm: Sequence[float], *, mx: Mlx) -> Array:
     return mx.array(cast("ArrayValue", [values]), dtype=mx.float32)
 
 
-def modality_class_labels[Tensor, Dtype](
+def modality_class_labels(
     *,
-    mx: ClassFactory[Tensor, Dtype],
+    mx: MlxRuntime,
     batch: int = 1,
     configuration: str = "ct",
     modality: str | int | None = None,
-) -> Tensor:
+) -> Array:
     """Return the modality embedding index repeated ``batch`` times, shape ``(batch,)`` int32.
 
     ``modality`` is a name or index from the configuration's modality table;

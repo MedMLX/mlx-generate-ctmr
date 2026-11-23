@@ -7,16 +7,16 @@ quarter of the label size along each spatial axis.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from medmlx_core.typing import MlxRuntime
+
     from mlx_generate_ctmr._arrays import Float64Array
     from mlx_generate_ctmr._types import (
         Array,
-        ArrayConstructor,
         ControlnetConstructor,
         HostArray,
-        Mlx,
         RflowConstructor,
         VaeConstructor,
     )
@@ -31,7 +31,6 @@ from medmlx_core.maisi import MAISI_LABELS
 from medmlx_core.ops import as_fp32
 
 from mlx_generate_ctmr import fast_fp32
-from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
 from mlx_generate_ctmr.condition import (
     binarize_labels_ncdhw,
     modality_class_labels,
@@ -49,6 +48,7 @@ from mlx_generate_ctmr.decode import (
     to_hu_ncdhw,
 )
 from mlx_generate_ctmr.maisi_mlx_weights import MASK_AUTOENCODER_SCALE_FACTOR
+from mlx_generate_ctmr.precision import vae_arithmetic
 from mlx_generate_ctmr.rflow import (
     init_latent_ncdhw,
     sample_rflow,
@@ -128,7 +128,7 @@ def sample_ct_from_mask_ncdhw(
     unet_constructor: RflowConstructor,
     controlnet_constructor: ControlnetConstructor,
     vae_constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     scale_factor: float,
     seed: int | None = None,
     latent: Array | None = None,
@@ -177,7 +177,7 @@ def sample_ct_latent_ncdhw(
     controlnet_weights: Mapping[str, Array],
     unet_constructor: RflowConstructor,
     controlnet_constructor: ControlnetConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     scale_factor: float,
     seed: int | None = None,
     latent: Array | None = None,
@@ -190,7 +190,7 @@ def sample_ct_latent_ncdhw(
         raise ValueError("CFG>0 majority vote is not an MLX destination")
     factor = require_scale_factor(scale_factor)
     host_label = _require_label(label)
-    label_mx = cast("ArrayConstructor", mx.array)(host_label)
+    label_mx = mx.array(host_label)
     require_ncdhw(label_mx, name="maisi label")
     cond = binarize_labels_ncdhw(label_mx, mx=mx)
     spacing = spacing_tensor_ncdhw(spacing_mm, mx=mx)
@@ -253,7 +253,7 @@ def decode_ct_latent_ncdhw(
     *,
     vae_weights: Mapping[str, Array],
     vae_constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     roi: Sequence[int] = DEFAULT_ROI_SIZE,
     overlap: float = DEFAULT_OVERLAP,
 ) -> FromMaskArrays:
@@ -305,13 +305,13 @@ def _ct_velocity(
     controlnet_weights: Mapping[str, Array],
     unet_constructor: RflowConstructor,
     controlnet_constructor: ControlnetConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Callable[[Array, float], Array]:
     """Return the ControlNet-conditioned UNet velocity for one from-mask generation."""
 
     def velocity(state: Array, timestep: float) -> Array:
         """Predict one CT diffusion velocity for the current timestep."""
-        t = cast("ArrayConstructor", mx.array)([float(timestep)], dtype=mx.float32)
+        t = mx.array([float(timestep)], dtype=mx.float32)
         down, mid = controlnet_residuals_ncdhw(
             state,
             t,

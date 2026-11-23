@@ -16,11 +16,11 @@ from mlx_generate_ctmr.attention import spatial_transformer_ncdhw
 from mlx_generate_ctmr.maisi_mlx_feasibility import ATTENTION_ATOL, ATTENTION_RTOL
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx
+    from medmlx_core.typing import MlxRuntime
 
 
 @pytest.mark.parametrize("num_splits", [1, 4])
-def test_conv_transpose3d_matches_torch(mx: Mlx, num_splits: int) -> None:
+def test_conv_transpose3d_matches_torch(mx: MlxRuntime, num_splits: int) -> None:
     """Compare native split 3D transposed convolution with Torch."""
     generator = torch.Generator().manual_seed(23)
     module = torch.nn.ConvTranspose3d(2, 3, 3, stride=2, padding=1, output_padding=1)
@@ -45,7 +45,7 @@ def test_conv_transpose3d_matches_torch(mx: Mlx, num_splits: int) -> None:
 
 
 @pytest.mark.parametrize("norm_eps", [1e-6, 1e-2])
-def test_spatial_transformer_matches_pinned_torch(mx: Mlx, norm_eps: float) -> None:
+def test_spatial_transformer_matches_pinned_torch(mx: MlxRuntime, norm_eps: float) -> None:
     """Compare the single-context spatial transformer with MONAI."""
     module = SpatialTransformer(
         spatial_dims=3,

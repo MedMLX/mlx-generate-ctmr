@@ -5,11 +5,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, VaeConstructor
 
 from collections.abc import Mapping
 
-from mlx_generate_ctmr.arithmetic_mode import vae_arithmetic
+from mlx_generate_ctmr.precision import vae_arithmetic
 from mlx_generate_ctmr.vae import (
     decode_vae_ncdhw,
     encode_vae_ncdhw,
@@ -47,7 +49,7 @@ def encode_mask_vae_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> tuple[Array, Array]:
     """Encode packed label bits to ``(mu, sigma)`` latents.
 
@@ -71,7 +73,7 @@ def decode_mask_vae_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> tuple[Array, Array]:
     """Decode mask latents to 125-channel logits.
 

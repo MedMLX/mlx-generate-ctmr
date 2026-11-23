@@ -20,10 +20,10 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import (
 from mlx_generate_ctmr.residual import residual_block_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx
+    from medmlx_core.typing import MlxRuntime
 
 
-def test_residual_fp32_matches_torch_golden(mx: Mlx) -> None:
+def test_residual_fp32_matches_torch_golden(mx: MlxRuntime) -> None:
     """Compare FP32 residual outputs with the Torch recording."""
     manifest, arrays = load_boundary("residual")
     constructor = manifest["constructor"]
@@ -38,7 +38,7 @@ def test_residual_fp32_matches_torch_golden(mx: Mlx) -> None:
     np.testing.assert_allclose(as_numpy(y), arrays["y"], rtol=RESIDUAL_RTOL, atol=RESIDUAL_ATOL)
 
 
-def test_attention_fp32_matches_torch_golden(mx: Mlx) -> None:
+def test_attention_fp32_matches_torch_golden(mx: MlxRuntime) -> None:
     """Compare FP32 attention outputs with the Torch recording."""
     manifest, arrays = load_boundary("attention")
     constructor = manifest["constructor"]

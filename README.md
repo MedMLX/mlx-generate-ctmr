@@ -28,7 +28,7 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 | `mlx-generate-ctmr-mr` | 806 MB | 9.5 GiB | 128×256×256 general MR |
 
 The [technical notes](https://github.com/MedMLX/mlx-generate-ctmr/blob/main/docs/technical.md)
-give the arithmetic and settings of these measurements.
+give the precision and settings of these measurements.
 
 ## Install
 
@@ -204,7 +204,7 @@ caller-supplied weights and `mx`, and tensors use NCDHW.
 from pathlib import Path
 
 import mlx.core as mx
-from mlx_generate_ctmr import arithmetic_mode, attention_memory_budget
+from mlx_generate_ctmr import attention_memory_budget, precision_mode
 from mlx_generate_ctmr.image import sample_image_ncdhw
 from mlx_generate_ctmr.maisi_mlx_from_mask import (
     PRODUCTION_UNET_CONSTRUCTOR, PRODUCTION_VAE_CONSTRUCTOR,
@@ -215,7 +215,7 @@ weights = Path("mlx-generate-ctmr/mr/model.safetensors")
 vae, _ = load_network(weights, network="vae", mx=mx, configuration="mr")
 unet, scale_factor = load_network(weights, network="unet", mx=mx, configuration="mr")
 
-with arithmetic_mode("source-fp32"), attention_memory_budget(512 * 1024**2):
+with precision_mode("source-fp32"), attention_memory_budget(512 * 1024**2):
     result = sample_image_ncdhw(
         (128, 128, 128), (1.0, 1.0, 1.0),  # output voxels (D, H, W) and spacing in mm
         unet_weights=unet, vae_weights=vae,

@@ -28,13 +28,9 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import (
 from mlx_generate_ctmr.unet import denoise_unet_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import (
-        Array,
-        ArrayConstructor,
-        ControlnetConstructor,
-        Mlx,
-        RflowConstructor,
-    )
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, ControlnetConstructor, RflowConstructor
 
 _SHARED = {
     "spatial_dims": 3,
@@ -73,7 +69,7 @@ _CONTROLNET = cast(
 )
 
 
-def _seeded_weights(module: torch.nn.Module, *, seed: int, mx: Mlx) -> dict[str, Array]:
+def _seeded_weights(module: torch.nn.Module, *, seed: int, mx: MlxRuntime) -> dict[str, Array]:
     """Initialize reference weights from a fixed seed and return native copies."""
     generator = torch.Generator().manual_seed(seed)
     with torch.no_grad():
@@ -82,7 +78,7 @@ def _seeded_weights(module: torch.nn.Module, *, seed: int, mx: Mlx) -> dict[str,
     return {name: as_fp32(tensor.numpy(), mx) for name, tensor in module.state_dict().items()}
 
 
-def test_ddpm_ct_unet_matches_pinned_torch(mx: Mlx) -> None:
+def test_ddpm_ct_unet_matches_pinned_torch(mx: MlxRuntime) -> None:
     """Compare the region-conditioned UNet with the source."""
     module = DiffusionModelUNetMaisi(**_UNET).eval()
     weights = _seeded_weights(module, seed=4101, mx=mx)
@@ -99,7 +95,7 @@ def test_ddpm_ct_unet_matches_pinned_torch(mx: Mlx) -> None:
             bottom_region_index_tensor=from_numpy(bottom),
             spacing_tensor=from_numpy(spacing),
         )
-    array = cast("ArrayConstructor", mx.array)
+    array = mx.array
     inputs = (array(x), array(timesteps), None, array(spacing), weights)
     _t_emb, actual = denoise_unet_ncdhw(
         *inputs,
@@ -111,7 +107,7 @@ def test_ddpm_ct_unet_matches_pinned_torch(mx: Mlx) -> None:
     np.testing.assert_allclose(as_numpy(actual), expected.numpy(), rtol=UNET_RTOL, atol=UNET_ATOL)
 
 
-def test_ddpm_ct_controlnet_matches_pinned_torch(mx: Mlx) -> None:
+def test_ddpm_ct_controlnet_matches_pinned_torch(mx: MlxRuntime) -> None:
     """Compare CT DDPM ControlNet output with the source."""
     module = ControlNetMaisi(**_CONTROLNET).eval()
     weights = _seeded_weights(module, seed=4103, mx=mx)
@@ -121,7 +117,7 @@ def test_ddpm_ct_controlnet_matches_pinned_torch(mx: Mlx) -> None:
     cond = rng.normal(size=(1, 8, 16, 16, 16)).astype(np.float32)
     with torch.inference_mode():
         down_t, mid_t = module(from_numpy(x), from_numpy(timesteps), from_numpy(cond))
-    array = cast("ArrayConstructor", mx.array)
+    array = mx.array
     down, mid = controlnet_residuals_ncdhw(
         array(x), array(timesteps), None, array(cond), weights, constructor=_CONTROLNET, mx=mx
     )

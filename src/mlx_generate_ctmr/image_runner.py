@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ArrayFactory, Dtype, Mlx, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, VaeConstructor
 
 import numpy as np
 from medmlx_core.errors import AssetNotReadyError, InvalidInputError, ModelExecutionError
@@ -77,14 +79,16 @@ def _geometry(
 
 
 def _load_image_network(
-    directory: Path, config: ModelConfiguration, network: str, mx: Mlx
+    directory: Path, config: ModelConfiguration, network: str, mx: MlxRuntime
 ) -> tuple[dict[str, Array], float | None]:
     """Admit one stage's weights without loading other networks."""
     try:
         return load_network(
-            network_file(directory), network=network,
-            mx=cast("ArrayFactory[Array, Dtype]", mx),
-            catalog=load_catalog(config.name), configuration=config.name,
+            network_file(directory),
+            network=network,
+            mx=mx,
+            catalog=load_catalog(config.name),
+            configuration=config.name,
         )
     except (InvalidInputError, OSError, ValueError) as exc:
         raise AssetNotReadyError(
@@ -94,8 +98,16 @@ def _load_image_network(
 
 
 def _sample_owned_image_latent(
-    directory: Path, config: ModelConfiguration, mx: Mlx, *, size: tuple[int, ...],
-    spacing: tuple[float, ...], modality: int, guidance: float, guidance_execution: str, seed: int,
+    directory: Path,
+    config: ModelConfiguration,
+    mx: MlxRuntime,
+    *,
+    size: tuple[int, ...],
+    spacing: tuple[float, ...],
+    modality: int,
+    guidance: float,
+    guidance_execution: str,
+    seed: int,
     num_inference_steps: int,
 ) -> tuple[ImageLatent, float]:
     """Own diffusion dictionaries and closures only until the final latent is evaluated."""
@@ -311,7 +323,7 @@ def _execute_image(
     if sampling, validation or saving fails.
     """
     started = time.perf_counter()
-    mx = cast("Mlx", import_mlx())
+    mx = cast("MlxRuntime", import_mlx())
     mx.reset_peak_memory()
     try:
         sampled, diffusion_load_s = _sample_owned_image_latent(

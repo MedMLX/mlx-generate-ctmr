@@ -5,18 +5,20 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ControlnetConstructor, Mlx, UnetArithmetic
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, ControlnetConstructor, UnetArithmetic
 
 from collections.abc import Mapping
 
 from medmlx_core.layout import require_ncdhw
 
 from mlx_generate_ctmr import source_fp32
-from mlx_generate_ctmr.arithmetic_mode import unet_arithmetic
 from mlx_generate_ctmr.embed import (
     add_class_to_time,
     embed_class,
 )
+from mlx_generate_ctmr.precision import unet_arithmetic
 from mlx_generate_ctmr.unet import (
     apply_down_blocks,
     apply_mid_block,
@@ -36,7 +38,7 @@ def controlnet_residuals_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: ControlnetConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     conditioning_scale: float = 1.0,
     conditioning_embedding: Array | None = None,
 ) -> tuple[list[Array], Array]:
@@ -169,7 +171,7 @@ def encode_controlnet_condition_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: ControlnetConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Encode a packed label condition once for a sequence of denoising steps.
 
@@ -198,15 +200,15 @@ def _cond_embed(
     cond: Array,
     weights: Mapping[str, Array],
     channels: tuple[int, ...],
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: UnetArithmetic,
 ) -> Array:
     """Build the ControlNet conditioning embedding from the input mask."""
     conv3d_ncdhw = arithmetic.conv3d_ncdhw
 
-    def silu(array: Array, mx: Mlx) -> Array:
+    def silu(array: Array, mx: MlxRuntime) -> Array:
         # MONAI's Swish here rounds the sigmoid separately from Torch SiLU's division.
-        """Apply the selected arithmetic mode's SiLU activation."""
+        """Apply ``arithmetic``'s SiLU activation."""
         if arithmetic is source_fp32:
             return source_fp32.swish(array, mx)
         return arithmetic.silu(array, mx)
@@ -259,7 +261,7 @@ def _zero_conv(
     array: Array,
     weights: Mapping[str, Array],
     prefix: str,
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: UnetArithmetic,
 ) -> Array:
     """Apply a named zero-convolution projection."""

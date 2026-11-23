@@ -28,14 +28,9 @@ from typing import TYPE_CHECKING, Final, Literal, cast
 from mlx_generate_ctmr._arrays import HostArray, NumericArray
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import (
-        Array,
-        ArrayConstructor,
-        ArrayFactory,
-        Dtype,
-        Mlx,
-        VaeConstructor,
-    )
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, VaeConstructor
 
 import numpy as np
 from medmlx_core.errors import (
@@ -54,6 +49,7 @@ from medmlx_core.maisi import (
 )
 from medmlx_core.outputs import Artifact, OutputLabel, artifact
 from medmlx_core.runtime import import_mlx, mlx_default_device_name, probe_mlx_runtime
+from medmlx_core.volumes import read_volume, write_like
 
 from mlx_generate_ctmr._morphology import fill_label_envelope_holes
 from mlx_generate_ctmr._nifti import ImageFileError, NiftiImage, nib
@@ -64,12 +60,6 @@ from mlx_generate_ctmr._records import (
     MaskFacts,
     PairFacts,
     RunResult,
-)
-from mlx_generate_ctmr.arithmetic_mode import (
-    ARITHMETIC_MODES,
-    ArithmeticMode,
-    active_arithmetic_mode,
-    arithmetic_mode,
 )
 from mlx_generate_ctmr.attention_budget import attention_memory_budget
 from mlx_generate_ctmr.configurations import Configuration, get_configuration
@@ -110,6 +100,12 @@ from mlx_generate_ctmr.mask_postprocess import postprocess_mask
 from mlx_generate_ctmr.mask_qc import validate_write_and_require_maisi_mask
 from mlx_generate_ctmr.mask_unet import PRODUCTION_MASK_UNET_CONSTRUCTOR
 from mlx_generate_ctmr.mask_vae import PRODUCTION_MASK_VAE_CONSTRUCTOR
+from mlx_generate_ctmr.precision import (
+    PRECISIONS,
+    Precision,
+    active_precision,
+    precision_mode,
+)
 from mlx_generate_ctmr.weights import (
     load_mask_network,
     load_network,
@@ -268,7 +264,7 @@ def run(
     ct_qc_statistics_path: _PathArg | None = None,
     ct_qc_max_attempts: int = 2,
     attention_scratch_bytes: int | None = None,
-    precision: ArithmeticMode = "fast-fp32",
+    precision: Precision = "fast-fp32",
 ) -> RunResult[str]:
     """Run NV-Generate for one configuration and write NIfTI outputs.
 
@@ -295,7 +291,7 @@ def run(
     by block and needs no budget; mask-generation attention still uses it.
 
     ``precision`` selects the image UNet/ControlNet/VAE-decoder arithmetic (see
-    ``mlx_generate_ctmr.arithmetic_mode``). ``"fast-fp32"`` (default) uses native FP32
+    ``mlx_generate_ctmr.precision``). ``"fast-fp32"`` (default) uses native FP32
     operations, with M5 neural-accelerator kernels where hardware and macOS support
     them and ordinary MLX GPU operations otherwise. It accumulates in a different
     reduction order and decodes without ``autoencoder_tp_num_splits`` splits, which
@@ -388,9 +384,8 @@ def run(
         type(attention_scratch_bytes) is not int or attention_scratch_bytes < 1
     ):
         raise InvalidInputError("attention_scratch_bytes must be a positive integer or None")
-    if cast(object, precision) not in ARITHMETIC_MODES:
-        raise InvalidInputError(f"precision must be one of {ARITHMETIC_MODES}")
-    mode = precision
+    if cast(object, precision) not in PRECISIONS:
+        raise InvalidInputError(f"precision must be one of {PRECISIONS}")
     if ct_intensity_qc is not None and not isinstance(cast(object, ct_intensity_qc), bool):
         raise InvalidInputError("ct_intensity_qc must be a boolean")
     if (
@@ -536,7 +531,7 @@ def run(
                     break
 
     def attempt(attempt_output: Path, attempt_seed: int) -> RunResult[str]:
-        """One generation attempt under the chosen arithmetic mode and attention budget, annotated
+        """One generation attempt under the chosen precision and attention budget, annotated
         with model id and weights revision.
         """
         context = (
@@ -545,7 +540,7 @@ def run(
             else nullcontext()
         )
         try:
-            with context, arithmetic_mode(mode):
+            with context, precision_mode(precision):
                 result = _run_once(
                     output_dir=attempt_output,
                     seed=attempt_seed,
@@ -577,7 +572,7 @@ def run(
             _release_mlx_cache()
         if attention_scratch_bytes is not None:
             result["details"]["attention_scratch_bytes"] = attention_scratch_bytes
-        result["details"]["precision"] = mode
+        result["details"]["precision"] = precision
         result["details"]["model_id"] = model
         result["details"]["weights_revision"] = weights_revision(folder)
         return result
@@ -608,7 +603,7 @@ def _release_mlx_cache() -> None:
     """
     mlx_core = sys.modules.get("mlx.core")
     if mlx_core is not None:
-        cast("Mlx", mlx_core).clear_cache()
+        cast("MlxRuntime", mlx_core).clear_cache()
 
 
 def _run_once(
@@ -951,7 +946,7 @@ def _run_from_mask(
                 "recipe": "axial_body_envelope_holes",
                 "filled_voxels": int(np.count_nonzero(original_background & (label != 0))),
             }
-        mx = cast("Mlx", import_mlx())
+        mx = cast("MlxRuntime", import_mlx())
         host = probe_mlx_runtime()
         default_device = mlx_default_device_name(mx)
         mx.reset_peak_memory()
@@ -970,17 +965,23 @@ def _run_from_mask(
         )
         export_started = time.perf_counter()
         hu_host = np.asarray(result.hu, dtype=np.float32)
-        write_hu_nifti(output / _SYNTHETIC_CT, hu_host, prepared)
+        reference = read_volume(prepared, role="prepared mask", dtype=None)
+        write_like(output / _SYNTHETIC_CT, hu_host[0, 0], reference, dtype=np.float32)
         export_labels = label
         if output_anatomy:
             # Source paired CT conditions on the full map and selects labels only for delivery.
             selected = select_canonical_mask_labels_ncdhw(
-                cast("ArrayConstructor", mx.array)(label, dtype=mx.int32),
+                mx.array(label, dtype=mx.int32),
                 anatomy=output_anatomy,
                 mx=mx,
             )
             export_labels = np.asarray(selected, dtype=np.int16)
-        write_label_nifti(prepared, output / _SYNTHETIC_LABEL, export_labels)
+        write_like(
+            output / _SYNTHETIC_LABEL,
+            export_labels[0, 0],
+            reference,
+            dtype=reference.data.dtype.type,
+        )
         export_s = time.perf_counter() - export_started
         facts = validate_output_pair(output / _SYNTHETIC_CT, output / _SYNTHETIC_LABEL)
         elapsed_s = round(time.perf_counter() - started, 4)
@@ -1056,7 +1057,7 @@ def _run_from_mask(
                 # Fast arithmetic runs every UNet and ControlNet self-attention through the
                 # flash kernel, which the supported grids always fit (FP32, 32-wide heads,
                 # token counts divisible by 32). Source arithmetic does not use it.
-                "flash_attention": active_arithmetic_mode() == "fast-fp32",
+                "flash_attention": active_precision() == "fast-fp32",
                 "cfg_execution": "disabled",
             },
             "implementation": "NVIDIA-Medtech/NV-Generate-CTMR",
@@ -1199,7 +1200,7 @@ def _run_paired_mask_stage(
         resolved_anatomy_size = dict(
             zip(MASK_ANATOMY_SIZE_SLOTS, controls.anatomy_size.tolist(), strict=True)
         )
-        mx = cast("Mlx", import_mlx())
+        mx = cast("MlxRuntime", import_mlx())
         label_id_map = load_mask_label_id_map(label_dict_path)
         mx.reset_peak_memory()
         latent, scale_factor = _sample_owned_mask_latent(
@@ -1225,7 +1226,7 @@ def _run_paired_mask_stage(
             processed_labels, affine = resample_mask_geometry(
                 processed_labels, affine, target=options.geometry
             )
-        processed_mlx = cast("ArrayConstructor", mx.array)(
+        processed_mlx = mx.array(
             processed_labels[None, None], dtype=mx.int32
         )
         selected = select_canonical_mask_labels_ncdhw(
@@ -1712,34 +1713,6 @@ def load_mask_ncdhw(path: Path) -> tuple[HostArray, tuple[float, float, float], 
     return label, spacing, np.asarray(image.affine, dtype=np.float64)
 
 
-def write_hu_nifti(destination: Path, hu: HostArray, reference: Path) -> None:
-    """Write supplied HU values as float32 on the reference affine and header.
-
-    Require shape ``(1, 1, X, Y, Z)`` and remove the batch/channel axes for
-    storage. Spatial shape and alignment with the reference are not checked
-    here; the caller must supply the intended grid.
-    """
-    image = _load_nifti1(reference)
-    volume = np.asarray(hu, dtype=np.float32)
-    if volume.ndim != 5 or volume.shape[0] != 1 or volume.shape[1] != 1:
-        raise RuntimeError(f"HU volume must be [1,1,X,Y,Z]; got {volume.shape}")
-    header = image.header.copy()
-    header.set_data_dtype(np.float32)
-    nib.save(nib.Nifti1Image(volume[0, 0], image.affine, header), str(destination))
-
-
-def write_label_nifti(source: Path, destination: Path, label: HostArray) -> None:
-    """Write ``label[0, 0]`` using the source NIfTI's affine and copied header.
-
-    The caller is responsible for the expected ``(1, 1, X, Y, Z)`` shape and grid
-    alignment; they are not checked here. The copied header controls the saved
-    storage dtype, which need not match the input array's dtype.
-    """
-    reference = _load_nifti1(source)
-    output_image = nib.Nifti1Image(label[0, 0], reference.affine, reference.header.copy())
-    nib.save(output_image, str(destination))
-
-
 def _load_nifti1(path: Path) -> NiftiImage:
     """Load and validate a NIfTI-1 image."""
     image: object = nib.load(str(path))
@@ -1749,13 +1722,15 @@ def _load_nifti1(path: Path) -> NiftiImage:
 
 
 def _load_ct_network(
-    weights_dir: Path, mx: Mlx, network: str
+    weights_dir: Path, mx: MlxRuntime, network: str
 ) -> tuple[dict[str, Array], float | None]:
     """Admit one CT network; return its optional UNet latent scale."""
     try:
         return load_network(
-            network_file(weights_dir), network=network,
-            mx=cast("ArrayFactory[Array, Dtype]", mx), catalog=load_catalog(),
+            network_file(weights_dir),
+            network=network,
+            mx=mx,
+            catalog=load_catalog(),
         )
     except InvalidInputError as exc:
         raise AssetNotReadyError(
@@ -1765,8 +1740,14 @@ def _load_ct_network(
 
 
 def _sample_owned_ct_latent(
-    weights_dir: Path, mx: Mlx, label: HostArray, spacing_mm: Sequence[float],
-    *, affine: HostArray, seed: int, options: _Options,
+    weights_dir: Path,
+    mx: MlxRuntime,
+    label: HostArray,
+    spacing_mm: Sequence[float],
+    *,
+    affine: HostArray,
+    seed: int,
+    options: _Options,
 ) -> tuple[FromMaskLatent, float]:
     """Release caller-owned diffusion dictionaries before the runner loads its VAE."""
     started = time.perf_counter()
@@ -1791,7 +1772,7 @@ def _sample_owned_ct_latent(
 
 
 def _sample_owned_mask_latent(
-    weights_dir: Path, mx: Mlx, anatomy_size: HostArray, *, options: _Options, seed: int
+    weights_dir: Path, mx: MlxRuntime, anatomy_size: HostArray, *, options: _Options, seed: int
 ) -> tuple[Array, float]:
     """Own mask diffusion weights through evaluated sampling, then release their packing."""
     from mlx_generate_ctmr.fast_fp32 import drop_packed_weights
@@ -1815,7 +1796,7 @@ def _sample_owned_mask_latent(
 
 
 def _load_mask_network(
-    weights_dir: Path, network: str, mx: Mlx
+    weights_dir: Path, network: str, mx: MlxRuntime
 ) -> tuple[dict[str, Array], float | None]:
     """Load one paired-mask network's weights (and its scale factor, if stored); raises
     AssetNotReadyError on a catalog mismatch.
@@ -1824,7 +1805,7 @@ def _load_mask_network(
         return load_mask_network(
             network_file(weights_dir),
             network=network,
-            mx=cast("ArrayFactory[Array, Dtype]", mx),
+            mx=mx,
             catalog=load_mask_catalog(),
         )
     except InvalidInputError as exc:

@@ -9,7 +9,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx, VaeArithmetic, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, VaeArithmetic, VaeConstructor
 
 from collections.abc import Mapping
 
@@ -31,7 +33,7 @@ def decode_vae_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: VaeArithmetic = ops,
 ) -> tuple[Array, Array]:
     """Decode a latent: ``post_quant_conv`` then the decoder.
@@ -67,7 +69,7 @@ def encode_vae_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> tuple[Array, Array]:
     """Encode an image: encoder then ``quant_conv_{mu,log_sigma}``.
 
@@ -105,7 +107,7 @@ def vae_resblock_ncdhw(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_splits: int,
     dim_split: int,
     arithmetic: VaeArithmetic = ops,
@@ -176,7 +178,7 @@ def vae_upsample_ncdhw(
     weights: Mapping[str, Array],
     prefix: str,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_splits: int,
     dim_split: int,
     use_convtranspose: bool = False,
@@ -223,7 +225,7 @@ def vae_downsample_ncdhw(
     weights: Mapping[str, Array],
     prefix: str,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_splits: int,
     dim_split: int,
 ) -> Array:
@@ -243,7 +245,7 @@ def vae_downsample_ncdhw(
         *,
         padding: int,
         stride: int,
-        mx: Mlx,
+        mx: MlxRuntime,
     ) -> Array:
         """Convolve the padded VAE input before downsampling."""
         return ops.conv3d_ncdhw(
@@ -275,7 +277,7 @@ def run_vae_decoder_ncdhw(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: VaeArithmetic = ops,
 ) -> Array:
     """Decode a post-quantization NCDHW latent using the supplied VAE constructor.
@@ -384,7 +386,7 @@ def _run_encoder(
     weights: Mapping[str, Array],
     *,
     constructor: VaeConstructor,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Run the VAE encoder on an NCDHW volume and return its final convolution output.
 
@@ -469,7 +471,7 @@ def _fast_resblock(
     *,
     num_groups: int,
     eps: float,
-    mx: Mlx,
+    mx: MlxRuntime,
 ) -> Array:
     """Run one decoder ``MaisiResBlock`` through ``fast_fp32``, consuming ``state``."""
     shortcut = f"{prefix}.nin_shortcut"
@@ -503,7 +505,7 @@ def _conv(
     prefix: str,
     *,
     padding: int,
-    mx: Mlx,
+    mx: MlxRuntime,
     num_splits: int,
     dim_split: int,
     stride: int = 1,

@@ -31,7 +31,7 @@ from mlx_generate_ctmr.maisi_mlx_from_mask import (
 from mlx_generate_ctmr.rflow import set_timesteps_rflow
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import ArrayConstructor, Mlx
+    from medmlx_core.typing import MlxRuntime
 
 _STEPS = 2
 _SCALE = 1.0
@@ -51,7 +51,7 @@ def _torch_binarize(label: HostArray) -> torch.Tensor:
     return packed.permute(0, 4, 1, 2, 3).float()
 
 
-def _sample(label: HostArray, mx: Mlx) -> FromMaskArrays:
+def _sample(label: HostArray, mx: MlxRuntime) -> FromMaskArrays:
     """Run the native from-mask graph with reduced deterministic weights."""
     cn_manifest, cn_arrays = load_boundary("controlnet")
     unet_manifest, unet_arrays = load_boundary("diffusion")
@@ -72,14 +72,14 @@ def _sample(label: HostArray, mx: Mlx) -> FromMaskArrays:
     )
 
 
-def test_binarize_labels_matches_pinned_torch(mx: Mlx) -> None:
+def test_binarize_labels_matches_pinned_torch(mx: MlxRuntime) -> None:
     """Compare native mask-bit packing with the source computation."""
     label = _tiny_label()
-    packed = binarize_labels_ncdhw(cast("ArrayConstructor", mx.array)(label, dtype=mx.int32), mx=mx)
+    packed = binarize_labels_ncdhw(mx.array(label, dtype=mx.int32), mx=mx)
     np.testing.assert_array_equal(as_numpy(packed), _torch_binarize(label).numpy())
 
 
-def test_tiny_from_mask_e2e_matches_pinned_torch(mx: Mlx) -> None:
+def test_tiny_from_mask_e2e_matches_pinned_torch(mx: MlxRuntime) -> None:
     """Compare a small seeded CT from-mask pipeline with the source."""
     cn_manifest, cn_arrays = load_boundary("controlnet")
     unet_manifest, unet_arrays = load_boundary("diffusion")

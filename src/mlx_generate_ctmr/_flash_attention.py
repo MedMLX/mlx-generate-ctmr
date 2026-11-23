@@ -31,12 +31,14 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from mlx_generate_ctmr._nax_conv import NAX_MMA_HEADER, nax_available
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, ArrayConstructor, MetalKernel, Mlx
+    from medmlx_core.typing import MetalKernel, MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 _SIMDGROUPS = 4
 _BLOCK = 32  # query rows per threadgroup and keys per staged block
@@ -273,7 +275,7 @@ for (short i = 0; i < 2; i++) {
 """
 
 
-def flash_eligible(q: Array, k: Array, heads: int, mx: Mlx) -> bool:
+def flash_eligible(q: Array, k: Array, heads: int, mx: MlxRuntime) -> bool:
     """Whether projections ``(B, L, heads * 32)`` fit the kernel.
 
     Requires FP32, 32-wide heads, and query and key lengths divisible by 32.
@@ -289,7 +291,7 @@ def flash_eligible(q: Array, k: Array, heads: int, mx: Mlx) -> bool:
 
 
 @lru_cache(maxsize=1)
-def _kernel(mx: Mlx) -> MetalKernel:
+def _kernel(mx: MlxRuntime) -> MetalKernel:
     """Build the standard Metal flash-attention kernel."""
     return mx.fast.metal_kernel(
         name="nv_generate_flash_attention_fp32_d32",
@@ -300,7 +302,7 @@ def _kernel(mx: Mlx) -> MetalKernel:
 
 
 @lru_cache(maxsize=1)
-def _nax_kernel(mx: Mlx) -> MetalKernel:
+def _nax_kernel(mx: MlxRuntime) -> MetalKernel:
     """Build the neural-accelerator flash-attention kernel."""
     return mx.fast.metal_kernel(
         name="nv_generate_flash_attention_nax_split_d32",
@@ -311,13 +313,15 @@ def _nax_kernel(mx: Mlx) -> MetalKernel:
     )
 
 
-def _split(x: Array, mx: Mlx) -> tuple[Array, Array]:
+def _split(x: Array, mx: MlxRuntime) -> tuple[Array, Array]:
     """FP32 ``x`` as FP16 ``hi = half(x)`` and ``lo = half((x - hi) * 2^11)``."""
     hi = x.astype(mx.float16)
     return hi, ((x - hi.astype(mx.float32)) * 2048.0).astype(mx.float16)
 
 
-def flash_attention(q: Array, k: Array, v: Array, *, heads: int, scale: float, mx: Mlx) -> Array:
+def flash_attention(
+    q: Array, k: Array, v: Array, *, heads: int, scale: float, mx: MlxRuntime
+) -> Array:
     """Multi-head attention on head-interleaved projections.
 
     Args:
@@ -351,7 +355,7 @@ def flash_attention(q: Array, k: Array, v: Array, *, heads: int, scale: float, m
             output_dtypes=[mx.float32],
         )[0]
     return _kernel(mx)(
-        inputs=[q, k, v, cast("ArrayConstructor", mx.array)([scale], dtype=mx.float32)],
+        inputs=[q, k, v, mx.array([scale], dtype=mx.float32)],
         template=[("L", length), ("LK", int(k.shape[1])), ("H", heads), ("NSG", _SIMDGROUPS)],
         grid=(32 * _SIMDGROUPS * (length // _BLOCK), batch * heads, 1),
         threadgroup=(32 * _SIMDGROUPS, 1, 1),

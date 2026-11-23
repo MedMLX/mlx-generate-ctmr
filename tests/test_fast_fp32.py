@@ -9,7 +9,9 @@ import pytest
 from numpy.typing import NDArray
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, Mlx
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array
 
 type Host = NDArray[np.float64]
 
@@ -67,7 +69,7 @@ def _close(actual: Array, expected: Host) -> None:
     ],
 )
 def test_nax_conv_matches_float64(
-    metal: Mlx, shape: tuple[int, ...], out_channels: int, stride: int
+    metal: MlxRuntime, shape: tuple[int, ...], out_channels: int, stride: int
 ) -> None:
     """Compare accelerator convolution variants with float64 reference results."""
     from mlx_generate_ctmr import fast_fp32
@@ -89,7 +91,7 @@ def test_nax_conv_matches_float64(
 
 
 @pytest.mark.parametrize("upsample", [False, True])
-def test_fused_norm_conv_matches_float64(metal: Mlx, upsample: bool) -> None:
+def test_fused_norm_conv_matches_float64(metal: MlxRuntime, upsample: bool) -> None:
     """Compare fused normalization and convolution with float64 reference results."""
     from mlx_generate_ctmr import fast_fp32
 
@@ -127,7 +129,7 @@ def test_fused_norm_conv_matches_float64(metal: Mlx, upsample: bool) -> None:
     _close(y, expected)
 
 
-def test_trilinear_conv_matches_materialized_upsampling(metal: Mlx) -> None:
+def test_trilinear_conv_matches_materialized_upsampling(metal: MlxRuntime) -> None:
     """The fused VAE upsampling convolution equals the materialized sequence bitwise."""
     from mlx_generate_ctmr import fast_fp32
     from mlx_generate_ctmr._nax_conv import nax_available
@@ -159,7 +161,7 @@ def test_trilinear_conv_matches_materialized_upsampling(metal: Mlx) -> None:
     ],
 )
 def test_depth_slabs_match_whole_volume(
-    metal: Mlx,
+    metal: MlxRuntime,
     monkeypatch: pytest.MonkeyPatch,
     shape: tuple[int, ...],
     out_channels: int,

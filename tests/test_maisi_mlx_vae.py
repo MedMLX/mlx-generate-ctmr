@@ -18,12 +18,14 @@ from mlx_generate_ctmr.maisi_mlx_feasibility import VAE_ATOL, VAE_RTOL
 from mlx_generate_ctmr.vae import decode_vae_ncdhw, encode_vae_ncdhw
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Mlx, VaeConstructor
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import VaeConstructor
 
 torch_from_numpy = cast(Callable[[FloatArray], torch.Tensor], vars(torch)["from_numpy"])
 
 
-def test_vae_decode_matches_torch_golden(mx: Mlx) -> None:
+def test_vae_decode_matches_torch_golden(mx: MlxRuntime) -> None:
     """Compare native VAE decode output with the Torch recording."""
     manifest, arrays = load_boundary("vae")
     z, weights = as_fp32(arrays["z"], mx), mlx_weights(arrays, mx)
@@ -37,7 +39,7 @@ def test_vae_decode_matches_torch_golden(mx: Mlx) -> None:
     [pytest.param(1, 16, id="unsplit"), pytest.param(2, 32, id="partitioned")],
 )
 def test_vae_encode_decode_smoke_matches_pinned_torch(
-    mx: Mlx, num_splits: int, image_size: int
+    mx: MlxRuntime, num_splits: int, image_size: int
 ) -> None:
     """Compare a small native VAE encode-decode case with the source."""
     constructor: VaeConstructor = {

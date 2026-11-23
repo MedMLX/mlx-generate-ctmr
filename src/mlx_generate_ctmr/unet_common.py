@@ -6,7 +6,9 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from mlx_generate_ctmr._types import Array, MlpArithmetic, Mlx, ResidualArithmetic
+    from medmlx_core.typing import MlxRuntime
+
+    from mlx_generate_ctmr._types import Array, MlpArithmetic, ResidualArithmetic
 
 from medmlx_core import ops
 
@@ -17,7 +19,7 @@ def apply_silu_mlp(
     array: Array,
     weights: Mapping[str, Array],
     prefix: str,
-    mx: Mlx,
+    mx: MlxRuntime,
     *,
     arithmetic: MlpArithmetic = ops,
 ) -> Array:
@@ -39,7 +41,7 @@ def downsample_conv_ncdhw(
     weights: Mapping[str, Array],
     prefix: str,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: ResidualArithmetic = ops,
 ) -> Array:
     """``DiffusionUnetDownsample``: a plain stride-2 conv, used when ``resblock_updown`` is false.
@@ -63,7 +65,7 @@ def upsample_conv_ncdhw(
     weights: Mapping[str, Array],
     prefix: str,
     *,
-    mx: Mlx,
+    mx: MlxRuntime,
     arithmetic: ResidualArithmetic = ops,
 ) -> Array:
     """``WrappedUpsample``: nearest 2x upsample then a 3x3 conv, used when
