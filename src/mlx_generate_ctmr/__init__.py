@@ -5,7 +5,7 @@ does not import MLX, Torch or MONAI: the model functions take the MLX runtime as
 an argument, and the runners import it through ``medmlx_core.runtime.import_mlx``.
 """
 
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 from medmlx_core.maisi import NvGenerateAnatomySize
 

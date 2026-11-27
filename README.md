@@ -6,7 +6,7 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 
 [![PyPI](https://img.shields.io/pypi/v/mlx-generate-ctmr)](https://pypi.org/project/mlx-generate-ctmr/)
 [![Python](https://img.shields.io/pypi/pyversions/mlx-generate-ctmr)](https://pypi.org/project/mlx-generate-ctmr/)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.8.0/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.8.1/LICENSE)
 [![Apple Silicon](https://img.shields.io/badge/Apple_Silicon-MLX-black?logo=apple)](https://github.com/ml-explore/mlx)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97_Hugging_Face-weights-yellow)](https://huggingface.co/MedMLX/mlx-generate-ctmr)
 [![MedMLX](https://img.shields.io/badge/MedMLX-runtime-A51C30)](https://github.com/MedMLX/medmlx)
@@ -35,7 +35,7 @@ give the precision and settings of these measurements.
 ```bash
 uv venv --python 3.13
 source .venv/bin/activate
-uv pip install "mlx-generate-ctmr>=0.8.0"
+uv pip install "mlx-generate-ctmr>=0.8.1"
 ```
 
 ## Run
@@ -252,4 +252,4 @@ For Codex, use `codex mcp add medmlx -- "$MEDMLX" serve --root "$HOME/medmlx-wor
 
 ## License
 
-[Apache-2.0](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.8.0/LICENSE). See [third-party notices](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.8.0/THIRD_PARTY_NOTICES.md). Model weights retain their publisher terms. General-MR weights have noncommercial terms; CT component terms require publisher clarification.
+[Apache-2.0](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.8.1/LICENSE). See [third-party notices](https://github.com/MedMLX/mlx-generate-ctmr/blob/v0.8.1/THIRD_PARTY_NOTICES.md). Model weights retain their publisher terms. General-MR weights have noncommercial terms; CT component terms require publisher clarification.
