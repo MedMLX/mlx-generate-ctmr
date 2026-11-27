@@ -155,7 +155,7 @@ CT_MODEL: Final[dict[str, object]] = {
     # The names output_label_table writes for the label maps.
     "labels": {str(item.value): item.name for item in MAISI_LABELS if item.value != 0},
     # README: fast-fp32 CT from-mask at 256³; convert the recorded GiB to decimal GB.
-    "peak_memory_gb": 10.3 * 1024**3 / 1e9,
+    "peak_memory_gb": 10.8 * 1024**3 / 1e9,
 }
 MR_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr",
@@ -168,7 +168,7 @@ MR_MODEL: Final[dict[str, str | float]] = {
         "T1 and unspecified contrast. Use MR-Brain for brain T2, FLAIR, MRA or SWI."
     ),
     # README: default MR at 128x256x256; GiB to decimal GB.
-    "peak_memory_gb": 9.5 * 1024**3 / 1e9,
+    "peak_memory_gb": 8.1 * 1024**3 / 1e9,
 }
 MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
     "id": "mlx-generate-ctmr-mr-brain",
@@ -180,7 +180,7 @@ MR_BRAIN_MODEL: Final[dict[str, str | float]] = {
         "skull-stripped), without a label map."
     ),
     # README: fast-fp32 guided MR-Brain at 256x256x128; GiB to decimal GB.
-    "peak_memory_gb": 9.5 * 1024**3 / 1e9,
+    "peak_memory_gb": 8.1 * 1024**3 / 1e9,
 }
 
 type _PathArg = str | PathLike[str]

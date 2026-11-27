@@ -23,9 +23,9 @@ Generate synthetic 3D CT and MRI on Apple Silicon with NVIDIA NV-Generate and na
 
 | Model | Weights download | Peak MLX memory | Measured on |
 | :--- | ---: | ---: | :--- |
-| `mlx-generate-ctmr-ct` | 1.9 GB | 10.3 GiB | 256³ CT from a mask, ControlNet + four-window decode |
-| `mlx-generate-ctmr-mr-brain` | 806 MB | 9.5 GiB | 256×256×128 MR-Brain, guided batch 2 |
-| `mlx-generate-ctmr-mr` | 806 MB | 9.5 GiB | 128×256×256 general MR |
+| `mlx-generate-ctmr-ct` | 1.9 GB | 10.8 GiB | 256³ CT from a mask, ControlNet + four-window decode |
+| `mlx-generate-ctmr-mr-brain` | 806 MB | 8.1 GiB | 256×256×128 MR-Brain, guided batch 2 |
+| `mlx-generate-ctmr-mr` | 806 MB | 8.1 GiB | 128×256×256 general MR |
 
 The [technical notes](https://github.com/MedMLX/mlx-generate-ctmr/blob/main/docs/technical.md)
 give the precision and settings of these measurements.
